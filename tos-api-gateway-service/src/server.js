@@ -6,6 +6,9 @@ const path = require('path');
 const compression = require('compression');
 const http = require('http');
 
+const apolloServerExpress = require('apollo-server-express');
+const schema = require('./graphql/schema');
+
 function run(env) {
   const app = express();
 
@@ -16,14 +19,22 @@ function run(env) {
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(express.static(path.join(__dirname, 'public')));
 
-  app.use('/', (req, res) => {
-    res.end('App is running');
-  });
-
   /**
    * Error Handler. Provides full stack - remove for production
    */
   app.use(errorHandler());
+
+  app.get('/', (req, res) => {
+    res.end('App is running');
+  });
+
+  app.use('/graphql', apolloServerExpress.graphqlExpress({
+    schema: schema.schema,
+  }));
+
+  app.use('/graphiql', apolloServerExpress.graphiqlExpress({
+    endpointURL: '/graphql',
+  }));
 
   const server = http.createServer(app);
 

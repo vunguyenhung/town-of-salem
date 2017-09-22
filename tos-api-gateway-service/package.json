@@ -7,12 +7,15 @@
     "serve": "nodemon ./src/index.js"
   },
   "dependencies": {
+    "apollo-server-express": "1.1.2",
     "body-parser": "1.17.1",
     "compression": "1.7.0",
     "debug": "2.6.3",
     "dotenv": "4.0.0",
     "errorhandler": "1.5.0",
     "express": "4.15.2",
+    "graphql": "0.11.3",
+    "graphql-tools": "1.2.2",
     "morgan": "1.8.1"
   },
   "devDependencies": {
