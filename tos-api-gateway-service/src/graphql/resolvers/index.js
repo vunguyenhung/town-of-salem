@@ -5,8 +5,14 @@ const resolvers = {
     },
   },
   Mutation: {
-    sendCommand() {
-      return {};
+    sendCommand(obj, { command }) {
+      return {
+        success: [
+          {
+            message: command.type,
+            metadata: command.payload,
+          }],
+      };
     },
   },
 };

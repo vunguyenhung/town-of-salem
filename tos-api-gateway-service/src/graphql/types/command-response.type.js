@@ -8,6 +8,7 @@ exports.CommandResponseDataType = `
 // language=GraphQL
 exports.CommandResponseType = `
     type CommandResponse {
-        success: [CommandResponseData]
+        success: [CommandResponseData],
+        error: [CommandResponseData]
     }
 `;
