@@ -1,20 +1,8 @@
-const resolvers = {
-  Query: {
-    appState() {
-      return {};
-    },
-  },
-  Mutation: {
-    sendCommand(obj, { command }) {
-      return {
-        success: [
-          {
-            message: command.type,
-            metadata: command.payload,
-          }],
-      };
-    },
-  },
-};
+const { combineResolvers } = require('apollo-resolvers');
+const { sendCommand } = require('./send-command.resolver');
+
+const resolvers = combineResolvers([
+  sendCommand,
+]);
 
 exports.resolvers = resolvers;

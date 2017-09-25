@@ -7,7 +7,9 @@ const compression = require('compression');
 const http = require('http');
 
 const apolloServerExpress = require('apollo-server-express');
-const schema = require('./graphql/schema');
+const { schema } = require('./graphql/schema');
+
+const { formatError } = require('apollo-errors');
 
 function run(env) {
   const app = express();
@@ -29,7 +31,8 @@ function run(env) {
   });
 
   app.use('/graphql', apolloServerExpress.graphqlExpress({
-    schema: schema.schema,
+    formatError,
+    schema,
   }));
 
   app.use('/graphiql', apolloServerExpress.graphiqlExpress({

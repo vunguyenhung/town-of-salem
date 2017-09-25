@@ -1,6 +1,6 @@
 const graphqlTools = require('graphql-tools');
-const types = require('./types');
-const resolvers = require('./resolvers');
+const { types } = require('./types');
+const { resolvers } = require('./resolvers');
 
 // language=GraphQL
 const SchemaDef = `
@@ -13,7 +13,7 @@ const SchemaDef = `
 exports.schema = graphqlTools.makeExecutableSchema({
   typeDefs: [
     SchemaDef,
-    ...types.default,
+    ...types,
   ],
-  resolvers: resolvers.resolvers,
+  resolvers,
 });

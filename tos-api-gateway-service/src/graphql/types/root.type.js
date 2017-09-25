@@ -10,6 +10,6 @@ exports.RootType = `
     }
 
     type Mutation {
-        sendCommand(command: CommandInput!): CommandResponse
+        sendCommand(command: CommandInput!): String!
     }
 `;

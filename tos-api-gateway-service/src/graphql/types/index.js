@@ -1,12 +1,9 @@
-const rootType = require('./root.type');
-const commandResponseType = require('./command-response.type');
-const appStateType = require('./app-state.type');
-const guestStateType = require('./guest-state.type');
+const { RootType } = require('./root.type');
+const { AppStateType } = require('./app-state.type');
+const { GuestStateType } = require('./guest-state.type');
 
-exports.default = [
-  rootType.RootType,
-  commandResponseType.CommandResponseType,
-  commandResponseType.CommandResponseDataType,
-  appStateType.AppStateType,
-  guestStateType.GuestStateType,
+exports.types = [
+  RootType,
+  AppStateType,
+  GuestStateType,
 ];
