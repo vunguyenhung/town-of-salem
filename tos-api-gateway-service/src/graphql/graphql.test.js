@@ -3,7 +3,7 @@ const graphql = require('graphql');
 
 describe('GraphQL', () => {
   // how to test the command has converted OK ?
-  it('return success response when send valid RegisterEvent', async () => {
+  it('should return success response when send valid RegisterEvent', async () => {
     // GIVEN
     // language=GraphQL
     const query = `
@@ -32,7 +32,7 @@ describe('GraphQL', () => {
     expect(result).toEqual(expectedResult);
   });
 
-  it('return error response when send invalid RegisterEvent', async () => {
+  it('should return InvalidPayload error response when send invalid RegisterEvent', async () => {
     // GIVEN
     // language=GraphQL
     const query = `
