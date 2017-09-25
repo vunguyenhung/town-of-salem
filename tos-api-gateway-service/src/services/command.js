@@ -21,20 +21,23 @@ const COMMAND_TYPES = {
   INVALID: '[Command] Invalid',
 };
 
-const registerCommandToEvents = command => ({
-  type: '[Event] Start Register',
-  payload: command.payload,
-});
+const registerCommandToEvents = command => ([
+  {
+    type: '[Event] Start Register',
+    payload: command.payload,
+  }]);
 
-const loginCommandToEvents = command => ({
-  type: '[Event] Start Login',
-  payload: command.payload,
-});
+const loginCommandToEvents = command => ([
+  {
+    type: '[Event] Start Login',
+    payload: command.payload,
+  }]);
 
-const invalidCommandToEvent = command => ({
-  type: '[Event] Invalid Command Received',
-  payload: command.payload,
-});
+const invalidCommandToEvent = command => ([
+  {
+    type: '[Event] Invalid Command Received',
+    payload: command.payload,
+  }]);
 // INFO: write more commandToEvent mapper here if there's a new command
 
 const commandToEventsMappers = {
@@ -72,6 +75,7 @@ const commandPayloadValidators = {
 const isValidCommandPayload = command =>
   commandPayloadValidators[command.type](command);
 
+// TODO: add ability to determine command should have payload or not based on command type
 const validate = (command) => {
   const createInvalidCommand = R.curry((cmd, reason) => ({
     type: COMMAND_TYPES.INVALID,
@@ -100,7 +104,12 @@ const validate = (command) => {
 
 const _commandToEvents = command => commandToEventsMappers[command.type](command);
 
+const preprocess = (command) => {
+  const parse = value => R.tryCatch(JSON.parse, () => value)(value);
+  return R.mapObjIndexed(parse, command);
+};
+
 // RED - GREEN - REFACTOR
-const commandToEvents = command => R.pipe(validate, _commandToEvents)(command);
+const commandToEvents = command => R.pipe(preprocess, validate, _commandToEvents)(command);
 
 exports.commandToEvents = commandToEvents;
