@@ -6,6 +6,7 @@ const InvalidCommandError = createError('InvalidCommandError', {
   message: 'Invalid command',
 });
 
+// TODO: refactor this
 const sendCommand = baseResolver.createResolver((obj, { command }) => {
   const events = commandToEvents(command);
   if (events[0].type === '[Event] Invalid Command Received') {

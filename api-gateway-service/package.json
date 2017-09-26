@@ -1,5 +1,5 @@
 {
-  "name": "tos-api-gateway-service",
+  "name": "api-gateway-service",
   "version": "0.0.0",
   "private": true,
   "scripts": {

@@ -1,0 +1,6 @@
+{
+  "command": {
+    "type": "[Command] Register",
+    "payload": "{\"username\": \"someUsername\",\"password\": \"somePassword\"}"
+  }
+}

@@ -1,0 +1,3 @@
+mutation sendCommand($command: CommandInput!){
+    sendCommand(command: $command)
+}
