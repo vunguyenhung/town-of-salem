@@ -1,7 +1,8 @@
 const schema = require('./schema');
 const graphql = require('graphql');
 
-describe('GraphQL', () => {
+// TODO: mock producer, those tests actually send message to kafka
+xdescribe('GraphQL', () => {
   // how to test the command has converted OK ?
   it('should return success response when send valid RegisterEvent', async () => {
     // GIVEN

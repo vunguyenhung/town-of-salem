@@ -21,23 +21,38 @@ const COMMAND_TYPES = {
   INVALID: '[Command] Invalid',
 };
 
-const registerCommandToEvents = command => ([
-  {
-    type: '[Event] Start Register',
-    payload: command.payload,
-  }]);
+const EVENT_TYPES = {
+  START_REGISTER: '[Event] Start Register',
+  START_LOGIN: '[Event] Start Login',
+  INVALID_COMMAND_RECEIVED: '[Event] Invalid Command Received',
+};
 
-const loginCommandToEvents = command => ([
-  {
-    type: '[Event] Start Login',
-    payload: command.payload,
-  }]);
+const registerCommandToEvents = command => ({
+  topic: 'tos-user-events',
+  events: [
+    {
+      type: EVENT_TYPES.START_REGISTER,
+      payload: command.payload,
+    }],
+});
 
-const invalidCommandToEvent = command => ([
-  {
-    type: '[Event] Invalid Command Received',
-    payload: command.payload,
-  }]);
+const loginCommandToEvents = command => ({
+  topic: 'tos-user-events',
+  events: [
+    {
+      type: EVENT_TYPES.START_LOGIN,
+      payload: command.payload,
+    }],
+});
+
+const invalidCommandToEvent = command => ({
+  topic: 'tos-invalid-events',
+  events: [
+    {
+      type: EVENT_TYPES.INVALID_COMMAND_RECEIVED,
+      payload: command.payload,
+    }],
+});
 // INFO: write more commandToEvent mapper here if there's a new command
 
 const commandToEventsMappers = {
@@ -95,21 +110,27 @@ const validate = (command) => {
   const validateCommandPayload = cmd =>
     validateCommand(cmd, isValidCommandPayload, 'Invalid payload');
 
-  const alwaysIdentity = Either.either(R.identity, R.identity);
-
-  return alwaysIdentity(validateCommandShape(command)
+  return validateCommandShape(command)
     .chain(validateCommandType)
-    .chain(validateCommandPayload));
+    .chain(validateCommandPayload);
 };
 
-const _commandToEvents = command => commandToEventsMappers[command.type](command);
+const _commandToEvents = (eitherCommand) => {
+  const transformer = command => commandToEventsMappers[command.type](command);
+  return eitherCommand.bimap(transformer, transformer);
+};
 
 const preprocess = (command) => {
   const parse = value => R.tryCatch(JSON.parse, () => value)(value);
   return R.mapObjIndexed(parse, command);
 };
 
-// RED - GREEN - REFACTOR
+/**
+ * Convert command to an Either of events.
+ * Right value of either contains valid events, Left value of either contains invalid events
+ * @param command
+ * @return Either of Events
+ */
 const commandToEvents = command => R.pipe(preprocess, validate, _commandToEvents)(command);
 
 exports.commandToEvents = commandToEvents;

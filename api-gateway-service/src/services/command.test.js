@@ -11,20 +11,23 @@ describe('Command Service', () => {
       },
     };
 
-    const expectedRegisterEvents = [
-      {
-        type: '[Event] Start Register',
-        payload: {
-          username: 'someUsername',
-          password: 'somePassword',
-        },
-      }];
+    const expectedRegisterEvents = {
+      topic: 'tos-user-events',
+      events: [
+        {
+          type: '[Event] Start Register',
+          payload: {
+            username: 'someUsername',
+            password: 'somePassword',
+          },
+        }],
+    };
 
     // WHEN
     const actualRegisterEvent = commandService.commandToEvents(registerCommand);
 
     // THEN
-    expect(actualRegisterEvent).toEqual(expectedRegisterEvents);
+    expect(actualRegisterEvent.value).toEqual(expectedRegisterEvents);
   });
 
   it('should return InvalidCommandReceivedEvent when convert command has invalid type', () => {
@@ -37,20 +40,23 @@ describe('Command Service', () => {
       },
     };
 
-    const expectedRegisterEvents = [
-      {
-        type: '[Event] Invalid Command Received',
-        payload: {
-          reason: 'Invalid type',
-          command: invalidCommand,
-        },
-      }];
+    const expectedRegisterEvents = {
+      topic: 'tos-invalid-events',
+      events: [
+        {
+          type: '[Event] Invalid Command Received',
+          payload: {
+            reason: 'Invalid type',
+            command: invalidCommand,
+          },
+        }],
+    };
 
     // WHEN
     const actualInvalidEvent = commandService.commandToEvents(invalidCommand);
 
     // THEN
-    expect(actualInvalidEvent).toEqual(expectedRegisterEvents);
+    expect(actualInvalidEvent.value).toEqual(expectedRegisterEvents);
   });
 
   it('should return StartLoginEvent when convert LoginCommand', () => {
@@ -63,17 +69,20 @@ describe('Command Service', () => {
       },
     };
 
-    const expectedLoginEvents = [
-      {
-        type: '[Event] Start Login',
-        payload: loginCommand.payload,
-      }];
+    const expectedLoginEvents = {
+      topic: 'tos-user-events',
+      events: [
+        {
+          type: '[Event] Start Login',
+          payload: loginCommand.payload,
+        }],
+    };
 
     // WHEN
     const actualInvalidEvent = commandService.commandToEvents(loginCommand);
 
     // THEN
-    expect(actualInvalidEvent).toEqual(expectedLoginEvents);
+    expect(actualInvalidEvent.value).toEqual(expectedLoginEvents);
   });
 
   it(
@@ -88,20 +97,23 @@ describe('Command Service', () => {
         },
       };
 
-      const expectedRegisterEvents = [
-        {
-          type: '[Event] Invalid Command Received',
-          payload: {
-            reason: 'Invalid payload',
-            command: invalidCommand,
-          },
-        }];
+      const expectedRegisterEvents = {
+        topic: 'tos-invalid-events',
+        events: [
+          {
+            type: '[Event] Invalid Command Received',
+            payload: {
+              reason: 'Invalid payload',
+              command: invalidCommand,
+            },
+          }],
+      };
 
       // WHEN
       const actualInvalidEvent = commandService.commandToEvents(invalidCommand);
 
       // THEN
-      expect(actualInvalidEvent).toEqual(expectedRegisterEvents);
+      expect(actualInvalidEvent.value).toEqual(expectedRegisterEvents);
     },
   );
 
@@ -111,19 +123,22 @@ describe('Command Service', () => {
       invalidField: 'invalidVal',
     };
 
-    const expectedRegisterEvents = [
-      {
-        type: '[Event] Invalid Command Received',
-        payload: {
-          reason: 'Invalid shape',
-          command: invalidCommand,
-        },
-      }];
+    const expectedRegisterEvents = {
+      topic: 'tos-invalid-events',
+      events: [
+        {
+          type: '[Event] Invalid Command Received',
+          payload: {
+            reason: 'Invalid shape',
+            command: invalidCommand,
+          },
+        }],
+    };
 
     // WHEN
     const actualInvalidEvent = commandService.commandToEvents(invalidCommand);
 
     // THEN
-    expect(actualInvalidEvent).toEqual(expectedRegisterEvents);
+    expect(actualInvalidEvent.value).toEqual(expectedRegisterEvents);
   });
 });

@@ -11,6 +11,8 @@ const { schema } = require('./graphql/schema');
 
 const { formatError } = require('apollo-errors');
 
+const startupService = require('./services/startup');
+
 function run(env) {
   const app = express();
 
@@ -38,6 +40,8 @@ function run(env) {
   app.use('/graphiql', apolloServerExpress.graphiqlExpress({
     endpointURL: '/graphql',
   }));
+
+  startupService.run();
 
   const server = http.createServer(app);
 

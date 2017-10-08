@@ -10,7 +10,7 @@ docker exec [kafka container name/id] kafka-topics --create --topic [topic name]
 ```  
 Example: 
 ```bash
-docker exec tos_kafka_1 kafka-topics --create --topic foo --partitions 1 --replication-factor 1 --if-not-exists --zookeeper zookeeper:2181
+docker exec tos_kafka_1 kafka-topics --create --topic tos-user-events --partitions 1 --replication-factor 1 --if-not-exists --zookeeper zookeeper:2181
 ```
 
 # Describe a Topic in Kafka:
@@ -30,7 +30,7 @@ docker exec tos_kafka_1 bash -c "seq 42 | kafka-console-producer --request-requi
 
 # Read data in topic using consumer
 ```bash
-docker exec tos_kafka_1 kafka-console-consumer --bootstrap-server localhost:9092 --topic foo --new-consumer --from-beginning --max-messages 42
+docker exec tos_kafka_1 kafka-console-consumer --bootstrap-server kafka:9092 --topic tos-user-events --new-consumer --from-beginning --max-messages 42
 ```
 
 # Go to bash of Schema_Registry
@@ -39,14 +39,14 @@ docker exec tos_kafka_1 kafka-console-consumer --bootstrap-server localhost:9092
 ## Start sending message to topic "bar" with defined schema:
 ```bash
 /usr/bin/kafka-avro-console-producer \
-  --broker-list kafka:9092 --topic bar \
-  --property value.schema='{"type":"record","name":"myrecord","fields":[{"name":"f1","type":"string"}]}'
+  --broker-list kafka:9092 --topic example \
+  --property value.schema='{"type":"record","name":"example","fields":[{"name":"f1","type":"string"}, {"name":"f2","type":"string"}, {"name":"f3","type":"string"}]}'
 ```
 Message should be something like:
 ```text
-{"f1": "value1"}
-{"f1": "value2"}
-{"f1": "value3"}
+{"f1": "val11", "f2": "val12", "f3": "val13"}
+{"f1": "val21", "f2": "val22", "f3": "val23"}
+{"f1": "val31", "f2": "val32", "f3": "val33"}
 ```
 
 # Create consumer instance via kafka-rest-proxy
@@ -59,5 +59,5 @@ http://kafka-rest:8082/consumers/my_avro_consumer
 # Retrieve data from a topic "bar"
 ```bash
 curl -X GET -H "Accept: application/vnd.kafka.avro.v1+json" \
-http://kafka-rest:8082/consumers/my_avro_consumer/instances/my_consumer_instance/topics/bar
+http://kafka-rest:8082/consumers/my_avro_consumer/instances/my_consumer_instance/topics/example
 ```
