@@ -1,14 +1,15 @@
 const { producerManager } = require('../kafka/producer');
 const R = require('ramda');
+const { MESSAGE } = require('./message');
 
 const run = async () => {
-  console.log('------STARTING STARTUP SERVICE------');
+  console.log(MESSAGE.START_UP_SERVICE_STARTING);
 
   const result = R.tryCatch(R.T, R.F)(await producerManager.createProducer());
-  if (result) console.log('Kafka Producer ready!!');
-  else console.log('Failed to create Producer !');
+  if (result) console.log(MESSAGE.KAFKA_PRODUCER_READY);
+  else console.log(MESSAGE.KAFKA_PRODUCER_ERROR);
 
-  console.log('------STARTUP SERVICE STARTED------');
+  console.log(MESSAGE.START_UP_SERVICE_STARTED);
 };
 
 exports.run = run;

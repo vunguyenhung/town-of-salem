@@ -2,39 +2,52 @@ const { baseResolver } = require('./base.resolver');
 const { commandToEvents } = require('../../services/command');
 const { createError } = require('apollo-errors');
 
+const { MESSAGE } = require('../../services/message');
+
 const { producerManager } = require('../../kafka/producer');
 
 const R = require('ramda');
-
 const { Either } = require('ramda-fantasy');
 
 const InvalidCommandError = createError('InvalidCommandError', {
-  message: 'Invalid command',
+  message: MESSAGE.DEFAULT_INVALID_COMMAND_ERROR,
+});
+
+const PublishEventsError = createError('PublishEventsError', {
+  message: MESSAGE.DEFAULT_PUBLISH_EVENTS_ERROR,
 });
 
 const sendCommand = baseResolver.createResolver((obj, { command }) => {
   const eitherEvents = commandToEvents(command);
 
-  const handleInvalidCommand = ({ events }) => {
+  const publishMessage = async msg => R.tryCatch(
+    R.T,
+    ({ message }) => {
+      throw new PublishEventsError({ message });
+    },
+  )(await producerManager.publishMessage(msg));
+
+  const createKafkaMessage = ({ topic, events }) => [{
+    topic,
+    messages: events.map(JSON.stringify),
+  }];
+
+  const handleValidEvents = (eventWrapper) => {
+    publishMessage(createKafkaMessage(eventWrapper));
+    return MESSAGE.KAFKA_PRODUCER_SENT;
+  };
+
+  const handleInvalidEvents = (eventWrapper) => {
+    publishMessage(createKafkaMessage(eventWrapper));
+
     throw new InvalidCommandError({
-      message: events[0].payload.reason,
+      message: eventWrapper.events[0].payload.reason,
     });
   };
 
-  const handleValidCommand = async ({ topic, events }) => {
-    const messages = [
-      {
-        topic,
-        messages: events.map(JSON.stringify),
-      }];
-    return R.tryCatch(() => 'Command sent successfully!', ({ message }) => {
-      throw new InvalidCommandError({ message });
-    })(await producerManager.publishMessage(messages));
-  };
-
   return Either.either(
-    handleInvalidCommand,
-    handleValidCommand,
+    handleInvalidEvents,
+    handleValidEvents,
   )(eitherEvents);
 });
 

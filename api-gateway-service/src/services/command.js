@@ -90,7 +90,6 @@ const commandPayloadValidators = {
 const isValidCommandPayload = command =>
   commandPayloadValidators[command.type](command);
 
-// TODO: add ability to determine command should have payload or not based on command type
 const validate = (command) => {
   const createInvalidCommand = R.curry((cmd, reason) => ({
     type: COMMAND_TYPES.INVALID,
