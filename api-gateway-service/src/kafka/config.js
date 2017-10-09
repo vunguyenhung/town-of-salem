@@ -4,7 +4,7 @@ const CONFIG = {
     autoCommit: false,
     groupId: 'api-gateway-service',
   },
-  CONSUMER_TOPICS: [{ topic: 'tos-user-events' }],
+  CONSUMER_TOPICS: [{ topic: 'tos-state-changes' }],
 };
 
 exports.CONFIG = CONFIG;
