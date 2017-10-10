@@ -1,4 +1,4 @@
-const commandService = require('./command');
+const commandService = require('../command');
 
 describe('Command Service', () => {
   it('should return StartRegisterEvent when convert RegisterCommand', () => {
