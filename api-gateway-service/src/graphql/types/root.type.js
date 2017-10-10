@@ -2,7 +2,7 @@
 exports.RootType = `
     input CommandInput {
         type: String!
-        payload: String
+        payload: String!
     }
 
     type Query {
