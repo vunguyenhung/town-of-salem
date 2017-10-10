@@ -3,6 +3,8 @@ const { CONFIG } = require('./config');
 const { Producer, KafkaClient } = require('kafka-node');
 const { storage } = require('./storage');
 
+const { promisify } = require('util');
+
 const onProducerReady = producer => new Promise((resolve) => {
   producer.on('ready', () => {
     resolve(true);
@@ -14,12 +16,8 @@ const _createProducer = () => {
   return new Producer(client);
 };
 
-const _publishMessage = (producer, messages) => new Promise((resolve, reject) => {
-  producer.send(messages, (err, data) => {
-    if (err) reject(err);
-    else if (data) resolve(data);
-  });
-});
+const _publishMessage = (producer, message) =>
+  promisify(producer.send.bind(producer))(message);
 
 const createProducerManager = () => {
   const createProducer = () => {
@@ -28,7 +26,9 @@ const createProducerManager = () => {
     return onProducerReady(createdProducer);
   };
 
-  const publishMessage = (message, index = 0) => _publishMessage(storage.producers[index], message);
+  const publishMessage = (message, index = 0) =>
+    _publishMessage(storage.producers[index], message);
+
   return {
     createProducer,
     publishMessage,
