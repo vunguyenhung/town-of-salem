@@ -27,6 +27,8 @@ const EVENT_TYPES = {
   INVALID_COMMAND_RECEIVED: '[Event] Invalid Command Received',
 };
 
+// TODO: refactor this
+// cons: too many moving parts
 const registerCommandToEvents = command => ({
   topic: 'tos-user-events',
   events: [
@@ -64,6 +66,7 @@ const commandToEventsMappers = {
 
 const isValidCommandShape = command => R.where({
   type: notNil,
+  payload: notNil,
 })(command);
 
 const isValidCommandType = ({ type }) =>
@@ -100,6 +103,7 @@ const validate = (command) => {
     validatorFn(cmd) ? Right(cmd) : Left(createInvalidCommand(reason))
   );
 
+  // TODO: refactor this
   const validateCommandShape = cmd =>
     validateCommand(cmd, isValidCommandShape, 'Invalid shape');
 
