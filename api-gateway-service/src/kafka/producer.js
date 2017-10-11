@@ -1,4 +1,3 @@
-// to use producer: require('...').instance;
 const { CONFIG } = require('./config');
 const { Producer, KafkaClient } = require('kafka-node');
 const { storage } = require('./storage');
@@ -41,13 +40,13 @@ const createProducerManager = () => {
     messages: events.map(JSON.stringify),
   }];
 
-  const publishMessage = msg => R.tryCatch(
+  const publishMessages = messages => R.tryCatch(
     () => Right(MESSAGE.KAFKA_PRODUCER_SENT),
-    ({ message }) => Left(new PublishEventsError(message)),
-  )(publishMessageAsync(msg));
+    error => Left(new PublishEventsError(error.message)),
+  )(publishMessageAsync(messages));
 
   /**
-   * `publishEventsToKafka` receive eventWrapper,
+   * `publishEventsToKafka` receives eventWrapper,
    * create Kafka messages based on eventWrapper then send created messages to Kafka.
    *
    * @param eventWrapper
@@ -57,7 +56,7 @@ const createProducerManager = () => {
    */
   const publishEventsToKafka = eventWrapper => R.pipe(
     createKafkaMessage,
-    publishMessage,
+    publishMessages,
   )(eventWrapper);
 
   // Hide the async things here, all other places process this function as a sync function

@@ -1,3 +1,4 @@
+// TODO: integrate this with env.js
 const CONFIG = {
   CLIENT: { kafkaHost: 'kafka:9092' },
   CONSUMER: {

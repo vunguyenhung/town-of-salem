@@ -12,4 +12,8 @@ exports.RootType = `
     type Mutation {
         sendCommand(command: CommandInput!): String!
     }
+
+    type Subscription {
+        stateChanges: AppState
+    }
 `;

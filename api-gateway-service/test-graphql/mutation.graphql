@@ -1,3 +1,11 @@
 mutation sendCommand($command: CommandInput!){
     sendCommand(command: $command)
 }
+
+subscription stateChanges {
+    stateChanges{
+        guestState{
+            token
+        }
+    }
+}

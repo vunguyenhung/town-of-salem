@@ -31,12 +31,14 @@
     "errorhandler": "1.5.0",
     "express": "4.15.2",
     "graphql": "0.11.3",
-    "graphql-playground": "1.0.8",
+    "graphql-subscriptions": "0.5.4",
     "graphql-tools": "1.2.3",
     "kafka-node": "2.2.3",
     "morgan": "1.8.1",
     "ramda": "0.24.1",
-    "ramda-fantasy": "0.8.0"
+    "ramda-fantasy": "0.8.0",
+    "rxjs": "5.4.3",
+    "subscriptions-transport-ws": "0.9.1"
   },
   "devDependencies": {
     "babel-jest": "21.0.2",

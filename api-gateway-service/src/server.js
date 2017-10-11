@@ -8,6 +8,9 @@ const http = require('http');
 
 const apolloServerExpress = require('apollo-server-express');
 const { schema } = require('./graphql/schema');
+const { execute, subscribe } = require('graphql');
+
+const { SubscriptionServer } = require('subscriptions-transport-ws');
 
 const { formatError } = require('apollo-errors');
 
@@ -39,6 +42,7 @@ function run(env) {
 
   app.use('/graphiql', apolloServerExpress.graphiqlExpress({
     endpointURL: '/graphql',
+    subscriptionsEndpoint: env.GRAPHQL_SUBSCRIPTION_ENDPOINT,
   }));
 
   startupService.run();
@@ -46,6 +50,10 @@ function run(env) {
   const server = http.createServer(app);
 
   server.listen(env.APP_PORT, () => {
+    SubscriptionServer.create(
+      { execute, subscribe, schema },
+      { server, path: '/graphql' },
+    );
     console.log(
       ('App is running at http://localhost:%d in %s mode'),
       env.APP_PORT, env.NODE_ENV,
