@@ -2,12 +2,18 @@ const { producerManager } = require('../kafka/producer');
 const R = require('ramda');
 const { MESSAGE } = require('./message');
 
-const run = async () => {
+const { Either } = require('ramda-fantasy');
+
+const eitherThrowErrorOrReturnIdentity = Either.either(
+  (error) => { throw error; },
+  R.identity,
+);
+
+const run = () => {
   console.log(MESSAGE.START_UP_SERVICE_STARTING);
 
-  const result = R.tryCatch(R.T, R.F)(await producerManager.createProducer());
-  if (result) console.log(MESSAGE.KAFKA_PRODUCER_READY);
-  else console.log(MESSAGE.KAFKA_PRODUCER_ERROR);
+  const result = eitherThrowErrorOrReturnIdentity(producerManager.createProducer());
+  console.log(result);
 
   console.log(MESSAGE.START_UP_SERVICE_STARTED);
 };

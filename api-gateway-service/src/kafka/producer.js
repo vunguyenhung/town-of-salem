@@ -28,12 +28,6 @@ const createProducerManager = () => {
     return new Producer(client);
   };
 
-  const createProducer = () => {
-    const createdProducer = _createProducer();
-    storage.producers.push(createdProducer);
-    return onProducerReady(createdProducer);
-  };
-
   const _publishMessage = (producer, message) =>
     promisify(producer.send.bind(producer))(message);
 
@@ -50,10 +44,30 @@ const createProducerManager = () => {
     ({ message }) => Left(new PublishEventsError(message)),
   )(publishMessageAsync(msg));
 
+  /**
+   * `publishEventsToKafka` receive eventWrapper,
+   * create Kafka messages based on eventWrapper then send created messages to Kafka.
+   *
+   * @param eventWrapper
+   * @return {Either} Either object contains:
+   *    Left(PublishEventsError) if publishing failed,
+   *    Right(MESSAGE.KAFKA_PRODUCER_SENT) if publishing successfully
+   */
   const publishEventsToKafka = eventWrapper => R.pipe(
     createKafkaMessage,
     publishMessage,
   )(eventWrapper);
+
+  const onProducerReadyAsync = async producer => onProducerReady(producer);
+
+  const createProducer = () => {
+    const createdProducer = _createProducer();
+    storage.producers.push(createdProducer);
+    return R.tryCatch(
+      () => Right(MESSAGE.KAFKA_PRODUCER_READY),
+      error => Left(error),
+    )(onProducerReadyAsync(createdProducer));
+  };
 
   return {
     createProducer,
