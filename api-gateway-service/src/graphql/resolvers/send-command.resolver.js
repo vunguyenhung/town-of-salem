@@ -9,17 +9,14 @@ const { producerManager } = require('../../kafka/producer');
 const R = require('ramda');
 const { Either } = require('ramda-fantasy');
 
+const { eitherThrowErrorOrReturnIdentity } = require('../../services/utils');
+
 const InvalidCommandError = createError('InvalidCommandError', {
   message: MESSAGE.DEFAULT_INVALID_COMMAND_ERROR,
 });
 
 const sendCommand = baseResolver.createResolver((obj, { command }) => {
   const eitherEvents = commandToEvents(command);
-
-  const eitherThrowErrorOrReturnIdentity = Either.either(
-    (error) => { throw error; },
-    R.identity,
-  );
 
   const publishEventsToKafka = eventWrapper => R.pipe(
     producerManager.publishEventsToKafka,

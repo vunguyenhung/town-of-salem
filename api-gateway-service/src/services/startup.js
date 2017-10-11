@@ -1,13 +1,7 @@
 const { producerManager } = require('../kafka/producer');
-const R = require('ramda');
 const { MESSAGE } = require('./message');
 
-const { Either } = require('ramda-fantasy');
-
-const eitherThrowErrorOrReturnIdentity = Either.either(
-  (error) => { throw error; },
-  R.identity,
-);
+const { eitherThrowErrorOrReturnIdentity } = require('./utils');
 
 const run = () => {
   console.log(MESSAGE.START_UP_SERVICE_STARTING);
