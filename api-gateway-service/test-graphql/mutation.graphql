@@ -4,8 +4,6 @@ mutation sendCommand($command: CommandInput!){
 
 subscription stateChanges {
     stateChanges{
-        guestState{
-            token
-        }
+        test
     }
 }
