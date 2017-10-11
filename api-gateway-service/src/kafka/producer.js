@@ -31,6 +31,8 @@ const createProducerManager = () => {
   const _publishMessage = (producer, message) =>
     promisify(producer.send.bind(producer))(message);
 
+  // Hide the async things here, all other places process this function as a sync function
+  // `await` keyword is not necessary in return statement
   const publishMessageAsync = async (message, index = 0) =>
     _publishMessage(storage.producers[index], message);
 
@@ -58,6 +60,8 @@ const createProducerManager = () => {
     publishMessage,
   )(eventWrapper);
 
+  // Hide the async things here, all other places process this function as a sync function
+  // `await` keyword is not necessary in return statement
   const onProducerReadyAsync = async producer => onProducerReady(producer);
 
   const createProducer = () => {
