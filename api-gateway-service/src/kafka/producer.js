@@ -63,6 +63,15 @@ const createProducerManager = () => {
   // `await` keyword is not necessary in return statement
   const onProducerReadyAsync = async producer => onProducerReady(producer);
 
+  /**
+   * Create a Kafka Producer. Then push it to Kafka instance storage.
+   * This function returns when producer.on('ready') event is fired for the first time
+   * after the producer is created.
+   *
+   * @return {Either} Either object contains:
+   *  Left{Error} if the producer creation process is failed.
+   *  Right{MESSAGE.KAFKA_PRODUCER_READY} if the producer creation process is successfully.
+   */
   const createProducer = () => {
     const createdProducer = _createProducer();
     storage.producers.push(createdProducer);
