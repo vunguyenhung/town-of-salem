@@ -16,16 +16,21 @@ const PublishEventsError = createError('PublishEventsError', {
 });
 
 const createProducerManager = () => {
-  const onProducerReady = producer => new Promise((resolve) => {
-    producer.on('ready', () => {
-      resolve(true);
-    });
-  });
-
   const _createProducer = () => {
     const client = new KafkaClient(CONFIG.CLIENT);
     return new Producer(client);
   };
+
+  const onProducerReady = producer =>
+    new Promise((resolve) => {
+      producer.on('ready', () => {
+        resolve(true);
+      });
+    });
+
+  // Hide the async things here, all other places process this function as a sync function
+  // `await` keyword is not necessary in return statement
+  const onProducerReadyAsync = async producer => onProducerReady(producer);
 
   const _publishMessage = (producer, message) =>
     promisify(producer.send.bind(producer))(message);
@@ -35,33 +40,33 @@ const createProducerManager = () => {
   const publishMessageAsync = async (message, index = 0) =>
     _publishMessage(storage.producers[index], message);
 
-  const createKafkaMessage = ({ topic, events }) => [{
-    topic,
-    messages: events.map(JSON.stringify),
-  }];
+  const createMessage = ({ topic, events }) =>
+    [{
+      topic,
+      messages: events.map(JSON.stringify),
+    }];
 
-  const publishMessages = messages => R.tryCatch(
-    () => Right(MESSAGE.KAFKA_PRODUCER_SENT),
-    error => Left(new PublishEventsError(error.message)),
-  )(publishMessageAsync(messages));
+  const publishMessages = (messages, producerIndex = 0) =>
+    R.tryCatch(
+      () => Right(MESSAGE.KAFKA_PRODUCER_SENT),
+      error => Left(new PublishEventsError(error.message)),
+    )(publishMessageAsync(messages, producerIndex));
 
   /**
-   * `publishEventsToKafka` receives eventWrapper,
+   * `publishEvents` receives eventWrapper,
    * create Kafka messages based on eventWrapper then send created messages to Kafka.
    *
    * @param eventWrapper
+   * @param producerIndex: Optional, default is 0
    * @return {Either} Either object contains:
    *    Left(PublishEventsError) if publishing failed,
    *    Right(MESSAGE.KAFKA_PRODUCER_SENT) if publishing successfully
    */
-  const publishEventsToKafka = eventWrapper => R.pipe(
-    createKafkaMessage,
-    publishMessages,
-  )(eventWrapper);
-
-  // Hide the async things here, all other places process this function as a sync function
-  // `await` keyword is not necessary in return statement
-  const onProducerReadyAsync = async producer => onProducerReady(producer);
+  const publishEvents = (eventWrapper, producerIndex = 0) =>
+    R.pipe(
+      createMessage,
+      R.partialRight(publishMessages)([producerIndex]),
+    )(eventWrapper);
 
   /**
    * Create a Kafka Producer. Then push it to Kafka instance storage.
@@ -83,7 +88,7 @@ const createProducerManager = () => {
 
   return {
     createProducer,
-    publishEventsToKafka,
+    publishEvents,
   };
 };
 

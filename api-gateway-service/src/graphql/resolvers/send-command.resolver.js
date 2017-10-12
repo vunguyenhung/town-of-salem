@@ -18,16 +18,16 @@ const InvalidCommandError = createError('InvalidCommandError', {
 const sendCommand = baseResolver.createResolver((obj, { command }) => {
   const eitherEvents = commandToEvents(command);
 
-  const publishEventsToKafka = eventWrapper => R.pipe(
-    producerManager.publishEventsToKafka,
+  const publishEvents = eventWrapper => R.pipe(
+    producerManager.publishEvents,
     eitherThrowErrorOrReturnIdentity,
   )(eventWrapper);
 
   const handleValidEvents = eventWrapper =>
-    publishEventsToKafka(eventWrapper);
+    publishEvents(eventWrapper);
 
   const handleInvalidEvents = (eventWrapper) => {
-    publishEventsToKafka(eventWrapper);
+    publishEvents(eventWrapper);
 
     throw new InvalidCommandError({
       message: eventWrapper.events[0].payload.reason,
