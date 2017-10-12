@@ -7,4 +7,10 @@ const DEFAULT_ENV = {
   NODE_ENV: 'local',
 };
 
-exports.improvedEnv = { ...DEFAULT_ENV, ...process.env };
+const improveEnv = env => ({
+  ...DEFAULT_ENV,
+  MONGO_URL: `mongodb://${env.MONGO_HOST}:${env.MONGO_PORT}/${env.MONGO_DB}`,
+  ...env,
+});
+
+exports.improvedEnv = improveEnv(process.env);
