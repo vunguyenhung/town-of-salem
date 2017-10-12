@@ -8,4 +8,4 @@ function improveEnv(env) {
   return { ...DEFAULT_ENV, ...env };
 }
 
-exports.imroveEnv = improveEnv;
+exports.improveEnv = improveEnv;

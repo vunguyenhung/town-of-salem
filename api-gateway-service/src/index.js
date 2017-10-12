@@ -4,4 +4,4 @@ const env = require('./env');
 
 dotenv.config({ path: '.env' });
 
-server.run(env.imroveEnv(process.env));
+server.run(env.improveEnv(process.env));
