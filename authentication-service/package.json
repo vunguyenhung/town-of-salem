@@ -4,7 +4,21 @@
   "private": true,
   "scripts": {
     "start": "node ./src/index.js",
-    "serve": "nodemon ./src/index.js"
+    "serve": "nodemon ./src/index.js",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "test:watch": "jest --watch"
+  },
+  "jest": {
+    "transform": {},
+    "coverageReporters": [
+      "lcov",
+      "html"
+    ],
+    "testMatch": [
+      "**/*.test.(js)"
+    ],
+    "testEnvironment": "node"
   },
   "dependencies": {
     "body-parser": "~1.17.1",
@@ -22,6 +36,7 @@
     "eslint-config-airbnb-base": "12.0.2",
     "eslint-plugin-import": "2.7.0",
     "jest": "21.2.1",
-    "nodemon": "1.12.1"
+    "nodemon": "1.12.1",
+    "supertest": "3.0.0"
   }
 }
