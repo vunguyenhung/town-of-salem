@@ -30,7 +30,7 @@ const EVENT_TYPES = {
 // TODO: refactor this
 // cons: too many moving parts
 const registerCommandToEvents = command => ({
-  topic: 'tos-user-events',
+  topic: 'tos-state-update-events',
   events: [
     {
       type: EVENT_TYPES.START_REGISTER,

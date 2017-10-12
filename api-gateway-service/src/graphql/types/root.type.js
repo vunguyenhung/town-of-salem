@@ -14,6 +14,6 @@ exports.RootType = `
     }
 
     type Subscription {
-        stateChanges: AppState
+        stateUpdates: AppState
     }
 `;

@@ -6,4 +6,11 @@ const eitherThrowErrorOrReturnIdentity = Either.either(
   identity,
 );
 
+const logThenReturnIdentity = (something) => {
+  console.log(something);
+  return something;
+};
+
 exports.eitherThrowErrorOrReturnIdentity = eitherThrowErrorOrReturnIdentity;
+
+exports.logThenReturnIdentity = logThenReturnIdentity;

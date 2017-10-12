@@ -2,8 +2,3 @@ mutation sendCommand($command: CommandInput!){
     sendCommand(command: $command)
 }
 
-subscription stateChanges {
-    stateChanges{
-        test
-    }
-}

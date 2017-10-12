@@ -2,10 +2,11 @@
 const CONFIG = {
   CLIENT: { kafkaHost: 'kafka:9092' },
   CONSUMER: {
-    autoCommit: false,
+    // autoCommit: false,
+    autoCommitIntervalMs: '2000',
     groupId: 'api-gateway-service',
   },
-  CONSUMER_TOPICS: [{ topic: 'tos-state-changes' }],
+  CONSUMER_TOPICS: [{ topic: 'tos-state-update-events' }],
 };
 
 exports.CONFIG = CONFIG;
