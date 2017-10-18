@@ -1,0 +1,19 @@
+{
+  "name": "authentication-service-it",
+  "version": "1.0.0",
+  "description": "Integration test for Tos Authentication Service",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vunguyenhung/town-of-salem.git"
+  },
+  "author": "vunguyenhung",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/vunguyenhung/town-of-salem/issues"
+  },
+  "homepage": "https://github.com/vunguyenhung/town-of-salem#readme"
+}
