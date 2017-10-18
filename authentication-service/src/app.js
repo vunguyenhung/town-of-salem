@@ -21,7 +21,7 @@ const createExpressApp = () => {
     res.end('App is running');
   });
 
-  app.use('/', userRoute);
+  app.use('/users', userRoute);
 
   return app;
 };
