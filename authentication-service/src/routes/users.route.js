@@ -14,7 +14,10 @@ const usernameNotExisting = username =>
 
 // checkUsernameMiddleware::(Request, Response, Void) -> Void
 const checkUsernameMiddleware = check('username', MESSAGE.USERNAME_DEFAULT_VALIDATE_MSG)
-  .isLength({ min: 5 }).withMessage(MESSAGE.USERNAME_TOO_SHORT)
+  .isLength({ min: 5 }).withMessage(MESSAGE.USERNAME_TOO_SHORT);
+
+// checkUsernameExistingMiddleware::(Request, Response, Void) -> Void
+const checkUsernameExistingMiddleware = check('username')
   .custom(usernameNotExisting).withMessage(MESSAGE.USERNAME_IN_USE);
 
 // checkPasswordMiddleWare::(Request, Response, Void) -> Void
@@ -30,8 +33,9 @@ const errorHandlingMiddleware = (req, res, next) => {
   next();
 };
 
-const validationMiddlewares = [
+const postValidationMiddlewares = [
   checkUsernameMiddleware,
+  checkUsernameExistingMiddleware,
   checkPasswordMiddleWare,
   errorHandlingMiddleware,
 ];
@@ -46,7 +50,7 @@ const postLogicMiddleware = (req, res) => {
 };
 
 // do business logic step.
-router.post('/', validationMiddlewares, postLogicMiddleware);
+router.post('/', postValidationMiddlewares, postLogicMiddleware);
 
 // login is get
 router.get('/', (req, res) => {
