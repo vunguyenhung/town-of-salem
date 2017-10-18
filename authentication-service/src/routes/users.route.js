@@ -2,19 +2,23 @@
 const express = require('express');
 
 const router = express.Router();
+
+const { check, validationResult } = require('express-validator/check');
+const jwt = require('jsonwebtoken');
+const { improvedEnv } = require('../env');
+
 const MESSAGE = require('../services/message');
 
 const UserModel = require('../database/model/user.model');
-const { check, validationResult } = require('express-validator/check');
+
+// checkUsernameMiddleware::(Request, Response, () -> Void) -> Void
+const checkUsernameMiddleware = check('username', MESSAGE.USERNAME_DEFAULT_VALIDATE_MSG)
+  .isLength({ min: 5 }).withMessage(MESSAGE.USERNAME_TOO_SHORT);
 
 // usernameNotExisting::String -> Promise Error Boolean
 const usernameNotExisting = username =>
   UserModel.find({ username })
     .then(result => result.length < 1);
-
-// checkUsernameMiddleware::(Request, Response, () -> Void) -> Void
-const checkUsernameMiddleware = check('username', MESSAGE.USERNAME_DEFAULT_VALIDATE_MSG)
-  .isLength({ min: 5 }).withMessage(MESSAGE.USERNAME_TOO_SHORT);
 
 // checkUsernameExistingMiddleware::(Request, Response, () -> Void) -> Void
 const checkUsernameExistingMiddleware = check('username')
@@ -41,21 +45,37 @@ const postValidationMiddlewares = [
 ];
 
 const postLogicMiddleware = (req, res) => {
-  const getUserInfo = ({ username, password }) => ({ username, password });
-
-  UserModel.create(getUserInfo(req.body))
-    .then(() => {
-      res.status(201).end();
-    });
+  const { username, password } = req.body;
+  UserModel.create({ username, password }).then(() => {
+    res.status(201).end();
+  });
 };
 
-// do business logic step.
+// Register route
 router.post('/', postValidationMiddlewares, postLogicMiddleware);
 
-// login is get
-router.get('/', (req, res) => {
-  // TODO: return token here
-  res.send('user route');
+// getUserInfoFromHeader::Request -> {String, String}
+const getUserInfoFromHeader = req => ({
+  username: req.get('username'),
+  password: req.get('password'),
 });
+
+const getValidationMiddlewares = [
+  checkUsernameMiddleware,
+  checkPasswordMiddleware,
+  errorHandlingMiddleware,
+];
+
+// createToken::{String} -> String
+const createToken = payload => jwt.sign(payload, improvedEnv.JWT_SECRET, { noTimestamp: true });
+
+const getLogicMiddleware = (req, res) => {
+  const { username, password } = getUserInfoFromHeader(req);
+  UserModel.findOne({ username, password }).then(result =>
+    (result ? res.send({ token: createToken({ username }) }) : res.status(401).send()));
+};
+
+// Login route
+router.get('/', getValidationMiddlewares, getLogicMiddleware);
 
 module.exports = router;

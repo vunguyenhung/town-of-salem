@@ -30,6 +30,7 @@
     "express": "~4.15.2",
     "express-validator": "4.2.1",
     "folktale": "2.0.1",
+    "jsonwebtoken": "8.1.0",
     "mongoose": "4.12.1",
     "morgan": "~1.8.1",
     "ramda": "0.25.0",
