@@ -2,8 +2,8 @@ FROM node:8.7.0
 
 LABEL maintainer="vunguyenhung"
 
-RUN mkdir -p /api-gateway-service
-WORKDIR /api-gateway-service
+RUN mkdir -p /authentication-service
+WORKDIR /authentication-service
 
 COPY . .
 
