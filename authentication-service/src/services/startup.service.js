@@ -1,7 +1,7 @@
 const database = require('../database');
 const { waitAll } = require('folktale/concurrency/task');
 
-// constructTasks::{MONGO_URL::String} -> Task [Result Error String]
+// constructTasks::{MONGO_URL::String} -> Task [Result {[String]::Error} {[String]::String}]
 const constructTasks = env => waitAll([
   database.connect(env.MONGO_URL),
   // more task here...
