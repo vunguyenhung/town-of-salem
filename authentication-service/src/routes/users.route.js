@@ -20,8 +20,8 @@ const checkUsernameMiddleware = check('username', MESSAGE.USERNAME_DEFAULT_VALID
 const checkUsernameExistingMiddleware = check('username')
   .custom(usernameNotExisting).withMessage(MESSAGE.USERNAME_IN_USE);
 
-// checkPasswordMiddleWare::(Request, Response, Void) -> Void
-const checkPasswordMiddleWare = check('password', MESSAGE.PASSWORD_DEFAULT_VALIDATE_MSG)
+// checkPasswordMiddleware::(Request, Response, Void) -> Void
+const checkPasswordMiddleware = check('password', MESSAGE.PASSWORD_DEFAULT_VALIDATE_MSG)
   .isLength({ min: 5 }).withMessage(MESSAGE.PASSWORD_TOO_SHORT);
 
 // errorHandlingMiddleware::(Request, Response, Void) -> Void
@@ -36,7 +36,7 @@ const errorHandlingMiddleware = (req, res, next) => {
 const postValidationMiddlewares = [
   checkUsernameMiddleware,
   checkUsernameExistingMiddleware,
-  checkPasswordMiddleWare,
+  checkPasswordMiddleware,
   errorHandlingMiddleware,
 ];
 
