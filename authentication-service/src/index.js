@@ -1,7 +1,7 @@
 const http = require('http');
 const { improvedEnv } = require('./env');
 const { app } = require('./app');
-const database = require('./database');
+const StartupService = require('./services/startup.service');
 
 const server = http.createServer(app);
 
@@ -12,6 +12,5 @@ server.listen(improvedEnv.APP_PORT, () => {
   );
 });
 
-database.connect(improvedEnv.MONGO_URL).then(() => {
-  console.log('Database Connected!');
-});
+StartupService.run(improvedEnv)
+  .then(result => console.log(result));
