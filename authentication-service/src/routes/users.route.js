@@ -7,15 +7,22 @@ const MESSAGE = require('../services/message');
 const UserModel = require('../database/model/user.model');
 const { check, validationResult } = require('express-validator/check');
 
-router.get('/', (req, res) => {
-  // TODO: return token here
-  res.send('user route');
-});
-
+// usernameNotExisting::String -> Promise Error Boolean
 const usernameNotExisting = username =>
-  UserModel.find({ username }).then(result => result.length < 1);
+  UserModel.find({ username })
+    .then(result => result.length < 1);
 
-const errorHandler = (req, res, next) => {
+// checkUsernameMiddleware::(Request, Response, Void) -> Void
+const checkUsernameMiddleware = check('username', MESSAGE.USERNAME_DEFAULT_VALIDATE_MSG)
+  .isLength({ min: 5 }).withMessage(MESSAGE.USERNAME_TOO_SHORT)
+  .custom(usernameNotExisting).withMessage(MESSAGE.USERNAME_IN_USE);
+
+// checkPasswordMiddleWare::(Request, Response, Void) -> Void
+const checkPasswordMiddleWare = check('password', MESSAGE.PASSWORD_DEFAULT_VALIDATE_MSG)
+  .isLength({ min: 5 }).withMessage(MESSAGE.PASSWORD_TOO_SHORT);
+
+// errorHandlingMiddleware::(Request, Response, Void) -> Void
+const errorHandlingMiddleware = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.mapped() });
@@ -23,22 +30,28 @@ const errorHandler = (req, res, next) => {
   next();
 };
 
-const checkUsername = check('username', MESSAGE.USERNAME_DEFAULT_VALIDATE_MSG)
-  .isLength({ min: 5 }).withMessage(MESSAGE.USERNAME_TOO_SHORT)
-  .custom(usernameNotExisting).withMessage(MESSAGE.USERNAME_IN_USE);
+const validationMiddlewares = [
+  checkUsernameMiddleware,
+  checkPasswordMiddleWare,
+  errorHandlingMiddleware,
+];
 
-const checkPassword = check('password', MESSAGE.PASSWORD_DEFAULT_VALIDATE_MSG)
-  .isLength({ min: 5 }).withMessage(MESSAGE.PASSWORD_TOO_SHORT);
+const postLogicMiddleware = (req, res) => {
+  const getUserInfo = ({ username, password }) => ({ username, password });
 
-// do validate step
-router.post('/', [
-  checkUsername,
-  checkPassword,
-], errorHandler);
+  UserModel.create(getUserInfo(req.body))
+    .then(() => {
+      res.status(201).end();
+    });
+};
 
 // do business logic step.
-router.post('/', (req, res) => {
-  res.status(201).end();
+router.post('/', validationMiddlewares, postLogicMiddleware);
+
+// login is get
+router.get('/', (req, res) => {
+  // TODO: return token here
+  res.send('user route');
 });
 
 module.exports = router;

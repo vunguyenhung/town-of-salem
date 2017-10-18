@@ -9,6 +9,7 @@ describe('Some feature', () => {
   const URL = '/users';
 
   const userFindStub = sinon.stub(UserModel, 'find');
+  const userCreateStub = sinon.stub(UserModel, 'create');
 
   it('should return 200 when get /users', () =>
     supertest(app).get(URL).expect(200));
@@ -45,25 +46,6 @@ describe('Some feature', () => {
   });
 
   it(
-    'should return 201 when post /users with valid {username, password}',
-    async () => {
-      // mongoose find result:
-      // [ { _id: 59e73e6ac10702cc6f2a6f03,
-      //   username: 'someUsername',
-      //   password: 'somePassword' } ]
-
-      // STUB
-      userFindStub.resolves([]);
-
-      const response = await supertest(app)
-        .post(URL)
-        .send({ username: 'someUsername', password: 'somePassword' });
-
-      expect(response.status).toBe(201);
-    },
-  );
-
-  it(
     'should call return error when post /users with existing {username, password}',
     async () => {
       // GIVEN
@@ -93,6 +75,26 @@ describe('Some feature', () => {
       // THEN
       expect(response.statusCode).toBe(400);
       expect(response.body).toEqual(expectedBody);
+    },
+  );
+
+  it(
+    'should return 201 when post /users with valid {username, password} and save successfully',
+    async () => {
+      // mongoose find result:
+      // [ { _id: 59e73e6ac10702cc6f2a6f03,
+      //   username: 'someUsername',
+      //   password: 'somePassword' } ]
+
+      // STUB
+      userFindStub.resolves([]);
+      userCreateStub.resolves(true);
+
+      const response = await supertest(app)
+        .post(URL)
+        .send({ username: 'someUsername', password: 'somePassword' });
+
+      expect(response.status).toBe(201);
     },
   );
 });
