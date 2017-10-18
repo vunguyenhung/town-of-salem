@@ -12,19 +12,19 @@ const usernameNotExisting = username =>
   UserModel.find({ username })
     .then(result => result.length < 1);
 
-// checkUsernameMiddleware::(Request, Response, Void) -> Void
+// checkUsernameMiddleware::(Request, Response, () -> Void) -> Void
 const checkUsernameMiddleware = check('username', MESSAGE.USERNAME_DEFAULT_VALIDATE_MSG)
   .isLength({ min: 5 }).withMessage(MESSAGE.USERNAME_TOO_SHORT);
 
-// checkUsernameExistingMiddleware::(Request, Response, Void) -> Void
+// checkUsernameExistingMiddleware::(Request, Response, () -> Void) -> Void
 const checkUsernameExistingMiddleware = check('username')
   .custom(usernameNotExisting).withMessage(MESSAGE.USERNAME_IN_USE);
 
-// checkPasswordMiddleware::(Request, Response, Void) -> Void
+// checkPasswordMiddleware::(Request, Response, () -> Void) -> Void
 const checkPasswordMiddleware = check('password', MESSAGE.PASSWORD_DEFAULT_VALIDATE_MSG)
   .isLength({ min: 5 }).withMessage(MESSAGE.PASSWORD_TOO_SHORT);
 
-// errorHandlingMiddleware::(Request, Response, Void) -> Void
+// errorHandlingMiddleware::(Request, Response, () -> Void) -> Void
 const errorHandlingMiddleware = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
