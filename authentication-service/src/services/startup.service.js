@@ -1,5 +1,6 @@
 const database = require('../database');
 const { waitAll } = require('folktale/concurrency/task');
+const R = require('ramda');
 
 // constructTasks::{MONGO_URL::String} -> Task [Result {[String]::Error} {[String]::String}]
 const constructTasks = env => waitAll([
@@ -7,9 +8,9 @@ const constructTasks = env => waitAll([
   // more task here...
 ]);
 
-// run::{MONGO_URL::String} -> Promise [{ [String]::String||Error }]::Connect to DB
+// run::{MONGO_URL::String} -> Promise [{ [String]::String||Error }] :: Connect to Database
 const run = env => constructTasks(env)
-  .map(results => results.map(result => result.merge()))
+  .map(R.map(result => result.merge()))
   .run()
   .promise();
 
