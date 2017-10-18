@@ -5,7 +5,7 @@ const errorHandler = require('errorhandler');
 const path = require('path');
 const compression = require('compression');
 
-const userRoute = require('./routes/users.route');
+const authRoute = require('./routes/auth.route');
 
 const createExpressApp = () => {
   const app = express();
@@ -21,7 +21,7 @@ const createExpressApp = () => {
     res.end('App is running');
   });
 
-  app.use('/users', userRoute);
+  app.use('/auth', authRoute);
 
   return app;
 };

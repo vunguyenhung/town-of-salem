@@ -18,7 +18,7 @@ const _verifyJWT = promisify(jwt.verify);
 const verifyJWT = R.partialRight(_verifyJWT, [improvedEnv.JWT_SECRET]);
 
 describe('Some feature', () => {
-  const URL = '/users';
+  const URL = '/auth';
 
   const userFindStub = sinon.stub(UserModel, 'find');
   const userFindOneStub = sinon.stub(UserModel, 'findOne');
