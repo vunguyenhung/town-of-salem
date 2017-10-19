@@ -63,7 +63,6 @@ describe('Some feature', () => {
     // WHEN
     const response = await post({});
 
-    // console.log(response.body);
     expect(response.statusCode).toBe(400);
     expect(response.body).toEqual(expectedBody);
   });
