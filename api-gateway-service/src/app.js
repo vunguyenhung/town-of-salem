@@ -4,19 +4,13 @@ const bodyParser = require('body-parser');
 const errorHandler = require('errorhandler');
 const path = require('path');
 const compression = require('compression');
-const http = require('http');
 
 const apolloServerExpress = require('apollo-server-express');
 const { schema } = require('./graphql/schema');
-const { execute, subscribe } = require('graphql');
-
-const { SubscriptionServer } = require('subscriptions-transport-ws');
 
 const { formatError } = require('apollo-errors');
 
-const startupService = require('./services/startup');
-
-function run(env) {
+const createExpressApp = (env) => {
   const app = express();
 
   app.set('port', env.APP_PORT || 3000);
@@ -26,9 +20,6 @@ function run(env) {
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(express.static(path.join(__dirname, 'public')));
 
-  /**
-   * Error Handler. Provides full stack - remove for production
-   */
   app.use(errorHandler());
 
   app.get('/', (req, res) => {
@@ -45,22 +36,7 @@ function run(env) {
     subscriptionsEndpoint: env.GRAPHQL_SUBSCRIPTION_ENDPOINT,
   }));
 
-  startupService.run();
+  return app;
+};
 
-  const server = http.createServer(app);
-
-  server.listen(env.APP_PORT, () => {
-    SubscriptionServer.create(
-      { execute, subscribe, schema },
-      { server, path: '/graphql' },
-    );
-    console.log(
-      ('App is running at http://localhost:%d in %s mode'),
-      env.APP_PORT, env.NODE_ENV,
-    );
-  });
-
-  return server;
-}
-
-exports.run = run;
+module.exports = createExpressApp;

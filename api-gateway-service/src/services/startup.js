@@ -6,8 +6,8 @@ const { eitherThrowErrorOrReturnIdentity } = require('./utils');
 
 const { eventProcessor } = require('./event');
 
-// startup service will subscribe to the observable/subject returned by consumer
-// then propagate it to event service -- HOW?
+// Refactor producer and consumer to use folktale
+// then create api to check availability of others services in this startup service
 const run = () => {
   console.log(MESSAGE.START_UP_SERVICE_STARTING);
 

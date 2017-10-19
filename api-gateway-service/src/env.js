@@ -1,3 +1,7 @@
+const dotenv = require('dotenv');
+
+dotenv.config({ path: '.env' });
+
 const DEFAULT_ENV = {
   APP_PORT: '3000',
   NODE_ENV: 'local',
@@ -8,4 +12,4 @@ function improveEnv(env) {
   return { ...DEFAULT_ENV, ...env };
 }
 
-exports.improveEnv = improveEnv;
+exports.improvedEnv = improveEnv(process.env);
