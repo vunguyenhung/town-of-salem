@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  authentication-service-it:
+    build: .
+    command: [ "bash", "./wait-for-it.sh", "authentication-service:3000", "--", "npm", "test" ]
+    depends_on:
+      - authentication-service
+
+  authentication-service:
+    build: ../authentication-service
+    command: npm start
+    depends_on:
+      - mongodb
+    expose:
+      - "3000"
+
+  mongodb:
+    image: mongo
+    expose:
+      - "27017"

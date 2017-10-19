@@ -4,7 +4,10 @@
   "description": "Integration test for Tos Authentication Service",
   "main": "integration.test.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "test-watch": "jest --watch",
+    "test:docker": "bash test.sh",
+    "test-watch:docker": "bash test.sh -d"
   },
   "repository": {
     "type": "git",

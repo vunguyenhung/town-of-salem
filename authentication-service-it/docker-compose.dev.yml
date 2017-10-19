@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  authentication-service-it:
+    build: .
+    command: [ "bash", "./wait-for-it.sh", "authentication-service:3000", "--", "npm", "run", "test-watch" ]
+    depends_on:
+      - authentication-service
+    volumes:
+      - ./src:/authentication-service-it/src
+
+  authentication-service:
+    build: ../authentication-service
+    command: npm run serve
+    depends_on:
+      - mongodb
+    expose:
+      - "3000"
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../authentication-service/src:/authentication-service/src
+
+  mongodb:
+    image: mongo
+    expose:
+      - "27017"
