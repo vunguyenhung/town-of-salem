@@ -24,7 +24,7 @@ describe('Some feature', () => {
   const userFindOneStub = sinon.stub(UserModel, 'findOne');
   const userCreateStub = sinon.stub(UserModel, 'create');
 
-  it('should return 400 and correct errors when post /users with empty data', async () => {
+  it('should return 400 and correct errors when post with empty data', async () => {
     // GIVEN
     const expectedBody = {
       errors:
@@ -53,7 +53,7 @@ describe('Some feature', () => {
   });
 
   it(
-    'should return 400 and correct errors when post /users with existing {username, password}',
+    'should return 400 and correct errors when post with existing {username, password}',
     async () => {
       // GIVEN
       const existingUser = { username: 'existingUsername', password: 'existingUsername' };
@@ -86,7 +86,7 @@ describe('Some feature', () => {
   );
 
   it(
-    'should return 201 when post /users with valid {username, password} and save successfully',
+    'should return 201 when post with valid {username, password} and save successfully',
     async () => {
       // mongoose find result:
       // [ { _id: 59e73e6ac10702cc6f2a6f03,
@@ -106,7 +106,7 @@ describe('Some feature', () => {
   );
 
   it(
-    'should return 200 and Token when login with valid username/password',
+    'should return 200 and Token when get with valid username/password in header',
     async () => {
       // mongoose find result:
       // [ { _id: 59e73e6ac10702cc6f2a6f03,
@@ -143,7 +143,7 @@ describe('Some feature', () => {
   );
 
   it(
-    'should return 401 when login with invalid username/password',
+    'should return 401 when get with invalid username/password in header',
     async () => {
       // GIVEN
       const validUser = {
