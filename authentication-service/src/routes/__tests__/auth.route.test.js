@@ -24,10 +24,7 @@ describe('Some feature', () => {
   const userFindOneStub = sinon.stub(UserModel, 'findOne');
   const userCreateStub = sinon.stub(UserModel, 'create');
 
-  it('should return 400 when post /users with empty data', () =>
-    supertest(app).post(URL).send({}).expect(400));
-
-  it('should return return empty error when post /users with empty data', async () => {
+  it('should return 400 and correct errors when post /users with empty data', async () => {
     // GIVEN
     const expectedBody = {
       errors:
@@ -56,7 +53,7 @@ describe('Some feature', () => {
   });
 
   it(
-    'should call return error when post /users with existing {username, password}',
+    'should return 400 and correct errors when post /users with existing {username, password}',
     async () => {
       // GIVEN
       const existingUser = { username: 'existingUsername', password: 'existingUsername' };
@@ -146,7 +143,7 @@ describe('Some feature', () => {
   );
 
   it(
-    'should return 401  when login with invalid username/password',
+    'should return 401 when login with invalid username/password',
     async () => {
       // GIVEN
       const validUser = {
