@@ -2,7 +2,7 @@
   "name": "authentication-service-it",
   "version": "1.0.0",
   "description": "Integration test for Tos Authentication Service",
-  "main": "index.js",
+  "main": "integration.test.js",
   "scripts": {
     "test": "jest"
   },
@@ -10,10 +10,29 @@
     "type": "git",
     "url": "git+https://github.com/vunguyenhung/town-of-salem.git"
   },
+  "jest": {
+    "transform": {},
+    "testMatch": [
+      "**/*.test.(js)"
+    ],
+    "testEnvironment": "node"
+  },
   "author": "vunguyenhung",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/vunguyenhung/town-of-salem/issues"
   },
-  "homepage": "https://github.com/vunguyenhung/town-of-salem#readme"
+  "homepage": "https://github.com/vunguyenhung/town-of-salem#readme",
+  "dependencies": {
+    "dotenv": "4.0.0",
+    "eslint": "4.9.0",
+    "faker": "4.1.0",
+    "jest": "21.2.1",
+    "mongoose": "4.12.3",
+    "ramda": "0.25.0"
+  },
+  "devDependencies": {
+    "eslint-config-airbnb-base": "12.1.0",
+    "eslint-plugin-import": "2.7.0"
+  }
 }
