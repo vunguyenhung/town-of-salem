@@ -97,11 +97,14 @@ describe('Some feature', () => {
       userFindStub.resolves([]);
       userCreateStub.resolves(true);
 
+      // WHEN
       const response = await supertest(app)
         .post(URL)
         .send({ username: 'someUsername', password: 'somePassword' });
 
+      // THEN
       expect(response.status).toBe(201);
+      // this route doesn't return body
     },
   );
 
@@ -126,17 +129,15 @@ describe('Some feature', () => {
       // STUB
       userFindOneStub.resolves(validUser);
 
+      // WHEN
       const response = await supertest(app)
         .get(URL)
         .set('username', validUser.username)
         .set('password', validUser.password);
-
-      expect(response.status).toBe(200);
-
       const { token } = response.body;
-      console.log(response.body);
       const decodedToken = await verifyJWT(token);
 
+      // THEN
       expect(response.status).toBe(200);
       expect(decodedToken).toEqual(expectedDecodedToken);
     },
@@ -154,12 +155,15 @@ describe('Some feature', () => {
       // STUB
       userFindOneStub.resolves(null);
 
+      // WHEN
       const response = await supertest(app)
         .get(URL)
         .set('username', validUser.username)
         .set('password', validUser.password);
 
+      // THEN
       expect(response.status).toBe(401);
+      // this route doesn't return body
     },
   );
 });
