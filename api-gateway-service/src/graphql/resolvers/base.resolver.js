@@ -17,7 +17,8 @@ const baseResolver = createResolver(
     // TODO: log error here in development mode.
     console.log('error:', error);
     return (isInstance(error) ? error : new UnknownError());
-  },
+  }
+  ,
 );
 
 exports.baseResolver = baseResolver;

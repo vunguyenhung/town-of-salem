@@ -1,144 +1,81 @@
-const commandService = require('../command');
+/*
+3rd Party imports
+ */
+const Result = require('folktale/result');
+
+/*
+Project file imports
+ */
+const { commandToResult } = require('../command');
+const { TOPICS } = require('../../kafka/producer');
+const { InvalidCommandError } = require('../../graphql/errors');
 
 describe('Command Service', () => {
-  it('should return StartRegisterEvent when convert RegisterCommand', () => {
+  it('should return Ok Result when convert valid command', () => {
     // GIVEN
     const registerCommand = {
-      type: '[Command] Register',
+      type: 'DO_SOMETHING',
       payload: {
-        username: 'someUsername',
-        password: 'somePassword',
+        requiredData: 'some valid data',
       },
     };
 
-    const expectedRegisterEvents = {
-      topic: 'tos-user-events',
-      events: [
-        {
-          type: '[Event] Start Register',
-          payload: {
-            username: 'someUsername',
-            password: 'somePassword',
-          },
-        }],
+    const expectedKafkaMessage = {
+      topic: TOPICS.SOME_TOPIC,
+      messages: JSON.stringify(registerCommand),
     };
 
     // WHEN
-    const actualRegisterEvent = commandService.commandToEvents(registerCommand);
+    const actualResult = commandToResult(registerCommand);
 
     // THEN
-    expect(actualRegisterEvent.value).toEqual(expectedRegisterEvents);
-  });
-
-  it('should return InvalidCommandReceivedEvent when convert command has invalid type', () => {
-    // GIVEN
-    const invalidCommand = {
-      type: '[Command] Invalid command',
-      payload: {
-        username: 'someUsername',
-        password: 'somePassword',
-      },
-    };
-
-    const expectedRegisterEvents = {
-      topic: 'tos-invalid-events',
-      events: [
-        {
-          type: '[Event] Invalid Command Received',
-          payload: {
-            reason: 'Invalid type',
-            command: invalidCommand,
-          },
-        }],
-    };
-
-    // WHEN
-    const actualInvalidEvent = commandService.commandToEvents(invalidCommand);
-
-    // THEN
-    expect(actualInvalidEvent.value).toEqual(expectedRegisterEvents);
-  });
-
-  it('should return StartLoginEvent when convert LoginCommand', () => {
-    // GIVEN
-    const loginCommand = {
-      type: '[Command] Login',
-      payload: {
-        username: 'someUsername',
-        password: 'somePassword',
-      },
-    };
-
-    const expectedLoginEvents = {
-      topic: 'tos-user-events',
-      events: [
-        {
-          type: '[Event] Start Login',
-          payload: loginCommand.payload,
-        }],
-    };
-
-    // WHEN
-    const actualInvalidEvent = commandService.commandToEvents(loginCommand);
-
-    // THEN
-    expect(actualInvalidEvent.value).toEqual(expectedLoginEvents);
+    expect(Result.Ok.hasInstance(actualResult));
+    expect(actualResult.merge()).toEqual(expectedKafkaMessage);
   });
 
   it(
-    'should return InvalidCommandReceivedEvent when convert command has invalid payload shape',
+    'should return InvalidCommandError(Invalid Type) when convert command has invalid type',
     () => {
       // GIVEN
       const invalidCommand = {
-        type: '[Command] Register',
+        type: 'INVALID_TYPE',
+        // INVALID_TYPE != DO_SOMETHING
         payload: {
-          username: 'someUsername',
-          // missing password
+          requiredData: 'some valid data',
         },
       };
 
-      const expectedRegisterEvents = {
-        topic: 'tos-invalid-events',
-        events: [
-          {
-            type: '[Event] Invalid Command Received',
-            payload: {
-              reason: 'Invalid payload',
-              command: invalidCommand,
-            },
-          }],
-      };
+      const expectedError = new InvalidCommandError({ message: 'Invalid type' });
 
       // WHEN
-      const actualInvalidEvent = commandService.commandToEvents(invalidCommand);
+      const actualResult = commandToResult(invalidCommand);
 
       // THEN
-      expect(actualInvalidEvent.value).toEqual(expectedRegisterEvents);
+      expect(Result.Error.hasInstance(actualResult));
+      expect(actualResult.merge()).toEqual(expectedError);
     },
   );
 
-  it('should return InvalidCommandReceivedEvent when convert invalid shape command', () => {
-    // GIVEN
-    const invalidCommand = {
-      invalidField: 'invalidVal',
-    };
+  it(
+    'should return InvalidCommandError(Invalid Payload) when convert command has invalid payload',
+    () => {
+      // GIVEN
+      const invalidCommand = {
+        type: 'DO_SOMETHING',
+        payload: {
+          invalidData: 'someUsername',
+          // invalidData != requiredData
+        },
+      };
 
-    const expectedRegisterEvents = {
-      topic: 'tos-invalid-events',
-      events: [
-        {
-          type: '[Event] Invalid Command Received',
-          payload: {
-            reason: 'Invalid shape',
-            command: invalidCommand,
-          },
-        }],
-    };
+      const expectedError = new InvalidCommandError({ message: 'Invalid payload' });
 
-    // WHEN
-    const actualInvalidEvent = commandService.commandToEvents(invalidCommand);
+      // WHEN
+      const actualResult = commandToResult(invalidCommand);
 
-    // THEN
-    expect(actualInvalidEvent.value).toEqual(expectedRegisterEvents);
-  });
+      // THEN
+      expect(Result.Error.hasInstance(actualResult));
+      expect(actualResult.merge()).toEqual(expectedError);
+    },
+  );
 });

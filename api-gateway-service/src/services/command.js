@@ -1,139 +1,77 @@
+/*
+3rd Party imports
+ */
 const R = require('ramda');
-const { Either } = require('ramda-fantasy');
+const Result = require('folktale/result');
+const Task = require('folktale/concurrency/task');
 
-const { Left, Right } = Either;
+/*
+Project file imports
+ */
+const { TOPICS } = require('../kafka/producer');
+const { InvalidCommandError } = require('../graphql/errors');
 
-const notNil = R.complement(R.isNil());
+// createKafkaMessage :: String -> Any -> { topic :: String, messages :: String }
+const createKafkaMessage =
+  R.curry((topic, message) => ({ topic, messages: JSON.stringify(message) }));
 
-// To add new command:
-// - add type
-// - add commandToEvent mapper
-// - add mapper to Mappers
-// - add validatorFn
-// - add validatorFn to Validators
+// Any -> Boolean
+const notNil = R.complement(R.isNil);
 
-const COMMAND_TYPES = {
-  VALID: {
-    REGISTER_COMMAND: '[Command] Register',
-    LOGIN_COMMAND: '[Command] Login',
-    // INFO: add more to here if there's a new command
+const COMMANDS = {
+  DO_SOMETHING: {
+    toKafkaMessage: createKafkaMessage(TOPICS.SOME_TOPIC),
+    checkPayload: command => R.where({ requiredData: notNil })(command.payload),
   },
-  INVALID: '[Command] Invalid',
 };
 
-const EVENT_TYPES = {
-  START_REGISTER: '[Event] Start Register',
-  START_LOGIN: '[Event] Start Login',
-  INVALID_COMMAND_RECEIVED: '[Event] Invalid Command Received',
-};
-
-// TODO: refactor this
-// cons: too many moving parts
-const registerCommandToEvents = command => ({
-  topic: 'tos-state-update-events',
-  events: [
-    {
-      type: EVENT_TYPES.START_REGISTER,
-      payload: command.payload,
-    }],
-});
-
-const loginCommandToEvents = command => ({
-  topic: 'tos-user-events',
-  events: [
-    {
-      type: EVENT_TYPES.START_LOGIN,
-      payload: command.payload,
-    }],
-});
-
-const invalidCommandToEvent = command => ({
-  topic: 'tos-invalid-events',
-  events: [
-    {
-      type: EVENT_TYPES.INVALID_COMMAND_RECEIVED,
-      payload: command.payload,
-    }],
-});
-// INFO: write more commandToEvent mapper here if there's a new command
-
-const commandToEventsMappers = {
-  [COMMAND_TYPES.VALID.REGISTER_COMMAND]: registerCommandToEvents,
-  [COMMAND_TYPES.VALID.LOGIN_COMMAND]: loginCommandToEvents,
-  // INFO: add more to here if there's a new command
-  [COMMAND_TYPES.INVALID]: invalidCommandToEvent,
-};
-
-const isValidCommandShape = command => R.where({
-  type: notNil,
-  payload: notNil,
-})(command);
-
-const isValidCommandType = ({ type }) =>
-  R.contains(type)(R.values(COMMAND_TYPES.VALID));
-
-const isValidRegisterCommandPayload = ({ payload }) => R.where({
-  username: notNil,
-  password: notNil,
-})(payload);
-
-const isValidLoginCommandPayload = ({ payload }) => R.where({
-  username: notNil,
-  password: notNil,
-})(payload);
-
-// INFO: write more validateFn here if there's a new command
-
-const commandPayloadValidators = {
-  [COMMAND_TYPES.VALID.REGISTER_COMMAND]: isValidRegisterCommandPayload,
-  [COMMAND_TYPES.VALID.LOGIN_COMMAND]: isValidLoginCommandPayload,
-// INFO: add more to here if there's a new command
-};
-
-const isValidCommandPayload = command =>
-  commandPayloadValidators[command.type](command);
-
-const validate = (command) => {
-  const createInvalidCommand = R.curry((cmd, reason) => ({
-    type: COMMAND_TYPES.INVALID,
-    payload: { reason, command: cmd },
-  }))(command);
-
-  const validateCommand = (cmd, validatorFn, reason) => (
-    validatorFn(cmd) ? Right(cmd) : Left(createInvalidCommand(reason))
-  );
-
-  // TODO: refactor this
-  const validateCommandShape = cmd =>
-    validateCommand(cmd, isValidCommandShape, 'Invalid shape');
-
-  const validateCommandType = cmd =>
-    validateCommand(cmd, isValidCommandType, 'Invalid type');
-
-  const validateCommandPayload = cmd =>
-    validateCommand(cmd, isValidCommandPayload, 'Invalid payload');
-
-  return validateCommandShape(command)
-    .chain(validateCommandType)
-    .chain(validateCommandPayload);
-};
-
-const _commandToEvents = (eitherCommand) => {
-  const transformer = command => commandToEventsMappers[command.type](command);
-  return eitherCommand.bimap(transformer, transformer);
-};
-
+// Command :: {type :: String, payload :: String}
+// preprocess :: Command -> {type :: String, payload :: Any}
 const preprocess = (command) => {
   const parse = value => R.tryCatch(JSON.parse, () => value)(value);
   return R.mapObjIndexed(parse, command);
 };
 
-/**
- * Convert command to an Either of events.
- * Right value of either contains valid events, Left value of either contains invalid events
- * @param command
- * @return Either of Events
- */
-const commandToEvents = command => R.pipe(preprocess, validate, _commandToEvents)(command);
+// Command :: {type :: String, payload :: Any}
+// validate :: Command -> Result String Command
+const validate = (command) => {
+  const validateType = cmd =>
+    (R.contains(cmd.type)(R.keys(COMMANDS))
+      ? Result.Ok(cmd)
+      : Result.Error(new InvalidCommandError({ message: 'Invalid type' })));
 
-exports.commandToEvents = commandToEvents;
+  const validatePayload = cmd =>
+    (COMMANDS[cmd.type].checkPayload(cmd)
+      ? Result.Ok(cmd)
+      : Result.Error(new InvalidCommandError({ message: 'Invalid payload' })));
+
+  return validateType(command).chain(validatePayload);
+};
+
+// Command :: {type :: String, payload :: Any}
+// KafkaMessage :: {topic :: String, message :: String}
+// toKafkaMessage :: Command -> KafkaMessage
+const toKafkaMessage = command =>
+  COMMANDS[command.type].toKafkaMessage(command);
+
+// Command :: {type :: String, payload :: String}
+// KafkaMessage :: {topic :: String, message :: String}
+// commandToResult :: Command -> Result InvalidCommandError KafkaMessage
+const commandToResult = command =>
+  Result.of(command)
+    .map(preprocess)
+    .chain(validate)
+    .map(toKafkaMessage);
+
+// Command :: {type :: String, payload :: String}
+// commandToTask :: Command -> Task Error Message
+const commandToTask = command =>
+  commandToResult(command).matchWith({
+    Ok: ({ value }) => Task.of(value),
+    Error: ({ value }) => Task.rejected(value),
+  });
+
+module.exports = {
+  commandToResult,
+  commandToTask,
+};

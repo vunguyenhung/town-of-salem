@@ -8,6 +8,9 @@ const MESSAGE = {
   KAFKA_CONSUMER_READY: 'Kafka Consumer ready!',
   DEFAULT_INVALID_COMMAND_ERROR: 'Invalid Command',
   DEFAULT_PUBLISH_EVENTS_ERROR: 'Error while sending events',
+  DEFAULT_INVALID_LOGIN_ERROR: 'Login attempt failed',
+  DEFAULT_INVALID_REGISTER_ERROR: 'Register attempt failed',
+  REGISTRATION_SUCCESS: 'Registration successfully!',
 };
 
-exports.MESSAGE = MESSAGE;
+module.exports = MESSAGE;

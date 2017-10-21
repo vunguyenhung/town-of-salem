@@ -1,26 +1,22 @@
-const { producerManager } = require('../kafka/producer');
-const { consumerManager } = require('../kafka/consumer');
-const { MESSAGE } = require('./message');
+/*
+3rd Party library imports
+ */
+const { waitAll } = require('folktale/concurrency/task');
+const R = require('ramda');
 
-const { eitherThrowErrorOrReturnIdentity } = require('./utils');
+/*
+Project file imports
+ */
+const producerManager = require('../kafka/producer');
 
-const { eventProcessor } = require('./event');
+const constructTaks = () => waitAll([
+  producerManager.initProducer(),
+  // ... more task goes here
+]);
 
-// Refactor producer and consumer to use folktale
-// then create api to check availability of others services in this startup service
-const run = () => {
-  console.log(MESSAGE.START_UP_SERVICE_STARTING);
-
-  const producerCreationResult = eitherThrowErrorOrReturnIdentity(producerManager.createProducer());
-  console.log(producerCreationResult);
-
-  const consumeCreationResult = eitherThrowErrorOrReturnIdentity(consumerManager.createConsumer());
-  console.log(consumeCreationResult);
-
-  eventProcessor.start();
-  console.log(MESSAGE.EVENT_PROCESSOR_STARTED);
-
-  console.log(MESSAGE.START_UP_SERVICE_STARTED);
-};
+const run = () => constructTaks()
+  .map(R.map(result => result.merge()))
+  .run()
+  .promise();
 
 exports.run = run;

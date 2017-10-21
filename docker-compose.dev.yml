@@ -31,3 +31,19 @@ services:
       - "3000:3000"
     volumes:
       - ./api-gateway-service/src:/api-gateway-service/src
+
+  authentication-service:
+    build: ./authentication-service
+    command: npm run serve
+    depends_on:
+      - mongodb
+      - api-gateway-service
+    ports:
+      - "3001:3000"
+    volumes:
+      - ./authentication-service/src:/authentication-service/src
+
+  mongodb:
+    image: mongo
+    expose:
+      - "27017"

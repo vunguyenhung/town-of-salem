@@ -29,3 +29,17 @@ services:
       - kafka
     ports:
       - "3000:3000"
+
+  authentication-service:
+    build: ./authentication-service
+    command: npm start
+    depends_on:
+      - mongodb
+      - api-gateway-service
+    ports:
+      - "3001:3000"
+
+  mongodb:
+    image: mongo
+    expose:
+      - "27017"

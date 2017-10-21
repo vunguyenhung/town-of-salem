@@ -1,45 +1,35 @@
-const { baseResolver } = require('./base.resolver');
-const { commandToEvents } = require('../../services/command');
-const { createError } = require('apollo-errors');
-
-const { MESSAGE } = require('../../services/message');
-
-const { producerManager } = require('../../kafka/producer');
-
+/*
+3rd Party library imports
+ */
 const R = require('ramda');
-const { Either } = require('ramda-fantasy');
 
-const { eitherThrowErrorOrReturnIdentity } = require('../../services/utils');
+/*
+Project file imports
+ */
+const { baseResolver } = require('./base.resolver');
+const { commandToTask } = require('../../services/command');
+const { publish } = require('../../kafka/producer');
 
-const InvalidCommandError = createError('InvalidCommandError', {
-  message: MESSAGE.DEFAULT_INVALID_COMMAND_ERROR,
-});
+const trace = (something) => {
+  console.log(something);
+  return something;
+};
 
-const sendCommand = baseResolver.createResolver((obj, { command }) => {
-  const eitherEvents = commandToEvents(command);
+// we need to send request to authentication-service
+// they will have their own mutation
+// Game Command will demand token and game ID.
+// this command will only serve ingame command
+const sendCommand = baseResolver.createResolver((obj, { command }) =>
+  commandToTask(command)
+    .chain(publish(R.__, 0)) // use producer at index 0 by default
+    .map(trace) // { 'tos-some-topic': { '0': 7 } }: Topic: tos-some-topic, Partition 0, offset 7
+    .run()
+    .promise());
 
-  const publishEvents = eventWrapper => R.pipe(
-    producerManager.publishEvents,
-    eitherThrowErrorOrReturnIdentity,
-  )(eventWrapper);
+// { 'tos-some-topic': { '0': 7 } }
+// -> tos-some-topic-0-7
 
-  const handleValidEvents = eventWrapper =>
-    publishEvents(eventWrapper);
-
-  const handleInvalidEvents = (eventWrapper) => {
-    publishEvents(eventWrapper);
-
-    throw new InvalidCommandError({
-      message: eventWrapper.events[0].payload.reason,
-    });
-  };
-
-  return Either.either(
-    handleInvalidEvents,
-    handleValidEvents,
-  )(eitherEvents);
-});
-
+// { topic : {partition: offset} }
 exports.sendCommand = {
   Mutation: {
     sendCommand,

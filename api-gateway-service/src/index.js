@@ -33,4 +33,4 @@ server.listen(improvedEnv.APP_PORT, () => {
   );
 });
 
-StartupService.run();
+StartupService.run().then(result => console.log(result));

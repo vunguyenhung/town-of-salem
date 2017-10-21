@@ -2,3 +2,6 @@ mutation sendCommand($command: CommandInput!){
     sendCommand(command: $command)
 }
 
+mutation register($user: UserInput!){
+    register(user: $user)
+}
