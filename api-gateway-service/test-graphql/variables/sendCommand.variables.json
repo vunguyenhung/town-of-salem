@@ -1,7 +1,7 @@
 {
   "command": {
-    "type": "[Command] Register",
-    "payload": "{\"username\": \"someUsername\",\"password\": \"somePassword\"}"
+    "type": "DO_SOMETHING",
+    "payload": "{\"requiredData\": \"someValidData\",\"password\": \"somePassword\"}"
   }
 }
 

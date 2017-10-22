@@ -12,6 +12,7 @@ Project file imports
 const { CONFIG } = require('./config');
 const { storage } = require('./storage');
 const { PublishError } = require('../graphql/errors');
+const { flattenObj } = require('../services/utils');
 
 const TOPICS = {
   SOME_TOPIC: 'tos-some-topic',
@@ -54,7 +55,10 @@ const getProducer = index => Task.task((r) => {
 const _publish = R.curry((message, producer) =>
   Task.task((r) => {
     producer.send([message], (err, data) =>
-      (err ? r.reject(err) : r.resolve(`Command ${R.toString(data)} sent`)));
+      // data :: { [topicName :: String]:: { [partitionNumber :: String]:: Number } }
+      // data :: { 'tos-some-topic': { '0': 7 } }
+      // Topic: tos-some-topic, Partition: 0, Offset: 7
+      (err ? r.reject(err) : r.resolve(`Command ${flattenObj(data)} sent!`)));
   }));
 
 // publish :: Message -> Number -> Task Error String
