@@ -37,7 +37,6 @@
     "kafka-node": "2.2.3",
     "morgan": "1.8.1",
     "ramda": "0.24.1",
-    "ramda-fantasy": "0.8.0",
     "rxjs": "5.4.3",
     "subscriptions-transport-ws": "0.9.1",
     "superagent": "3.7.0"
