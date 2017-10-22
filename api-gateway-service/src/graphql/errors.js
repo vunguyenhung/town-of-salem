@@ -5,11 +5,16 @@ const InvalidCommandError = createError('InvalidCommandError', {
   message: MESSAGE.DEFAULT_INVALID_COMMAND_ERROR,
 });
 
-const PublishEventsError = createError('PublishError', {
+const PublishError = createError('PublishError', {
+  message: MESSAGE.DEFAULT_PUBLISH_EVENTS_ERROR,
+});
+
+const ConsumeError = createError('ConsumeError', {
   message: MESSAGE.DEFAULT_PUBLISH_EVENTS_ERROR,
 });
 
 module.exports = {
   InvalidCommandError,
-  PublishError: PublishEventsError,
+  PublishError,
+  ConsumeError,
 };

@@ -1,47 +1,72 @@
+/*
+3rd Party library imports
+ */
 const { KafkaClient, Consumer } = require('kafka-node');
-const { CONFIG } = require('./config');
-const { storage } = require('./storage');
-const { MESSAGE } = require('../services/message');
-
-const { Either } = require('ramda-fantasy');
-
-const { Left, Right } = Either;
+const Task = require('folktale/concurrency/task');
+const Result = require('folktale/result');
 
 const R = require('ramda');
-
 const Rx = require('rxjs');
 
-// TODO: implement manual commit feature
-const createConsumerManager = () => {
-  const _createConsumer = () => {
+/*
+Project file imports
+ */
+const { CONFIG } = require('./config');
+const { storage } = require('./storage');
+const { ConsumeError } = require('../graphql/errors');
+
+// Topic :: {topic :: String}
+// createConsumerInstance :: Array Topic -> Task Error Consumer
+const createConsumerInstance = topics =>
+  Task.task((r) => {
     const client = new KafkaClient(CONFIG.CLIENT);
-    return new Consumer(client, CONFIG.CONSUMER_TOPICS, CONFIG.CONSUMER);
-  };
+    const consumer = new Consumer(client, topics, CONFIG.CONSUMER);
+    let rejected = false;
 
-  /**
-   * Create a Kafka Consumer. Then push it to Kafka instance storage.
-   *
-   * @return {Either} Either object contains:
-   *  Left{Error} if the consumer creation process is failed
-   *  Right{MESSAGE.KAFKA_CONSUMER_READY} if the consumer creation process is successfully
-   */
-  const createConsumer = () => R.tryCatch(
-    (createdConsumer) => {
-      storage.consumers.push(createdConsumer);
-      return Right(MESSAGE.KAFKA_CONSUMER_READY);
-    },
-    error => Left(error),
-  )(_createConsumer());
+    consumer.on('error', (err) => {
+      r.reject(err);
+      rejected = true;
+    });
 
-  // NOTICE: The time we create consumer is the time Kafka client starts consuming message
-  // and automatically commit whenever a message comes with 2000ms delay
-  const onMessage = (consumerIndex = 0) =>
-    Rx.Observable.fromEvent(storage.consumers[consumerIndex], 'message');
+    // wait for 500ms to resolve. To see if any error got emitted beforehand.
+    setTimeout(() => {
+      if (!rejected) r.resolve(consumer);
+    }, 500);
+  });
 
-  return {
-    createConsumer,
-    onMessage,
-  };
+// pushProducerToStorage :: Consumer -> Task Error Consumer :: Push consumer to ./storage
+const pushConsumerToStorage = consumer =>
+  Task.task(r =>
+    R.tryCatch(
+      () => r.resolve(consumer),
+      e => r.reject(e),
+    )(storage.consumers.push(consumer)));
+
+const initConsumer = topics =>
+  createConsumerInstance(topics)
+    .chain(pushConsumerToStorage)
+    .map(() => Result.Ok({ KafkaConsumer: 'Ok' }))
+    .orElse(err => Task.of(Result.Error({ KafkaConsumer: err })));
+
+// getConsumerObservable :: Number -> Observable Error Consumer
+const getConsumerObservable = consumerIndex =>
+  Rx.Observable.create((obs) => {
+    const consumer = storage.consumers[consumerIndex];
+    if (consumer) {
+      obs.next(consumer);
+      obs.complete();
+    } else obs.error(new ConsumeError({ message: 'Consumer not found' }));
+  });
+
+// onMessage :: Consumer -> Observable Message
+const onMessage = consumer =>
+  Rx.Observable.fromEvent(consumer, 'message');
+
+// startConsuming :: Number -> Observable Error Message
+const startConsuming = (consumerIndex = 0) =>
+  getConsumerObservable(consumerIndex).flatMap(onMessage); // TODO: catch error
+
+module.exports = {
+  initConsumer,
+  startConsuming,
 };
-
-exports.consumerManager = createConsumerManager();

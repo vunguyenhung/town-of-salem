@@ -1,5 +1,5 @@
 /*
-Third Party library imports
+3rd Party library imports
  */
 const dotenv = require('dotenv');
 const http = require('http');
@@ -17,6 +17,7 @@ const createExpressApp = require('./app');
 const { improvedEnv } = require('./env');
 const { schema } = require('./graphql/schema');
 const StartupService = require('./services/startup');
+const EventService = require('./services/event');
 
 dotenv.config({ path: '.env' });
 
@@ -33,4 +34,10 @@ server.listen(improvedEnv.APP_PORT, () => {
   );
 });
 
-StartupService.run().then(result => console.log(result));
+// eventService.start in then of startup Service.run
+StartupService.run().then((result) => {
+  console.log(result);
+  EventService
+    .start()
+    .subscribe(publishResult => console.log(`Publish result: ${publishResult}`));
+});

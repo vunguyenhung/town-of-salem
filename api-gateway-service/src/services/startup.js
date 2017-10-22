@@ -7,10 +7,12 @@ const R = require('ramda');
 /*
 Project file imports
  */
-const producerManager = require('../kafka/producer');
+const { initProducer } = require('../kafka/producer');
+const { initConsumer } = require('../kafka/consumer');
 
 const constructTaks = () => waitAll([
-  producerManager.initProducer(),
+  initProducer(),
+  initConsumer([{ topic: 'tos-some-topic' }]),
   // ... more task goes here
 ]);
 

@@ -55,7 +55,7 @@ const getProducer = index => Task.task((r) => {
 const _publish = R.curry((message, producer) =>
   Task.task((r) => {
     producer.send([message], (err, data) =>
-      // data :: { [topicName :: String]:: { [partitionNumber :: String]:: Number } }
+      // data :: { [topicName :: String] :: { [partitionNumber :: String] :: Number } }
       // data :: { 'tos-some-topic': { '0': 7 } }
       // Topic: tos-some-topic, Partition: 0, Offset: 7
       (err ? r.reject(err) : r.resolve(`Command ${flattenObj(data)} sent!`)));

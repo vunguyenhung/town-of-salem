@@ -1,7 +1,7 @@
 # Create a Topic in Kafka:
 ## tos-state-update-events
 ```bash
-docker exec tos_kafka_1 kafka-topics --create --topic tos-state-update-events --partitions 1 --replication-factor 1 --if-not-exists --zookeeper zookeeper:2181
+docker exec tos_kafka_1 kafka-topics --create --topic tos-some-topic --partitions 1 --replication-factor 1 --if-not-exists --zookeeper zookeeper:2181
 ```
 
 ## tos-invalid-events
@@ -12,7 +12,7 @@ docker exec tos_kafka_1 kafka-topics --create --topic tos-invalid-events --parti
 # Consumer Data from a Topic
 ## tos-state-update-events
 ```bash
-docker exec tos_kafka_1 kafka-console-consumer --bootstrap-server kafka:9092 --topic tos-state-update-events --new-consumer --from-beginning
+docker exec tos_kafka_1 kafka-console-consumer --bootstrap-server kafka:9092 --topic tos-some-topic --new-consumer --from-beginning
 ```
 
 ## tos-invalid-events

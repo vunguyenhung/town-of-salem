@@ -1,5 +1,5 @@
 const { PubSub } = require('graphql-subscriptions');
-const { partial } = require('ramda');
+const { curry } = require('ramda');
 
 const PUBLISH_CHANNELS = {
   STATE_UPDATES: 'STATE_UPDATES',
@@ -7,12 +7,14 @@ const PUBLISH_CHANNELS = {
 
 const pubsub = new PubSub();
 
+const publish = curry(pubsub.publish.bind(pubsub));
+
+// publishToStateUpdatesChannel :: {stateUpdates :: {test :: String}} -> Boolean
 const publishToStateUpdatesChannel =
-  partial(pubsub.publish.bind(pubsub))([PUBLISH_CHANNELS.STATE_UPDATES]);
+  publish([PUBLISH_CHANNELS.STATE_UPDATES]);
 
-exports.pubsub = pubsub;
-
-exports.PUBLISH_CHANNELS = PUBLISH_CHANNELS;
-
-exports.publishToStateUpdatesChannel = publishToStateUpdatesChannel;
-
+module.exports = {
+  pubsub,
+  PUBLISH_CHANNELS,
+  publishToStateUpdatesChannel,
+};

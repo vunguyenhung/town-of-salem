@@ -6,7 +6,6 @@ const CONFIG = {
     autoCommitIntervalMs: '2000',
     groupId: 'api-gateway-service',
   },
-  CONSUMER_TOPICS: [{ topic: 'tos-state-update-events' }],
 };
 
 exports.CONFIG = CONFIG;
