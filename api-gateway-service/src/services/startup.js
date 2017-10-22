@@ -10,13 +10,13 @@ Project file imports
 const { initProducer } = require('../kafka/producer');
 const { initConsumer } = require('../kafka/consumer');
 
-const constructTaks = () => waitAll([
+const constructTasks = () => waitAll([
   initProducer(),
   initConsumer([{ topic: 'tos-some-topic' }]),
   // ... more task goes here
 ]);
 
-const run = () => constructTaks()
+const run = () => constructTasks()
   .map(R.map(result => result.merge()))
   .run()
   .promise();

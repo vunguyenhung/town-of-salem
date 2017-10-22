@@ -1,7 +1,6 @@
 /*
 3rd Party library imports
  */
-const dotenv = require('dotenv');
 const http = require('http');
 
 /*
@@ -19,8 +18,6 @@ const { schema } = require('./graphql/schema');
 const StartupService = require('./services/startup');
 const EventService = require('./services/event');
 
-dotenv.config({ path: '.env' });
-
 const server = http.createServer(createExpressApp(improvedEnv));
 
 server.listen(improvedEnv.APP_PORT, () => {
@@ -34,7 +31,6 @@ server.listen(improvedEnv.APP_PORT, () => {
   );
 });
 
-// eventService.start in then of startup Service.run
 StartupService.run().then((result) => {
   console.log(result);
   EventService
