@@ -1,0 +1,40 @@
+{
+  "name": "lobby-service",
+  "version": "1.0.0",
+  "description": "Lobby Service for Town Of Salem",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vunguyenhung/town-of-salem.git"
+  },
+  "author": "vunguyenhung",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/vunguyenhung/town-of-salem/issues"
+  },
+  "homepage": "https://github.com/vunguyenhung/town-of-salem#readme",
+  "dependencies": {
+    "body-parser": "1.17.1",
+    "compression": "1.7.0",
+    "debug": "2.6.3",
+    "dotenv": "4.0.0",
+    "errorhandler": "1.5.0",
+    "express": "4.15.2",
+    "folktale": "2.0.1",
+    "kafka-node": "2.2.3",
+    "morgan": "1.8.1",
+    "ramda": "0.24.1",
+    "rxjs": "5.5.0"
+  },
+  "devDependencies": {
+    "babel-jest": "21.0.2",
+    "eslint": "4.7.1",
+    "eslint-config-airbnb-base": "12.0.0",
+    "eslint-plugin-import": "2.7.0",
+    "jest": "21.1.0",
+    "nodemon": "1.12.1"
+  }
+}
