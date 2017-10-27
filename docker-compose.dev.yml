@@ -43,6 +43,19 @@ services:
     volumes:
       - ./authentication-service/src:/authentication-service/src
 
+  lobby-service:
+    build: ./lobby-service
+    command: npm run serve
+    depends_on:
+      - zookeeper
+      - kafka
+      - mongodb
+      - api-gateway-service
+    ports:
+      - "3002:3000"
+    volumes:
+      - ./lobby-service/src:/lobby-service/src
+
   mongodb:
     image: mongo
     expose:

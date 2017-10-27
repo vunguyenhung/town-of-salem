@@ -4,7 +4,10 @@
   "description": "Lobby Service for Town Of Salem",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "start": "node ./src/index.js",
+    "serve": "nodemon ./src/index.js",
+    "test": "jest",
+    "test:watch": "jest --watch"
   },
   "repository": {
     "type": "git",
@@ -16,6 +19,14 @@
     "url": "https://github.com/vunguyenhung/town-of-salem/issues"
   },
   "homepage": "https://github.com/vunguyenhung/town-of-salem#readme",
+  "jest": {
+    "transform": {},
+    "coverageReporters": [
+      "lcov",
+      "html"
+    ],
+    "testEnvironment": "node"
+  },
   "dependencies": {
     "body-parser": "1.17.1",
     "compression": "1.7.0",
@@ -27,7 +38,9 @@
     "kafka-node": "2.2.3",
     "morgan": "1.8.1",
     "ramda": "0.24.1",
-    "rxjs": "5.5.0"
+    "redux": "3.7.2",
+    "rxjs": "5.5.0",
+    "uuid": "3.1.0"
   },
   "devDependencies": {
     "babel-jest": "21.0.2",

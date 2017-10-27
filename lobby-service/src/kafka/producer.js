@@ -11,7 +11,7 @@ Project file imports
  */
 const { CONFIG } = require('./config');
 const { storage } = require('./storage');
-const { flattenObj } = require('../services/utils');
+const { flattenObj } = require('../utils');
 
 const TOPICS = {
   GAME_EVENTS: 'tos-game-events',

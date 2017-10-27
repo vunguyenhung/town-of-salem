@@ -1,9 +1,9 @@
 const R = require('ramda');
 
-const trace = (something) => {
-  console.log(something);
+const trace = R.curry((message, something) => {
+  console.log(message, something);
   return something;
-};
+});
 
 // flattenObj :: Any -> String
 const flattenObj = (obj) => {
@@ -21,7 +21,10 @@ const flattenObj = (obj) => {
   )(obj);
 };
 
+const notNil = R.complement(R.isNil);
+
 module.exports = {
   trace,
   flattenObj,
+  notNil,
 };

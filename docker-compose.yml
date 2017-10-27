@@ -39,6 +39,17 @@ services:
     ports:
       - "3001:3000"
 
+  lobby-service:
+    build: ./lobby-service
+    command: npm start
+    depends_on:
+      - zookeeper
+      - kafka
+      - mongodb
+      - api-gateway-service
+    ports:
+      - "3002:3000"
+
   mongodb:
     image: mongo
     expose:
