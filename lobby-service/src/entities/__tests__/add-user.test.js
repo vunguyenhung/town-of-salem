@@ -1,42 +1,27 @@
 /*
-Lobby Entity imports
- */
-const {
-  addUserToLobby,
-  createLobby,
-  isValidLobby,
-
-  addUser,
-  removeUser,
-  addLobby,
-  LobbyErrors,
-} = require('../lobby.entity');
-
-/*
 3rd Party library imports
  */
-const uuid = require('uuid/v4');
 const Result = require('folktale/result');
+const uuid = require('uuid/v4');
 const R = require('ramda');
 
-describe('Lobby Entity', () => {
+/*
+Project file imports
+ */
+const { addUserToLobby, addUser } = require('../add-user');
+const { LobbyErrors } = require('../common');
+
+describe('Lobby Entity add user operation', () => {
   const initialLobby = {
     id: uuid(),
     users: [],
     isClosed: false,
   };
 
-  const closedLobby = {
-    id: uuid(),
-    users: [],
-    isClosed: true,
-  };
-
   const validUsername = 'vunguyenhung';
 
   it('should return Result Ok with new lobby has newly added users when valid user join', () => {
     // GIVEN
-
     const expectedLobby = {
       ...initialLobby,
       users: [validUsername],
@@ -100,17 +85,6 @@ describe('Lobby Entity', () => {
     expect(actualResult.merge()).toEqual(expectedError);
   });
 
-  it('should return new Lobby with new UUID, empty Users and not Closed when create lobby', () => {
-    // GIVEN
-
-    // WHEN
-    const actualResult = createLobby();
-    const validationResult = isValidLobby(actualResult);
-
-    // THEN
-    expect(Result.Ok.hasInstance(validationResult)).toBeTruthy();
-  });
-
   it(
     'should return Result.Ok of Array Lobby when a user joins an available lobby in lobby list',
     () => {
@@ -135,6 +109,11 @@ describe('Lobby Entity', () => {
     'should return Result.Error of LobbyError.NoLobbyAvailable when a user joins lobby list with full of closed lobby',
     () => {
       // GIVEN
+      const closedLobby = {
+        id: uuid(),
+        users: [],
+        isClosed: true,
+      };
       const allClosedLobbies = [closedLobby];
 
       const expectedError = LobbyErrors.NoLobbyAvailable(allClosedLobbies);
@@ -222,99 +201,4 @@ describe('Lobby Entity', () => {
       expect(actualResult.merge()).toEqual(expectedError);
     },
   );
-
-  it('should return a new lobby list has new lobby when add a lobby to lobby list', () => {
-    // GIVEN
-    const secondLobby = {
-      id: uuid(),
-      users: [],
-      isClosed: false,
-    };
-
-    const initialLobbies = [initialLobby, secondLobby];
-
-    // WHEN
-    const actualResult = addLobby(initialLobbies);
-
-    // THEN
-    expect(actualResult).toHaveLength(3);
-    expect(actualResult[0]).toEqual(initialLobby);
-    expect(actualResult[1]).toEqual(secondLobby);
-    expect(Result.Ok.hasInstance(isValidLobby(actualResult[2]))).toBeTruthy();
-  });
-
-  it('should return lobby has specified user removed when remove the specified user', () => {
-    // GIVEN
-    const secondLobby = {
-      id: uuid(),
-      users: ['someUser1', 'someUser2', 'toBeRemovedUser'],
-      isClosed: false,
-    };
-
-    const expectedSecondLobby = {
-      ...secondLobby,
-      users: ['someUser1', 'someUser2'],
-    };
-
-    const initialLobbies = [initialLobby, secondLobby];
-
-    // WHEN
-    const actualResult = removeUser('toBeRemovedUser', initialLobbies).merge();
-
-    // THEN
-    expect(actualResult).toHaveLength(2);
-    expect(actualResult[0]).toEqual(initialLobby);
-    expect(actualResult[1]).toEqual(expectedSecondLobby);
-  });
-
-  it(
-    'should return Result.Error of LobbyError.LobbiesNotContainUsername when remove a not existing user from lobbies',
-    () => {
-      // GIVEN
-      const secondLobby = {
-        id: uuid(),
-        users: ['someUser1', 'someUser2', 'someUser3'],
-        isClosed: false,
-      };
-      const lobbies = [initialLobby, secondLobby];
-      const notExistingUsername = 'notExistingUsername';
-
-      const expectedError = LobbyErrors.LobbiesNotContainUsername(lobbies, notExistingUsername);
-
-      // WHEN
-      const actualResult = removeUser(notExistingUsername, lobbies);
-
-      // THEN
-      expect(Result.Error.hasInstance(actualResult)).toBeTruthy();
-      expect(actualResult.merge()).toEqual(expectedError);
-    },
-  );
-
-  it('should open the lobby when lobby is not full after a user got removed from it', () => {
-    // GIVEN
-    const randomUsername = () => (`someRandomUsername${Math.random()}`);
-    const randomUsers = R.repeat(randomUsername, 14).map(fn => fn());
-    const toBeRemovedUser = 'toBeRemovedUser';
-
-    const toBeRemovedLobby = {
-      id: uuid(),
-      users: [...randomUsers, toBeRemovedUser],
-      isClosed: true,
-    };
-
-    const lobbies = [toBeRemovedLobby];
-
-    const expectedLobbies = [{
-      ...toBeRemovedLobby,
-      users: [...randomUsers],
-      isClosed: false,
-    }];
-
-    // WHEN
-    const actualResult = removeUser(toBeRemovedUser, lobbies);
-
-    // THEN
-    expect(Result.Ok.hasInstance(actualResult)).toBeTruthy();
-    expect(actualResult.merge()).toEqual(expectedLobbies);
-  });
 });
