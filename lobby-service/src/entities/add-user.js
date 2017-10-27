@@ -21,7 +21,6 @@ const closeLobby = R.assoc('isClosed', true);
 const closeLobbyIfFull = lobby =>
   (lobbyUsersLength(lobby) >= 15 ? closeLobby(lobby) : lobby);
 
-// Lobby :: { id :: String, users :: Array String, isClosed :: Boolean }
 // _addUserToLobby :: (String, Lobby) -> Lobby
 const _addUserToLobby = R.curry((username, lobby) => ({
   ...lobby,
@@ -34,7 +33,6 @@ const checkIfFull = lobby =>
     ? Result.Error(LobbyErrors.LobbyFull(lobby))
     : Result.Ok(lobby));
 
-// Lobby :: { id :: String, users :: Array String, isClosed :: Boolean }
 // addUserToLobby :: User -> Lobby -> Result (LobbyErrors Lobby) Lobby
 const addUserToLobby = R.curry((username, lobby) =>
   validate(username, lobby)
@@ -42,7 +40,6 @@ const addUserToLobby = R.curry((username, lobby) =>
     .map(_addUserToLobby(username))
     .map(closeLobbyIfFull));
 
-// Lobby :: { id :: String, users :: Array String, isClosed :: Boolean }
 // findAvailableLobby :: Array Lobby -> Result (LobbyErrors Array Lobby) Lobby
 const findAvailableLobby = (lobbies) => {
   const foundLobby = R.find(R.whereEq({ isClosed: false }))(lobbies);
@@ -57,7 +54,6 @@ const checkIfLobbiesContainsUser = (lobbies, username) => {
     : Result.Ok(lobbies);
 };
 
-// Lobby :: { id :: String, users :: [String], isClosed :: Boolean }
 // addUser :: User -> Array Lobby -> Result (LobbyErrors Array Lobby) Array Lobby
 const addUser = R.curry((username, lobbies) => (
   checkIfLobbiesContainsUser(lobbies, username)
@@ -68,6 +64,7 @@ const addUser = R.curry((username, lobbies) => (
 
 module.exports = {
   addUser,
+
   // exports for testing purpose
   addUserToLobby,
 };

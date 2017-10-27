@@ -14,20 +14,24 @@ const {
 // closeLobby :: Lobby -> Lobby
 const openLobby = R.assoc('isClosed', false);
 
+// openLobbyIfNotFull :: Lobby -> Lobby
 const openLobbyIfNotFull = lobby =>
   (lobbyUsersLength(lobby) < 15 ? openLobby(lobby) : lobby);
 
+// _removeUserFromLobby :: (String, Lobby) -> Lobby
 const _removeUserFromLobby = R.curry((username, lobby) => ({
   ...lobby,
   users: R.reject(R.equals(username))(lobby.users),
 }));
 
+// removeUserFromLobby :: (String, Lobby) -> Lobby
 const removeUserFromLobby = R.curry((username, lobby) =>
   R.pipe(
     _removeUserFromLobby(username),
     openLobbyIfNotFull,
   )(lobby));
 
+// findLobbyContainsUser :: (String, Array Lobby) -> Result LobbyErrors Lobby
 const findLobbyContainsUser = (username, lobbies) => {
   const foundLobby = R.find(isUsernameInLobby(username))(lobbies);
   return foundLobby

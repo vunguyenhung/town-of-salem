@@ -46,7 +46,6 @@ const isValidUsername = username =>
 // lobbyUsersLength :: Lobby -> Number | Undefined
 const lobbyUsersLength = R.path(['users', 'length']);
 
-// Lobby :: { id :: String, users :: [String], isClosed :: Boolean }
 // isValidLobby :: Lobby -> Result (LobbyErrors Lobby) Lobby
 const isValidLobby = lobby =>
   (R.where({
@@ -59,7 +58,6 @@ const isValidLobby = lobby =>
 const validate = (username, lobby) =>
   isValidUsername(username).chain(() => isValidLobby(lobby));
 
-// Lobby :: { id :: String, users :: Array String, isClosed :: Boolean }
 // updateLobbies :: Array Lobby -> Lobby -> Array Lobby
 const updateLobbies = R.curry((toBeUpdatedLobbies, subjectLobby) =>
   R.map(originalLobby =>
@@ -73,6 +71,7 @@ module.exports = {
   updateLobbies,
   lobbyUsersLength,
   LobbyErrors,
+
   // exports for testing purpose
   isValidLobby,
 };
