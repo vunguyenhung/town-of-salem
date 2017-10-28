@@ -32,6 +32,7 @@ const preprocess = (command) => {
   return R.mapObjIndexed(parse, command);
 };
 
+// TODO: check the case required field of command is an empty String. Ex: "", "  "
 // Command :: {type :: String, payload :: Any}
 // validate :: Command -> Result String Command
 const validate = (command) => {

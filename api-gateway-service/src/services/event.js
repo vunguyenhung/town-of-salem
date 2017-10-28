@@ -10,7 +10,7 @@ const messageToStateChanges = message => ({
 
 const start = () => startConsuming()
   .map(messageToStateChanges)
-  .map(publishToStateUpdatesChannel);
+  .map(publishToStateUpdatesChannel); 
 
 module.exports = {
   start,
