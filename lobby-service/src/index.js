@@ -8,8 +8,8 @@ Project file imports
  */
 const createExpressApp = require('./app');
 const { improvedEnv } = require('./env');
-const StartupService = require('./services/startup.service');
-const EventService = require('./services/event.service');
+const StartupService = require('./infrastructures/services/startup.service');
+const EventService = require('./infrastructures/services/event.service');
 
 const server = http.createServer(createExpressApp(improvedEnv));
 
