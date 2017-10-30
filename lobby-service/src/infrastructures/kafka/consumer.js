@@ -50,13 +50,8 @@ const initConsumer = topics =>
 
 // getConsumerObservable :: Number -> Observable Error Consumer
 const getConsumerObservable = consumerIndex =>
-  Rx.Observable.create((obs) => {
-    const consumer = storage.consumers[consumerIndex];
-    if (consumer) {
-      obs.next(consumer);
-      obs.complete();
-    } else obs.error(new Error('Consumer not found'));
-  });
+  Rx.Observable.of(storage.consumers[consumerIndex])
+    .first(val => val != undefined);
 
 // onMessage :: Consumer -> Observable Message
 const onMessage = consumer =>
