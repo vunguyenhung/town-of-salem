@@ -10,9 +10,9 @@ const R = require('ramda');
 /*
 Project file imports
  */
-const { StartUserAdd, StartLobbyAdd, StartUserRemove } = require('../');
-const { ActionTypes } = require('../../actions');
-const { addUser, addLobby, removeUser } = require('../../../entities');
+const { StartUserAdd, StartLobbyAdd, StartUserRemove } = require('../effects');
+const { ActionTypes } = require('../actions');
+const { addUser, addLobby, removeUser } = require('../../../entities/index');
 const { createLobby } = require('../../../entities/add-lobby');
 
 const mockStore = configureMockStore([

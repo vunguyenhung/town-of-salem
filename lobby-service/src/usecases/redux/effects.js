@@ -7,9 +7,9 @@ const Result = require('folktale/result');
 /*
 Project file imports
  */
-const { addUser, addLobby, removeUser } = require('../../entities');
-const { SetLobbies, SetLobbiesFailed } = require('../actions');
-const { lobbiesSelector } = require('../reducers');
+const { addUser, addLobby, removeUser } = require('../../entities/index');
+const { SetLobbies, SetLobbiesFailed } = require('./actions');
+const { lobbiesSelector } = require('./reducers');
 
 const StartLobbyAdd = () => (dispatch, getState) =>
   R.pipe(
@@ -17,8 +17,6 @@ const StartLobbyAdd = () => (dispatch, getState) =>
     SetLobbies,
     dispatch,
   )(lobbiesSelector(getState()));
-
-// const StartGameCreate = users => (dispatch) =>
 
 const errorToAction = lobbyError =>
   lobbyError.matchWith({
@@ -30,6 +28,8 @@ const errorToAction = lobbyError =>
     LobbiesAlreadyContainsUser: SetLobbiesFailed,
     LobbiesNotContainUsername: SetLobbiesFailed,
   });
+
+// const StartGameCreate = users => (dispatch) =>
 
 const StartUserAdd = username => (dispatch, getState) =>
   addUser(username, lobbiesSelector(getState())).matchWith({

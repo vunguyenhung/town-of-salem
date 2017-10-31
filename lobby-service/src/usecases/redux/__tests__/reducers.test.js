@@ -6,11 +6,11 @@ const uuid = require('uuid/v4');
 /*
 Project file imports
  */
-const { reducer, lobbiesSelector } = require('../');
-const { SetLobbies } = require('../../actions');
+const { reducer, lobbiesSelector } = require('../reducers');
+const { SetLobbies } = require('../actions');
 
 describe('Lobby reducer', () => {
-  // TODO: remove duplication of this in effects/index.test.js
+  // TODO: remove duplication of this in effects/effects.test.js
   const initialLobby = {
     id: uuid(),
     users: [],

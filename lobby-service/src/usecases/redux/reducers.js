@@ -1,5 +1,5 @@
 const { handleActions } = require('redux-actions');
-const { SetLobbies } = require('../actions');
+const { SetLobbies } = require('./actions');
 
 const initialState = {
   lobbies: [],
