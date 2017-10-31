@@ -48,10 +48,11 @@ const initConsumer = topics =>
     .map(() => Result.Ok({ KafkaConsumer: 'Ok' }))
     .orElse(err => Task.of(Result.Error({ KafkaConsumer: err })));
 
+// TODO: test this when we touch the infrastructure things
 // getConsumerObservable :: Number -> Observable Error Consumer
 const getConsumerObservable = consumerIndex =>
   Rx.Observable.of(storage.consumers[consumerIndex])
-    .first(val => val != undefined);
+    .first(val => !!val);
 
 // onMessage :: Consumer -> Observable Message
 const onMessage = consumer =>
