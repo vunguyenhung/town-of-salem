@@ -71,7 +71,7 @@ describe('Lobby effect test', () => {
 
   it('should dispatch SetLobbies twice, ' +
     'first one for adding new lobby and second one for adding new user ' +
-    'when dispatch StartUserAdd thunk when there is no available lobby', () => {
+    'when dispatch StartUserAdd thunk and there is no available lobby', () => {
     // GIVEN
     const fullLobby = {
       id: uuid(),
@@ -113,7 +113,7 @@ describe('Lobby effect test', () => {
   });
 
   it('should dispatch SetLobbiesFailed Action ' +
-    'when dispatch StartUserAdd with lobbies already containing user', () => {
+    'when dispatch StartUserAdd and lobbies already containing user', () => {
     // GIVEN
     const existingUser = 'user2';
 

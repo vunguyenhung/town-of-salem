@@ -29,7 +29,7 @@ const errorToAction = lobbyError =>
     LobbiesNotContainUsername: SetLobbiesFailed,
   });
 
-// const StartGameCreate = users => (dispatch) =>
+// TODO: implement StartGameCreate effect here
 
 const StartUserAdd = username => (dispatch, getState) =>
   addUser(username, lobbiesSelector(getState())).matchWith({

@@ -13,7 +13,7 @@ const { reducer } = require('./reducers');
 const middlewares = [
   thunk,
   createLogger(),
-  // more middleware here.
+  // ...more middleware goes here.
 ];
 
 const store = createStore(reducer, applyMiddleware(...middlewares));

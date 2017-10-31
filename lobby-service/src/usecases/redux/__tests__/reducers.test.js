@@ -23,11 +23,11 @@ describe('Lobby reducer', () => {
     lobbies: initialLobbies,
   };
 
-  it('should return lobbies correctly when get it by lobbiesSelector', () => {
+  it('should return lobbies correctly when get it from State by lobbiesSelector', () => {
     expect(lobbiesSelector(initialState)).toEqual(initialLobbies);
   });
 
-  it('should set new lobbies in state when dispatch SetLobbies Action', () => {
+  it('should set new lobbies in State when dispatch SetLobbies Action', () => {
     // GIVEN
     const emptyState = {
       lobbies: [],

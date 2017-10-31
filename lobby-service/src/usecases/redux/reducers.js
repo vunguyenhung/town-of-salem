@@ -6,7 +6,6 @@ const initialState = {
 };
 
 const reducer = handleActions({
-  // QUESTION: can we refactor this?
   [SetLobbies]: (state, { payload }) => ({ lobbies: payload }),
 }, initialState);
 
