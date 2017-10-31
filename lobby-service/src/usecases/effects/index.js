@@ -7,8 +7,8 @@ const Result = require('folktale/result');
 /*
 Project file imports
  */
-const { addUser, addLobby } = require('../../entities');
-const { SetLobbies } = require('../actions');
+const { addUser, addLobby, removeUser } = require('../../entities');
+const { SetLobbies, SetLobbiesFailed } = require('../actions');
 const { lobbiesSelector } = require('../reducers');
 
 const StartLobbyAdd = () => (dispatch, getState) =>
@@ -18,21 +18,34 @@ const StartLobbyAdd = () => (dispatch, getState) =>
     dispatch,
   )(lobbiesSelector(getState()));
 
+// const StartGameCreate = users => (dispatch) =>
+
+const errorToAction = lobbyError =>
+  lobbyError.matchWith({
+    NoLobbyAvailable: ({ lobbies, username }) =>
+      Result.of(addLobby(lobbies))
+        .chain(addUser(username))
+        .map(SetLobbies)
+        .merge(),
+    LobbiesAlreadyContainsUser: SetLobbiesFailed,
+    LobbiesNotContainUsername: SetLobbiesFailed,
+  });
+
 const StartUserAdd = username => (dispatch, getState) =>
   addUser(username, lobbiesSelector(getState())).matchWith({
+    // TODO: handle the case when lobby is full after addUser
     Ok: ({ value }) => dispatch(SetLobbies(value)),
-    // TODO: move this to handleLobbyError function when needed
-    Error: ({ value }) => value.matchWith({
-      NoLobbyAvailable: () =>
-        Result.of(addLobby(lobbiesSelector(getState())))
-          .chain(addUser(username))
-          .map(SetLobbies)
-          .map(dispatch)
-          .merge(),
-    }),
+    Error: ({ value }) => dispatch(errorToAction(value)),
+  });
+
+const StartUserRemove = username => (dispatch, getState) =>
+  removeUser(username, lobbiesSelector(getState())).matchWith({
+    Ok: ({ value }) => dispatch(SetLobbies(value)),
+    Error: ({ value }) => dispatch(errorToAction(value)),
   });
 
 module.exports = {
   StartUserAdd,
   StartLobbyAdd,
+  StartUserRemove,
 };

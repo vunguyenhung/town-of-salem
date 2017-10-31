@@ -10,9 +10,9 @@ const R = require('ramda');
 /*
 Project file imports
  */
-const { StartUserAdd, StartLobbyAdd } = require('../');
+const { StartUserAdd, StartLobbyAdd, StartUserRemove } = require('../');
 const { ActionTypes } = require('../../actions');
-const { addUser, addLobby } = require('../../../entities');
+const { addUser, addLobby, removeUser } = require('../../../entities');
 const { createLobby } = require('../../../entities/add-lobby');
 
 const mockStore = configureMockStore([
@@ -22,7 +22,7 @@ const mockStore = configureMockStore([
 
 describe('Lobby effect test', () => {
   it('should dispatch SetLobbies Action with new user added to an available lobby ' +
-    'when dispatch StartUserAdd when there is an available lobby in lobbies', () => {
+    'when dispatch StartUserAdd and there is an available lobby in lobbies', () => {
     // GIVEN
     const toBeAddedUser = 'vunguyenhung';
 
@@ -73,7 +73,6 @@ describe('Lobby effect test', () => {
     'first one for adding new lobby and second one for adding new user ' +
     'when dispatch StartUserAdd thunk when there is no available lobby', () => {
     // GIVEN
-    // TODO: remove duplication of this.
     const fullLobby = {
       id: uuid(),
       users: R.repeat('vunguyenhung', 15),
@@ -111,5 +110,89 @@ describe('Lobby effect test', () => {
     expect(actualActions[0].payload[0]).toEqual(expectedActions[0].payload[0]);
     expect(actualActions[0].payload[1].users).toEqual(expectedActions[0].payload[1].users);
     expect(actualActions[0].payload[1].isClosed).toEqual(expectedActions[0].payload[1].isClosed);
+  });
+
+  it('should dispatch SetLobbiesFailed Action ' +
+    'when dispatch StartUserAdd with lobbies already containing user', () => {
+    // GIVEN
+    const existingUser = 'user2';
+
+    const initialLobbies = [{
+      id: uuid(),
+      users: ['user1', existingUser, 'user3'],
+      isClosed: true,
+    }];
+
+    const expectedPayload = addUser(existingUser, initialLobbies).merge();
+
+    const expectedActions = [
+      { type: ActionTypes.SET_LOBBIES_FAILED, payload: expectedPayload },
+    ];
+
+    // STUB
+    const store = mockStore({ lobbies: initialLobbies });
+
+    // WHEN
+    store.dispatch(StartUserAdd(existingUser));
+    const actualActions = store.getActions();
+
+    // THEN
+    expect(actualActions).toEqual(expectedActions);
+  });
+
+  it('should dispatch SetLobbies Action with specified user removed from an containing lobby ' +
+    'when dispatch StartUserRemove', () => {
+    // GIVEN
+    const toBeRemovedUser = 'user2';
+
+    const initialLobbies = [{
+      id: uuid(),
+      users: ['user1', toBeRemovedUser, 'user3'],
+      isClosed: true,
+    }];
+
+    const expectedPayload = removeUser(toBeRemovedUser, initialLobbies).merge();
+
+    const expectedActions = [
+      { type: ActionTypes.SET_LOBBIES, payload: expectedPayload },
+    ];
+
+    // STUB
+    const store = mockStore({ lobbies: initialLobbies });
+
+    // WHEN
+    store.dispatch(StartUserRemove(toBeRemovedUser));
+    const actualActions = store.getActions();
+
+    // THEN
+    expect(actualActions).toEqual(expectedActions);
+  });
+
+  it('should dispatch SetLobbiesFailed Action ' +
+    'when dispatch StartUserRemove with lobbies not containing user', () => {
+    // GIVEN
+    const notExistingUser = 'user2';
+
+    const initialLobbies = [{
+      id: uuid(),
+      users: ['user1', 'user3'],
+      isClosed: true,
+    }];
+
+    const expectedPayload = removeUser(notExistingUser, initialLobbies).merge();
+
+    const expectedActions = [
+      { type: ActionTypes.SET_LOBBIES_FAILED, payload: expectedPayload },
+    ];
+
+    // STUB
+    const store = mockStore({ lobbies: initialLobbies });
+
+    // WHEN
+    store.dispatch(StartUserRemove(notExistingUser));
+    const actualActions = store.getActions();
+
+    // THEN
+    expect(actualActions).toEqual(expectedActions);
   });
 });

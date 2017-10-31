@@ -17,8 +17,8 @@ const LobbyErrors = union('lobby-errors', {
   MissingFields(lobby) {
     return { lobby };
   },
-  NoLobbyAvailable(lobbies) {
-    return { lobbies };
+  NoLobbyAvailable(lobbies, username) {
+    return { lobbies, username };
   },
   LobbiesNotContainUsername(lobbies, username) {
     return { lobbies, username };

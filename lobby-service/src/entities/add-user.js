@@ -41,10 +41,12 @@ const addUserToLobby = R.curry((username, lobby) =>
     .map(closeLobbyIfFull));
 
 // findAvailableLobby :: Array Lobby -> Result (LobbyErrors Array Lobby) Lobby
-const findAvailableLobby = (lobbies) => {
+const findAvailableLobby = R.curry((username, lobbies) => {
   const foundLobby = R.find(R.whereEq({ isClosed: false }))(lobbies);
-  return foundLobby ? Result.Ok(foundLobby) : Result.Error(LobbyErrors.NoLobbyAvailable(lobbies));
-};
+  return foundLobby
+    ? Result.Ok(foundLobby)
+    : Result.Error(LobbyErrors.NoLobbyAvailable(lobbies, username));
+});
 
 // checkIfLobbiesContainsUser :: (Array Lobby, String) -> Result LobbyErrors Array Lobby
 const checkIfLobbiesContainsUser = (lobbies, username) => {
@@ -57,7 +59,7 @@ const checkIfLobbiesContainsUser = (lobbies, username) => {
 // addUser :: User -> Array Lobby -> Result (LobbyErrors Array Lobby) Array Lobby
 const addUser = R.curry((username, lobbies) => (
   checkIfLobbiesContainsUser(lobbies, username)
-    .chain(findAvailableLobby)
+    .chain(findAvailableLobby(username))
     .chain(addUserToLobby(username))
     .map(updateLobbies(lobbies))
 ));

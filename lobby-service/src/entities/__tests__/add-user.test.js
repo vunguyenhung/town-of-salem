@@ -116,7 +116,7 @@ describe('Lobby Entity add user operation', () => {
       };
       const allClosedLobbies = [closedLobby];
 
-      const expectedError = LobbyErrors.NoLobbyAvailable(allClosedLobbies);
+      const expectedError = LobbyErrors.NoLobbyAvailable(allClosedLobbies, validUsername);
 
       // WHEN
       const actualResult = addUser(validUsername, allClosedLobbies);
