@@ -14,9 +14,9 @@ Project file imports
  */
 const createExpressApp = require('./app');
 const { improvedEnv } = require('./env');
-const { schema } = require('./graphql/schema');
-const StartupService = require('./services/startup');
-const EventService = require('./services/event');
+const { schema } = require('./infrastructures/graphql/schema');
+const StartupService = require('./infrastructures/services/startup');
+const EventService = require('./infrastructures/services/event');
 
 const server = http.createServer(createExpressApp(improvedEnv));
 

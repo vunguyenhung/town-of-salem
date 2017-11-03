@@ -12,7 +12,7 @@ Project file imports
 const { baseResolver } = require('./base.resolver');
 const { sendLoginRequest } = require('./login.resolver');
 const MESSAGE = require('../../services/message');
-const { improvedEnv } = require('../../env');
+const { improvedEnv } = require('../../../env');
 
 const InvalidRegisterError = createError('InvalidRegisterError', {
   message: MESSAGE.DEFAULT_INVALID_REGISTER_ERROR,

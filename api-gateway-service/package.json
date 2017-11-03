@@ -35,6 +35,7 @@
     "graphql-subscriptions": "0.5.4",
     "graphql-tools": "1.2.3",
     "kafka-node": "2.2.3",
+    "kafka-node-driver": "git+https://github.com/vunguyenhung/kafka-node-driver.git",
     "morgan": "1.8.1",
     "ramda": "0.24.1",
     "rxjs": "5.4.3",

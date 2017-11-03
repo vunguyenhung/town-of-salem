@@ -11,7 +11,7 @@ Project file imports
  */
 const { baseResolver } = require('./base.resolver');
 const MESSAGE = require('../../services/message');
-const { improvedEnv } = require('../../env');
+const { improvedEnv } = require('../../../env');
 
 const InvalidLoginError = createError('InvalidLoginError', {
   message: MESSAGE.DEFAULT_INVALID_LOGIN_ERROR,

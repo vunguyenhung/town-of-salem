@@ -1,3 +1,4 @@
+// TODO: refactor this
 const { publishToStateUpdatesChannel } = require('../graphql/pubsub');
 const { startConsuming } = require('../kafka/consumer');
 
@@ -10,7 +11,7 @@ const messageToStateChanges = message => ({
 
 const start = () => startConsuming()
   .map(messageToStateChanges)
-  .map(publishToStateUpdatesChannel); 
+  .map(publishToStateUpdatesChannel);
 
 module.exports = {
   start,

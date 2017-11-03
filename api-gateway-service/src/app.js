@@ -6,7 +6,7 @@ const path = require('path');
 const compression = require('compression');
 
 const apolloServerExpress = require('apollo-server-express');
-const { schema } = require('./graphql/schema');
+const { schema } = require('./infrastructures/graphql/schema');
 
 const { formatError } = require('apollo-errors');
 
