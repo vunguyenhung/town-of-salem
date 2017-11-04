@@ -69,8 +69,7 @@ describe('Lobby effect test', () => {
     expect(actualActions).toEqual(expectedActions);
   });
 
-  it('should dispatch SetLobbies twice, ' +
-    'first one for adding new lobby and second one for adding new user ' +
+  it('should dispatch SetLobbies with new lobby contains new user added ' +
     'when dispatch StartUserAdd thunk and there is no available lobby', () => {
     // GIVEN
     const fullLobby = {
