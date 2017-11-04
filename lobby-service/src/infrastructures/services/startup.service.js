@@ -2,22 +2,20 @@
 3rd Party library imports
  */
 const { waitAll } = require('folktale/concurrency/task');
-const R = require('ramda');
-
+const { createProducer } = require('kafka-node-driver');
+const config = require('config');
 /*
 Project file imports
  */
-const { initProducer } = require('../kafka/producer');
-const { initConsumer } = require('../kafka/consumer');
+// const { initConsumer } = require('../kafka/consumer');
 
 const constructTasks = () => waitAll([
-  initProducer(),
-  initConsumer([{ topic: 'tos-lobby-events' }]),
+  createProducer(config.get('Kafka')),
+  // initConsumer([{ topic: 'tos-lobby-events' }]),
   // ... more task goes here
 ]);
 
 const run = () => constructTasks()
-  .map(R.map(result => result.merge()))
   .run()
   .promise();
 

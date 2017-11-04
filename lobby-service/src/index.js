@@ -2,27 +2,32 @@
 3rd Party library imports
  */
 const http = require('http');
+const log = require('debug')('src:index');
+const config = require('config');
 
 /*
 Project file imports
  */
-const createExpressApp = require('./app');
-const { improvedEnv } = require('./env');
+const app = require('./app');
 const StartupService = require('./infrastructures/services/startup.service');
-const EventService = require('./infrastructures/services/event.service');
+// const EventService = require('./infrastructures/services/event.service');
 
-const server = http.createServer(createExpressApp(improvedEnv));
+const server = http.createServer(app);
 
-server.listen(improvedEnv.APP_PORT, () => {
-  console.log(
+server.listen(config.get('App.port'), () => {
+  log(
     ('App is running at http://localhost:%d in %s mode'),
-    improvedEnv.APP_PORT, improvedEnv.NODE_ENV,
+    config.get('App.port'), config.get('NODE_ENV'),
   );
 });
 
-StartupService.run().then((result) => {
-  console.log(result);
-  EventService
-    .start()
-    .subscribe(publishResult => console.log(`Publish result: ${publishResult}`));
-});
+StartupService.run().then(log);
+
+// TODO: fix consumer
+// StartupService.run()
+//   .then((result) => {
+//     log(result);
+//     // EventService
+//     //   .start()
+//     //   .subscribe(publishResult => console.log(`Publish result: ${publishResult}`));
+//   });

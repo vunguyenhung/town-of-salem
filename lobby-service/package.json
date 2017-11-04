@@ -5,7 +5,11 @@
   "main": "index.js",
   "scripts": {
     "start": "node ./src/index.js",
-    "serve": "nodemon ./src/index.js",
+    "start:local": "NODE_ENV=localhost node ./src/index.js",
+    "start:docker": "NODE_ENV=docker node ./src/index.js",
+    "serve": "DEBUG=src:*,kafka-node:* DEBUG_COLORS=true nodemon ./src/index.js",
+    "serve:local": "NODE_ENV=localhost DEBUG=src:*,kafka-node:* DEBUG_COLORS=true nodemon ./src/index.js",
+    "serve:docker": "NODE_ENV=docker DEBUG=src:*,kafka-node:* DEBUG_COLORS=true nodemon ./src/index.js",
     "test": "jest",
     "test:watch": "jest --watch"
   },
@@ -30,12 +34,13 @@
   "dependencies": {
     "body-parser": "1.17.1",
     "compression": "1.7.0",
-    "debug": "2.6.3",
-    "dotenv": "4.0.0",
+    "config": "1.27.0",
+    "debug": "3.1.0",
     "errorhandler": "1.5.0",
     "express": "4.15.2",
     "folktale": "2.0.1",
     "kafka-node": "2.2.3",
+    "kafka-node-driver": "git+https://github.com/vunguyenhung/kafka-node-driver.git",
     "morgan": "1.8.1",
     "ramda": "0.24.1",
     "redux": "3.7.2",

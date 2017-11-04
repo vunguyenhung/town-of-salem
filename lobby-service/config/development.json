@@ -1,0 +1,8 @@
+{
+  "Kafka": {
+    "clientOptions": {
+      "kafkaHost": "kafka:9092"
+    }
+  },
+  "NODE_ENV": "docker"
+}
