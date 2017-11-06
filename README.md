@@ -14,5 +14,5 @@ Running The Project
 bash start.sh
 ```
 *Optional flag:*  
-`-d`: Run project in development mode, all service are hot reloaded by default.
+`-d`: Run project in development mode, all service are hot reloaded by default.  
 `-n`: Re-build project's docker images before running.
