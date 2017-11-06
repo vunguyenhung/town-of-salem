@@ -1,6 +1,6 @@
 Town Of Salem Mini
 =============
-This is my school assignment project. The target is replicate the standard mode functionality of the famous game Town Of Salem.
+This is my school assignment project. The target is to replicate the Standard Mode functionality of the famous game Town Of Salem.
 
 Running The Project
 ----------------------
