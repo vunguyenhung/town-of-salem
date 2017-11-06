@@ -9,8 +9,7 @@ const config = require('config');
 Project file imports
  */
 const app = require('./app');
-const StartupService = require('./infrastructures/services/startup.service');
-const EventService = require('./infrastructures/services/event.service');
+const StartupTasks = require('./infrastructures/startup-tasks');
 
 const server = http.createServer(app);
 
@@ -21,11 +20,11 @@ server.listen(config.get('App.port'), () => {
   );
 });
 
-StartupService.run()
-  .then((result) => {
-    log(result);
-    EventService
-      .onMessage(0)
-      .subscribe(message => log('Message received', message));
+StartupTasks.start()
+  .run()
+  .promise()
+  .then((onMessage) => {
+    onMessage.subscribe(message => log('Message received', message));
+    //    onMessage.subscribe(EventController.processMessage))
   })
-  .catch(log); // TODO: handle error here;
+  .catch(log); // Just log the error out

@@ -3,11 +3,12 @@
  */
 const config = require('config');
 const { Producer, Consumer } = require('kafka-node-driver');
+const Task = require('folktale/concurrency/task');
 // const log = require('debug')('src:StartUpService');
 /*
 Project file imports
  */
-const { trace } = require('../../utils');
+const { trace } = require('../utils');
 
 const createProducer = options =>
   Producer.createProducer(options)
@@ -17,17 +18,19 @@ const createConsumer = (options, topics) =>
   Consumer.createConsumer(options, topics)
     .map(consumerStatus => ({ consumerStatus }));
 
+const onMessage = consumerIndex =>
+  Task.of(Consumer.onMessage(consumerIndex));
+
 const constructTasks = () =>
   createProducer(config.get('Kafka'))
     .map(trace('Create producer result: '))
     .chain(() => Producer.createTopics(['tos-lobby-events'], 0))
     .map(trace('Create topic result: '))
     .chain(() => createConsumer(config.get('Kafka'), [{ topic: 'tos-lobby-events' }]))
-    .map(trace('Create consumer result: '));
+    .map(trace('Create consumer result: '))
+    .chain(() => onMessage(0));
 
-const run = () => constructTasks()
-// .orElse // TODO: catch error here.
-  .run()
-  .promise();
+// const start = () => constructTasks();
+// .orElse(error => );
 
-exports.run = run;
+exports.start = constructTasks;
