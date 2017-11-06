@@ -1,11 +1,9 @@
-const { startConsuming } = require('../kafka/consumer');
+const { Consumer } = require('kafka-node-driver');
 
 // TODO: validate event here
 // - validate type (How to change action based on type?)
 // - validate payload shape
 // - validate API token (with jwt secret. But for simplify we use decode)
-
-const start = () => startConsuming();
 // consume message from tos-lobby-events
 // process the raw input (JSON.parse,... )
 // validate the processed input
@@ -17,6 +15,9 @@ const start = () => startConsuming();
 // .map(messageToStateChanges)
 // .map(publishToStateUpdatesChannel);
 
+const onMessage = consumerIndex =>
+  Consumer.onMessage(consumerIndex);
+
 module.exports = {
-  start,
+  onMessage,
 };

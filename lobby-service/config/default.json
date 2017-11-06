@@ -1,5 +1,11 @@
 {
   "App": {
     "port": 3002
+  },
+  "Kafka": {
+    "consumerOptions": {
+      "autoCommitIntervalMs": 1000,
+      "groupId": "lobby-service"
+    }
   }
 }

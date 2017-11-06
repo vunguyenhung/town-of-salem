@@ -10,7 +10,7 @@ Project file imports
  */
 const app = require('./app');
 const StartupService = require('./infrastructures/services/startup.service');
-// const EventService = require('./infrastructures/services/event.service');
+const EventService = require('./infrastructures/services/event.service');
 
 const server = http.createServer(app);
 
@@ -21,13 +21,11 @@ server.listen(config.get('App.port'), () => {
   );
 });
 
-StartupService.run().then(log);
-
-// TODO: fix consumer
-// StartupService.run()
-//   .then((result) => {
-//     log(result);
-//     // EventService
-//     //   .start()
-//     //   .subscribe(publishResult => console.log(`Publish result: ${publishResult}`));
-//   });
+StartupService.run()
+  .then((result) => {
+    log(result);
+    EventService
+      .onMessage(0)
+      .subscribe(message => log('Message received', message));
+  })
+  .catch(log); // TODO: handle error here;
