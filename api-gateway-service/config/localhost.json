@@ -1,0 +1,8 @@
+{
+  "Kafka": {
+    "clientOptions": {
+      "kafkaHost": "localhost:9092"
+    }
+  },
+  "NODE_ENV": "localhost"
+}

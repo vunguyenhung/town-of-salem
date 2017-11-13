@@ -10,7 +10,7 @@ const R = require('ramda');
 Project file imports
  */
 const { baseResolver } = require('./base.resolver');
-const MESSAGE = require('../../services/message');
+const MESSAGE = require('../../message');
 const { improvedEnv } = require('../../../env');
 
 const InvalidLoginError = createError('InvalidLoginError', {

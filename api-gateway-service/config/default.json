@@ -1,0 +1,13 @@
+{
+  "App": {
+    "port": 3000
+  },
+  "GraphQLSubscriptionEndpoint": "ws://localhost:3000/graphql",
+  "Kafka": {
+    "consumerOptions": {
+      "autoCommitIntervalMs": 1000,
+      "groupId": "api-gateway-service"
+    }
+  },
+  "AuthenticationServiceEndpoint": "http://localhost:3001/auth"
+}

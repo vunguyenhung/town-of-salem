@@ -1,24 +1,27 @@
+/*
+3rd Party imports
+ */
 const express = require('express');
 const logger = require('morgan');
 const bodyParser = require('body-parser');
 const errorHandler = require('errorhandler');
-const path = require('path');
 const compression = require('compression');
-
 const apolloServerExpress = require('apollo-server-express');
+const { formatError } = require('apollo-errors');
+const config = require('config');
+
+/*
+Project file imports
+ */
 const { schema } = require('./infrastructures/graphql/schema');
 
-const { formatError } = require('apollo-errors');
-
-const createExpressApp = (env) => {
+const createExpressApp = () => {
   const app = express();
 
-  app.set('port', env.APP_PORT || 3000);
   app.use(compression());
   app.use(logger('dev'));
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: true }));
-  app.use(express.static(path.join(__dirname, 'public')));
 
   app.use(errorHandler());
 
@@ -33,10 +36,10 @@ const createExpressApp = (env) => {
 
   app.use('/graphiql', apolloServerExpress.graphiqlExpress({
     endpointURL: '/graphql',
-    subscriptionsEndpoint: env.GRAPHQL_SUBSCRIPTION_ENDPOINT,
+    subscriptionsEndpoint: config.get('GraphQLSubscriptionEndpoint'),
   }));
 
   return app;
 };
 
-module.exports = createExpressApp;
+module.exports = createExpressApp();

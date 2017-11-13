@@ -1,5 +1,5 @@
 const { createError } = require('apollo-errors');
-const MESSAGE = require('../services/message');
+const MESSAGE = require('../message');
 
 const InvalidCommandError = createError('InvalidCommandError', {
   message: MESSAGE.DEFAULT_INVALID_COMMAND_ERROR,

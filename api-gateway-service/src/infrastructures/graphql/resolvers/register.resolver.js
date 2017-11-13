@@ -11,7 +11,7 @@ Project file imports
  */
 const { baseResolver } = require('./base.resolver');
 const { sendLoginRequest } = require('./login.resolver');
-const MESSAGE = require('../../services/message');
+const MESSAGE = require('../../message');
 const { improvedEnv } = require('../../../env');
 
 const InvalidRegisterError = createError('InvalidRegisterError', {

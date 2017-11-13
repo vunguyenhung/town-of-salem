@@ -2,6 +2,7 @@
 3rd Party library imports
  */
 const http = require('http');
+const log = require('debug')('src:index');
 
 /*
 Graphql-related imports
@@ -12,28 +13,28 @@ const { SubscriptionServer } = require('subscriptions-transport-ws');
 /*
 Project file imports
  */
-const createExpressApp = require('./app');
-const { improvedEnv } = require('./env');
+const app = require('./app');
+const config = require('config');
 const { schema } = require('./infrastructures/graphql/schema');
-const StartupService = require('./infrastructures/services/startup');
-const EventService = require('./infrastructures/services/event');
+const StartupTasks = require('./infrastructures/startup-tasks');
 
-const server = http.createServer(createExpressApp(improvedEnv));
+const server = http.createServer(app);
 
-server.listen(improvedEnv.APP_PORT, () => {
+server.listen(config.get('App.port'), () => {
   SubscriptionServer.create(
     { execute, subscribe, schema },
     { server, path: '/graphql' },
   );
-  console.log(
+  log(
     ('App is running at http://localhost:%d in %s mode'),
-    improvedEnv.APP_PORT, improvedEnv.NODE_ENV,
+    config.get('App.port'), config.get('NODE_ENV'),
   );
 });
 
-StartupService.run().then((result) => {
-  console.log(result);
-  EventService
-    .start()
-    .subscribe(publishResult => console.log(`Publish result: ${publishResult}`));
-});
+StartupTasks.start()
+  .run().promise()
+  .then((onMessage) => {
+    onMessage
+      .subscribe(messageReceived => log(`Message Received: ${messageReceived}`));
+  })
+  .catch(log);

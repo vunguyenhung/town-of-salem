@@ -16,7 +16,6 @@ exports.RootType = `
     }
 
     type Mutation {
-        sendCommand(command: CommandInput!): String!
         register(user: UserInput!): String
     }
 
