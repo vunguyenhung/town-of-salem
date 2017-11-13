@@ -11,7 +11,7 @@ Project file imports
 const { addUserToLobby, addUser } = require('../add-user');
 const { LobbyErrors } = require('../common');
 
-describe('Lobby Entity add user operation', () => {
+describe('Lobby Entity: Add User operation', () => {
   const initialLobby = {
     id: uuid(),
     users: [],
@@ -91,17 +91,17 @@ describe('Lobby Entity add user operation', () => {
       // GIVEN
       const initialLobbies = [initialLobby];
 
-      const expectedLobbies = [{
+      const expectedLobby = {
         ...initialLobby,
         users: [validUsername],
-      }];
+      };
 
       // WHEN
       const actualResult = addUser(validUsername, initialLobbies);
 
       // THEN
       expect(Result.Ok.hasInstance(actualResult)).toBeTruthy();
-      expect(actualResult.merge()).toEqual(expectedLobbies);
+      expect(actualResult.merge()).toEqual(expectedLobby);
     },
   );
 
@@ -139,17 +139,17 @@ describe('Lobby Entity add user operation', () => {
 
       const initialLobbies = [initialLobby, secondLobby];
 
-      const expectedLobbies = [{
+      const expectedLobby = {
         ...initialLobby,
         users: [validUsername],
-      }, secondLobby];
+      };
 
       // WHEN
       const actualResult = addUser(validUsername, initialLobbies);
 
       // THEN
       expect(Result.Ok.hasInstance(actualResult)).toBeTruthy();
-      expect(actualResult.merge()).toEqual(expectedLobbies);
+      expect(actualResult.merge()).toEqual(expectedLobby);
     },
   );
 
@@ -165,18 +165,18 @@ describe('Lobby Entity add user operation', () => {
 
     const lobbies = [toBeClosedLobby];
 
-    const expectedLobbies = [{
+    const expectedLobby = {
       ...toBeClosedLobby,
       users: [...toBeClosedLobby.users, validUsername],
       isClosed: true,
-    }];
+    };
 
     // WHEN
     const actualResult = addUser(validUsername, lobbies);
 
     // THEN
     expect(Result.Ok.hasInstance(actualResult)).toBeTruthy();
-    expect(actualResult.merge()).toEqual(expectedLobbies);
+    expect(actualResult.merge()).toEqual(expectedLobby);
   });
 
   it(

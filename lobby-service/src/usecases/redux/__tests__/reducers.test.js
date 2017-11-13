@@ -6,37 +6,31 @@ const uuid = require('uuid/v4');
 /*
 Project file imports
  */
-const { reducer, lobbiesSelector } = require('../reducers');
-const { SetLobbies } = require('../actions');
+const { _updateLobbies } = require('../reducers');
 
 describe('Lobby reducer', () => {
-  // TODO: remove duplication of this in effects/effects.test.js
-  const initialLobby = {
-    id: uuid(),
-    users: [],
-    isClosed: false,
-  };
-
-  const initialLobbies = [initialLobby];
-
-  const initialState = {
-    lobbies: initialLobbies,
-  };
-
-  it('should return lobbies correctly when get it from State by lobbiesSelector', () => {
-    expect(lobbiesSelector(initialState)).toEqual(initialLobbies);
-  });
-
-  it('should set new lobbies in State when dispatch SetLobbies Action', () => {
+  it('should return new Lobbies correctly when update a lobby in lobbies', () => {
     // GIVEN
-    const emptyState = {
-      lobbies: [],
+    const id = uuid();
+
+    const initialLobby = {
+      id,
+      users: [],
+      isClosed: false,
+    };
+
+    const initialLobbies = [initialLobby];
+
+    const shouldBeUpdatedLobby = {
+      id,
+      users: ['newUser'],
+      isClosed: false,
     };
 
     // WHEN
-    const actualState = reducer(emptyState, SetLobbies(initialLobbies));
+    const actualLobbies = _updateLobbies(initialLobbies, shouldBeUpdatedLobby);
 
     // THEN
-    expect(actualState).toEqual(initialState);
+    expect(actualLobbies).toEqual(actualLobbies);
   });
 });

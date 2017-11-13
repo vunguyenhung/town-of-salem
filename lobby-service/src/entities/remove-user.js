@@ -7,16 +7,14 @@ const Result = require('folktale/result');
 /*
 Project file imports
  */
-const {
-  LobbyErrors, isUsernameInLobby, lobbyUsersLength, updateLobbies,
-} = require('./common');
+const Entity = require('./common');
 
 // closeLobby :: Lobby -> Lobby
 const openLobby = R.assoc('isClosed', false);
 
 // openLobbyIfNotFull :: Lobby -> Lobby
 const openLobbyIfNotFull = lobby =>
-  (lobbyUsersLength(lobby) < 15 ? openLobby(lobby) : lobby);
+  (Entity.lobbyUsersLength(lobby) < 15 ? openLobby(lobby) : lobby);
 
 // _removeUserFromLobby :: (String, Lobby) -> Lobby
 const _removeUserFromLobby = R.curry((username, lobby) => ({
@@ -33,17 +31,16 @@ const removeUserFromLobby = R.curry((username, lobby) =>
 
 // findLobbyContainsUser :: (String, Array Lobby) -> Result LobbyErrors Lobby
 const findLobbyContainsUser = (username, lobbies) => {
-  const foundLobby = R.find(isUsernameInLobby(username))(lobbies);
+  const foundLobby = R.find(Entity.isUsernameInLobby(username))(lobbies);
   return foundLobby
     ? Result.Ok(foundLobby)
-    : Result.Error(LobbyErrors.LobbiesNotContainUsername(lobbies, username));
+    : Result.Error(Entity.LobbyErrors.LobbiesNotContainUsername(lobbies, username));
 };
 
 // removeUser :: String -> Array Lobby -> Result (LobbyErrors String Array Lobby) Array Lobby
 const removeUser = (username, lobbies) =>
   findLobbyContainsUser(username, lobbies)
-    .map(removeUserFromLobby(username))
-    .map(updateLobbies(lobbies));
+    .map(removeUserFromLobby(username));
 
 module.exports = {
   removeUser,

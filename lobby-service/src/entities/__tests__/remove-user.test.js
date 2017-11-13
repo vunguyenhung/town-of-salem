@@ -34,12 +34,10 @@ describe('Lobby Entity remove user operation', () => {
     };
 
     // WHEN
-    const actualResult = removeUser('someUser3', lobbies).merge();
+    const actualResultLobby = removeUser('someUser3', lobbies).merge();
 
     // THEN
-    expect(actualResult).toHaveLength(2);
-    expect(actualResult[0]).toEqual(firstLobby);
-    expect(actualResult[1]).toEqual(expectedSecondLobby);
+    expect(actualResultLobby).toEqual(expectedSecondLobby);
   });
 
   it(
@@ -75,21 +73,17 @@ describe('Lobby Entity remove user operation', () => {
 
     const lobbies = [firstLobby, secondLobby, toBeRemovedLobby];
 
-    const expectedLobbies = [
-      firstLobby,
-      secondLobby,
-      {
-        ...toBeRemovedLobby,
-        users: [...randomUsers],
-        isClosed: false,
-      },
-    ];
+    const expectedLobby = {
+      ...toBeRemovedLobby,
+      users: [...randomUsers],
+      isClosed: false,
+    };
 
     // WHEN
-    const actualResult = removeUser(toBeRemovedUser, lobbies);
+    const actualResultLobby = removeUser(toBeRemovedUser, lobbies);
 
     // THEN
-    expect(Result.Ok.hasInstance(actualResult)).toBeTruthy();
-    expect(actualResult.merge()).toEqual(expectedLobbies);
+    expect(Result.Ok.hasInstance(actualResultLobby)).toBeTruthy();
+    expect(actualResultLobby.merge()).toEqual(expectedLobby);
   });
 });

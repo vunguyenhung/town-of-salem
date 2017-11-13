@@ -56,12 +56,13 @@ const checkIfLobbiesContainsUser = (lobbies, username) => {
     : Result.Ok(lobbies);
 };
 
+// TODO: add recovery from addUser error here.
+// Add lobby and then add userAgain if it is a NoLobbyAvailable
 // addUser :: User -> Array Lobby -> Result (LobbyErrors Array Lobby) Array Lobby
 const addUser = R.curry((username, lobbies) => (
   checkIfLobbiesContainsUser(lobbies, username)
     .chain(findAvailableLobby(username))
     .chain(addUserToLobby(username))
-    .map(updateLobbies(lobbies))
 ));
 
 module.exports = {

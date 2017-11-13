@@ -1,51 +1,49 @@
 /*
-3rd Party library imports
- */
-const R = require('ramda');
-const Result = require('folktale/result');
-
-/*
 Project file imports
  */
-const { addUser, addLobby, removeUser } = require('../../entities/index');
-const { SetLobbies, SetLobbiesFailed } = require('./actions');
-const { lobbiesSelector } = require('./reducers');
+const Entity = require('../../entities/index');
+const Actions = require('./actions');
+const { selectLobbies } = require('./reducers');
+const Utils = require('./utils');
 
-const StartLobbyAdd = () => (dispatch, getState) =>
-  R.pipe(
-    addLobby,
-    SetLobbies,
-    dispatch,
-  )(lobbiesSelector(getState()));
+// const errorToAction = lobbyError =>
+//   lobbyError.matchWith({
+//     NoLobbyAvailable: ({ lobbies, username }) =>
+//       Result.of(Entity.addLobby(lobbies))
+//         .chain(Entity.addUser(username))
+//         .map(Actions.AddUser)
+//         .merge(),
+//     LobbiesAlreadyContainsUser: Actions.AddUserFailed,
+//     LobbiesNotContainUsername: Actions.RemoveUserFailed,
+//   });
 
-const errorToAction = lobbyError =>
-  lobbyError.matchWith({
-    NoLobbyAvailable: ({ lobbies, username }) =>
-      Result.of(addLobby(lobbies))
-        .chain(addUser(username))
-        .map(SetLobbies)
-        .merge(),
-    LobbiesAlreadyContainsUser: SetLobbiesFailed,
-    LobbiesNotContainUsername: SetLobbiesFailed,
-  });
-
-// TODO: implement StartGameCreate effect here
+// TODO: implement StartClosingLobby effect here
+// this will dispatch closing lobby 10 times ?
 
 const StartUserAdd = username => (dispatch, getState) =>
-  addUser(username, lobbiesSelector(getState())).matchWith({
-    // TODO: handle the case when lobby is full after addUser
-    Ok: ({ value }) => dispatch(SetLobbies(value)),
-    Error: ({ value }) => dispatch(errorToAction(value)),
-  });
+  Entity.addUser(username, selectLobbies(getState())) // result Lobby
+    .matchWith({
+      Ok: ({ value }) => // value == lobby
+        // TODO: do something here in the case lobby is full after add.
+        // check if lobby in value is closed or not after add user.
+        // if yes, dispatch startLobbyAdd(), then dispatch startGameCreate effect
+        Utils.sendEvent('tos-state-update-events', '[Lobby] LOBBY_UPDATED', value)
+          .then(() => dispatch(Actions.AddUser(value))),
+      // Error: ({ value }) => dispatch(errorToAction(value)),
+      // we no need to care about this now
+      // do something to recover from error, then dispatch StartUserAdd again
+    });
 
 const StartUserRemove = username => (dispatch, getState) =>
-  removeUser(username, lobbiesSelector(getState())).matchWith({
-    Ok: ({ value }) => dispatch(SetLobbies(value)),
-    Error: ({ value }) => dispatch(errorToAction(value)),
-  });
+  Entity.removeUser(username, selectLobbies(getState()))
+    .matchWith({
+      Ok: ({ value }) =>
+        Utils.sendEvent('tos-state-update-events', '[Lobby] LOBBY_UPDATED', value)
+          .then(() => dispatch(Actions.RemoveUser(value))),
+      // Error: ({ value }) => dispatch(errorToAction(value)),
+    });
 
 module.exports = {
   StartUserAdd,
-  StartLobbyAdd,
   StartUserRemove,
 };

@@ -10,8 +10,8 @@
     "serve": "DEBUG=src:*,kafka-node:* DEBUG_COLORS=true nodemon ./src/index.js",
     "serve:local": "NODE_ENV=localhost DEBUG=src:*,kafka-node:* DEBUG_COLORS=true nodemon ./src/index.js",
     "serve:docker": "NODE_ENV=docker DEBUG=src:*,kafka-node:* DEBUG_COLORS=true nodemon ./src/index.js",
-    "test": "jest",
-    "test:watch": "jest --watch"
+    "test": "DEBUG=* jest",
+    "test:watch": "DEBUG=* jest --watch"
   },
   "repository": {
     "type": "git",
@@ -40,7 +40,7 @@
     "express": "4.15.2",
     "folktale": "2.0.1",
     "kafka-node": "2.2.3",
-    "kafka-node-driver": "git+https://github.com/vunguyenhung/kafka-node-driver.git",
+    "kafka-node-driver": "0.1.0",
     "morgan": "1.8.1",
     "ramda": "0.24.1",
     "redux": "3.7.2",
@@ -58,6 +58,7 @@
     "eslint-config-airbnb-base": "12.0.0",
     "eslint-plugin-import": "2.7.0",
     "jest": "21.1.0",
-    "nodemon": "1.12.1"
+    "nodemon": "1.12.1",
+    "sinon": "4.1.2"
   }
 }

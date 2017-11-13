@@ -5,15 +5,18 @@ const configureMockStore = require('redux-mock-store').default;
 const thunk = require('redux-thunk').default;
 const uuid = require('uuid/v4');
 const R = require('ramda');
+const sinon = require('sinon');
 // const { createLogger } = require('redux-logger');
 
 /*
 Project file imports
  */
-const { StartUserAdd, StartLobbyAdd, StartUserRemove } = require('../effects');
+const { StartUserAdd, StartUserRemove } = require('../effects');
 const { ActionTypes } = require('../actions');
-const { addUser, addLobby, removeUser } = require('../../../entities/index');
+const { addUser, removeUser } = require('../../../entities/index');
 const { createLobby } = require('../../../entities/add-lobby');
+
+const Utils = require('../utils');
 
 const mockStore = configureMockStore([
   thunk,
@@ -21,55 +24,35 @@ const mockStore = configureMockStore([
 ]);
 
 describe('Lobby effect test', () => {
-  it('should dispatch SetLobbies Action with new user added to an available lobby ' +
-    'when dispatch StartUserAdd and there is an available lobby in lobbies', () => {
+  const sendEventStub = sinon.stub(Utils, 'sendEvent');
+
+  it('should dispatch ADD_USER Action with new user added to an available lobby ' +
+    'when dispatch StartUserAdd and there is an available lobby in lobbies', async () => {
     // GIVEN
     const toBeAddedUser = 'vunguyenhung';
 
-    const initialLobbies = [createLobby()];
+    const lobbies = [createLobby()];
 
-    const expectedPayload = addUser(toBeAddedUser, initialLobbies).merge();
+    const expectedResultLobby = addUser(toBeAddedUser, lobbies).merge();
 
-    const expectedActions = [
-      { type: ActionTypes.SET_LOBBIES, payload: expectedPayload },
-    ];
-
-    // STUB
-    const store = mockStore({ lobbies: initialLobbies });
-
-    // WHEN
-    store.dispatch(StartUserAdd(toBeAddedUser));
-    const actualActions = store.getActions();
-
-    // THEN
-    expect(actualActions).toEqual(expectedActions);
-  });
-
-  it('should dispatch SetLobbies Action with new lobby added lobbies ' +
-    'when dispatch StartLobbyAdd', () => {
-    // GIVEN
-    const initialLobbies = [createLobby()];
-
-    // no need to call merge() here since addLobby return Array Lobby directly
-    const expectedPayload = addLobby(initialLobbies);
-
-    const expectedActions = [
-      { type: ActionTypes.SET_LOBBIES, payload: expectedPayload },
-    ];
+    const expectedAction = {
+      type: ActionTypes.ADD_USER,
+      payload: expectedResultLobby,
+    };
 
     // STUB
-    const store = mockStore({ lobbies: initialLobbies });
+    const store = mockStore({ lobbies });
+    sendEventStub.resolves(true);
 
     // WHEN
-    // this also return action object
-    console.log('start Lobby Add dispatch: ', store.dispatch(StartLobbyAdd()));
-    const actualActions = store.getActions();
+    const actualActions = await store.dispatch(StartUserAdd(toBeAddedUser));
 
     // THEN
-    expect(actualActions).toEqual(expectedActions);
+    expect(actualActions).toEqual(expectedAction);
+    // expectedActions = [];
   });
 
-  it('should dispatch SetLobbies with new lobby contains new user added ' +
+  xit('should dispatch ADD_USER with new lobby contains new user added ' +
     'when dispatch StartUserAdd thunk and there is no available lobby', () => {
     // GIVEN
     const fullLobby = {
@@ -84,17 +67,16 @@ describe('Lobby effect test', () => {
 
     const toBeAddedUsername = 'toBeAddedUsername';
 
-    const expectedPayload = [
-      fullLobby,
-      {
-        id: uuid(),
-        users: [toBeAddedUsername],
-        isClosed: false,
-      },
-    ];
+    const expectedResultLobby = {
+      users: [toBeAddedUsername],
+      isClosed: false,
+    };
 
     const expectedActions = [
-      { type: ActionTypes.SET_LOBBIES, payload: expectedPayload },
+      {
+        type: ActionTypes.ADD_USER,
+        payload: expectedResultLobby,
+      },
     ];
 
     // STUB
@@ -105,13 +87,10 @@ describe('Lobby effect test', () => {
     const actualActions = store.getActions();
 
     // THEN
-    expect(actualActions[0].type).toEqual(expectedActions[0].type);
-    expect(actualActions[0].payload[0]).toEqual(expectedActions[0].payload[0]);
-    expect(actualActions[0].payload[1].users).toEqual(expectedActions[0].payload[1].users);
-    expect(actualActions[0].payload[1].isClosed).toEqual(expectedActions[0].payload[1].isClosed);
+    expect(actualActions).toMatchObject(expectedActions);
   });
 
-  it('should dispatch SetLobbiesFailed Action ' +
+  xit('should dispatch ADD_USER_FAILED Action ' +
     'when dispatch StartUserAdd and lobbies already containing user', () => {
     // GIVEN
     const existingUser = 'user2';
@@ -122,10 +101,13 @@ describe('Lobby effect test', () => {
       isClosed: true,
     }];
 
-    const expectedPayload = addUser(existingUser, initialLobbies).merge();
+    const expectedError = addUser(existingUser, initialLobbies).merge();
 
     const expectedActions = [
-      { type: ActionTypes.SET_LOBBIES_FAILED, payload: expectedPayload },
+      {
+        type: ActionTypes.ADD_USER_FAILED,
+        payload: expectedError,
+      },
     ];
 
     // STUB
@@ -139,8 +121,8 @@ describe('Lobby effect test', () => {
     expect(actualActions).toEqual(expectedActions);
   });
 
-  it('should dispatch SetLobbies Action with specified user removed from an containing lobby ' +
-    'when dispatch StartUserRemove', () => {
+  it('should dispatch REMOVE_USER Action with specified user removed from an containing lobby ' +
+    'when dispatch StartUserRemove', async () => {
     // GIVEN
     const toBeRemovedUser = 'user2';
 
@@ -150,24 +132,25 @@ describe('Lobby effect test', () => {
       isClosed: true,
     }];
 
-    const expectedPayload = removeUser(toBeRemovedUser, initialLobbies).merge();
+    const expectedResultLobby = removeUser(toBeRemovedUser, initialLobbies).merge();
 
-    const expectedActions = [
-      { type: ActionTypes.SET_LOBBIES, payload: expectedPayload },
-    ];
+    const expectedActions = {
+      type: ActionTypes.REMOVE_USER,
+      payload: expectedResultLobby,
+    };
 
     // STUB
     const store = mockStore({ lobbies: initialLobbies });
+    sendEventStub.resolves(true);
 
     // WHEN
-    store.dispatch(StartUserRemove(toBeRemovedUser));
-    const actualActions = store.getActions();
+    const actualAction = await store.dispatch(StartUserRemove(toBeRemovedUser));
 
     // THEN
-    expect(actualActions).toEqual(expectedActions);
+    expect(actualAction).toEqual(expectedActions);
   });
 
-  it('should dispatch SetLobbiesFailed Action ' +
+  xit('should dispatch REMOVE_USER_FAILED Action ' +
     'when dispatch StartUserRemove with lobbies not containing user', () => {
     // GIVEN
     const notExistingUser = 'user2';
@@ -178,10 +161,10 @@ describe('Lobby effect test', () => {
       isClosed: true,
     }];
 
-    const expectedPayload = removeUser(notExistingUser, initialLobbies).merge();
+    const expectedError = removeUser(notExistingUser, initialLobbies).merge();
 
     const expectedActions = [
-      { type: ActionTypes.SET_LOBBIES_FAILED, payload: expectedPayload },
+      { type: ActionTypes.REMOVE_USER_FAILED, payload: expectedError },
     ];
 
     // STUB

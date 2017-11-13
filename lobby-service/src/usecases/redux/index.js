@@ -1,7 +1,7 @@
 /*
 3rd Party library imports
  */
-const thunk = require('redux-thunk');
+const thunk = require('redux-thunk').default;
 const { createLogger } = require('redux-logger');
 const { applyMiddleware, createStore } = require('redux');
 
