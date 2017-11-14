@@ -13,9 +13,6 @@ const MESSAGE = require('../../message');
 const { sendRegisterRequest } = require('../../../usecases/authentication/register');
 const { sendLoginRequest } = require('../../../usecases/authentication/login');
 
-const { trace } = require('../../../utils');
-
-
 const InvalidRegisterError = createError('InvalidRegisterError', {
   message: MESSAGE.DEFAULT_INVALID_REGISTER_ERROR,
 });
@@ -28,7 +25,6 @@ const extractResponseErrorJSON = err => R.pipe(extractResponseErrorText, JSON.pa
 // register then login, return token if both of them successfully
 const register = baseResolver.createResolver((obj, { user }) =>
   sendRegisterRequest(user)
-    .map(trace)
     .orElse(error =>
       Task.rejected(new InvalidRegisterError({ data: extractResponseErrorJSON(error) })))
     .chain(() => sendLoginRequest(user))
