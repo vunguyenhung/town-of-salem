@@ -8,6 +8,5 @@
       "autoCommitIntervalMs": 1000,
       "groupId": "api-gateway-service"
     }
-  },
-  "AuthenticationServiceEndpoint": "http://localhost:3001/auth"
+  }
 }

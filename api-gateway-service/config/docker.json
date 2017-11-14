@@ -4,5 +4,6 @@
       "kafkaHost": "kafka:9092"
     }
   },
-  "NODE_ENV": "docker"
+  "NODE_ENV": "docker",
+  "AuthenticationServiceEndpoint": "http://authentication-service:3001/auth"
 }

@@ -1,5 +1,9 @@
+/*
+3rd Party library imports
+ */
 const { createResolver } = require('apollo-resolvers');
 const { createError, isInstance } = require('apollo-errors');
+const log = require('debug')('src:base.resolver');
 
 const UnknownError = createError('UnknownError', {
   message: 'An unknown error has occurred! Please try again later',
@@ -14,9 +18,8 @@ const baseResolver = createResolver(
     such as ORM errors etc
   */
   (root, args, context, error) => {
-    // TODO: log error here in development mode.
-    console.log('error:', error);
-    return (isInstance(error) ? error : new UnknownError());
+    log('error:', error);
+    return (isInstance(error) ? error : new UnknownError({ message: error.message }));
   }
   ,
 );

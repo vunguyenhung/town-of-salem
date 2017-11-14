@@ -4,5 +4,6 @@
       "kafkaHost": "localhost:9092"
     }
   },
-  "NODE_ENV": "localhost"
+  "NODE_ENV": "localhost",
+  "AuthenticationServiceEndpoint": "http://localhost:3001/auth"
 }
