@@ -3,7 +3,7 @@ version: '3'
 services:
   authentication-service-it:
     build: .
-    command: [ "bash", "./wait-for-it.sh", "authentication-service:3000", "--", "npm", "run", "test-watch" ]
+    command: [ "bash", "./wait-for-it.sh", "authentication-service:3001", "--", "npm", "run", "test-watch" ]
     depends_on:
       - authentication-service
     volumes:
