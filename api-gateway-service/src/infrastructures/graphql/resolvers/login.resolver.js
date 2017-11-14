@@ -18,7 +18,8 @@ const InvalidLoginError = createError('InvalidLoginError', {
 const login = baseResolver.createResolver((obj, { user }) =>
   sendLoginRequest(user)
     .orElse(err => Task.rejected(new InvalidLoginError(err.message)))
-    .run().promise());
+    .run()
+    .promise());
 
 module.exports = {
   login: {

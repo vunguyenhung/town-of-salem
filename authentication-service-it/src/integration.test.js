@@ -15,7 +15,7 @@ const _verifyJWT = promisify(jwt.verify);
 
 const verifyJWT = R.partialRight(_verifyJWT, [improvedEnv.JWT_SECRET]);
 
-describe('Some feature', () => {
+describe('Authentication service', () => {
   let existingUsers;
 
   const post = data => superagent.post(improvedEnv.ENDPOINT).send(data).ok(res => res.status < 500);

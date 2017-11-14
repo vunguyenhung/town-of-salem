@@ -11,14 +11,12 @@ const _sendLoginRequest = ({ username, password }) => {
     .get(config.get('AuthenticationServiceEndpoint'))
     .set('username', username)
     .set('password', password);
-  return Task.fromNodeback(request
-    .end.bind(request))();
+  return Task.fromNodeback(request.end.bind(request))();
 };
 
 // sendLoginRequest :: {username::String, password::String} -> Task Error Token
 const sendLoginRequest = loginInfo =>
-  _sendLoginRequest(loginInfo)
-    .map(R.path(['body', 'token']));
+  _sendLoginRequest(loginInfo).map(R.path(['body', 'token']));
 
 module.exports = {
   sendLoginRequest,

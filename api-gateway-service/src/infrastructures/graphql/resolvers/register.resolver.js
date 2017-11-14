@@ -22,7 +22,6 @@ const extractResponseErrorText = err => R.path(['response', 'text'])(err);
 
 const extractResponseErrorJSON = err => R.pipe(extractResponseErrorText, JSON.parse)(err);
 
-// register then login, return token if both of them successfully
 const register = baseResolver.createResolver((obj, { user }) =>
   sendRegisterRequest(user)
     .orElse(error =>
