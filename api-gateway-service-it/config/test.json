@@ -1,0 +1,8 @@
+{
+  "GraphQL": {
+    "Endpoint": "http://localhost:3000/graphql"
+  },
+  "DB": {
+    "URL": "mongodb://localhost:27017/tos"
+  }
+}
