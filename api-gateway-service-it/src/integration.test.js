@@ -26,7 +26,7 @@ describe('Query Test', () => {
     await DB.disconnect();
   });
 
-  it('should return correct token when register valid user', async () => {
+  it('should return a token when register valid user', async () => {
     // GIVEN
 
     // language=GraphQL
@@ -44,6 +44,7 @@ describe('Query Test', () => {
     };
 
     // WHEN
+    // graphQLResponse :: { register :: String }
     const graphQLResponse = await request(
       config.get('GraphQL.Endpoint'),
       registerMutation,
@@ -51,6 +52,53 @@ describe('Query Test', () => {
     );
 
     // THEN
-    log(graphQLResponse);
+    expect(graphQLResponse).not.toBeNull();
+    expect(graphQLResponse.register).not.toBeNull();
+    expect(typeof graphQLResponse.register).toBe('string');
+  });
+
+  it('should return a token when login with registered username & password', async () => {
+    // GIVEN
+
+    // language=GraphQL
+    const registerMutation = `
+        mutation register($user: UserInput!){
+            register(user: $user)
+        }
+    `;
+
+    // language=GraphQL
+    const loginQuery = `
+        query login($user: UserInput!){
+            login(user: $user)
+        }
+    `;
+
+    const userVariables = {
+      user: {
+        username: 'vunguyenhung',
+        password: 'vunguyenhung',
+      },
+    };
+
+    // send register mutation
+    await request(
+      config.get('GraphQL.Endpoint'),
+      registerMutation,
+      userVariables,
+    );
+
+    // WHEN
+    // send login query
+    const graphQLResponse = await request(
+      config.get('GraphQL.Endpoint'),
+      loginQuery,
+      userVariables,
+    );
+
+    // THEN
+    expect(graphQLResponse).not.toBeNull();
+    expect(graphQLResponse.login).not.toBeNull();
+    expect(typeof graphQLResponse.login).toBe('string');
   });
 });
