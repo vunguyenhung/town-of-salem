@@ -11,6 +11,7 @@ Project file imports
 const app = require('./app');
 const StartupTasks = require('./infrastructures/startup-tasks');
 const { handleMessage } = require('./controllers/event');
+const { trace } = require('./utils');
 
 const server = http.createServer(app);
 
@@ -21,11 +22,12 @@ server.listen(config.get('App.port'), () => {
   );
 });
 
-StartupTasks.start()
-  .run()
-  .promise()
+StartupTasks.start().run().promise()
   .then((onMessage) => {
-    onMessage.subscribe(msg => handleMessage(msg).run().promise()
-      .then(log));
+    onMessage
+      .do(trace('Message received: '))
+      .subscribe(msg =>
+        handleMessage(msg).run().promise()
+          .then(trace('After handling message: ')));
   })
-  .catch(log); // Just log the error out
+  .catch(trace);

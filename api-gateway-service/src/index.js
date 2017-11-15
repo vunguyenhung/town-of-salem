@@ -17,6 +17,7 @@ const app = require('./app');
 const config = require('config');
 const { schema } = require('./infrastructures/graphql/schema');
 const StartupTasks = require('./infrastructures/startup-tasks');
+const { handleMessage } = require('./controllers/handle-message');
 
 const server = http.createServer(app);
 
@@ -35,6 +36,11 @@ StartupTasks.start()
   .run().promise()
   .then((onMessage) => {
     onMessage
-      .subscribe(messageReceived => log(`Message Received: ${messageReceived}`));
+      .subscribe((messageReceived) => {
+        log('Message Received', messageReceived);
+        handleMessage(messageReceived).run().promise()
+          .then(result => log('publish result:', result));
+      });
+    // TODO: process message and send back via pubsub here
   })
   .catch(log);

@@ -3,13 +3,13 @@
  */
 const R = require('ramda');
 const Task = require('folktale/concurrency/task');
-
+const log = require('debug')('src:handle-event');
 /*
 Project file imports
  */
 const Effects = require('../../usecases/redux/effects');
 const { store } = require('../../usecases/redux');
-const { ActionTypes } = require('../../usecases/redux/actions');
+const { trace } = require('../../utils');
 
 const KafkaEventTypes = {
   USER_JOIN: '[Lobby] USER_JOIN',
@@ -26,14 +26,18 @@ const _eventToThunk = R.curry((mapperFns, event) => mapperFns[event.type](event)
 // eventToThunk :: Event -> (dispatch, getState) -> Action
 const eventToThunk = _eventToThunk(EventToThunkMapperFns);
 
-// TODO: how to close lobby and create game ?
-const dispatchThunk = thunk =>
-  Task.fromPromised(store.dispatch(thunk));
+const dispatchThunk = thunk => Task.task((r) => {
+  // log('thunk: ', thunk);
+  const actionResult = store.dispatch(thunk);
+  // log('actionResult: ', actionResult);
+  return actionResult.then(r.resolve);
+});
 
 // handleEvent :: Event -> Task String
 const handleEvent = event =>
   Task.of(eventToThunk(event))
-    .chain(dispatchThunk);
+    .chain(dispatchThunk)
+    .map(trace('after dispatch thunk: '));
 
 module.exports = {
   KafkaEventTypes,

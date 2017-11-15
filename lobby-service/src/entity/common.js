@@ -65,10 +65,18 @@ const updateLobbies = R.curry((toBeUpdatedLobbies, subjectLobby) =>
       ? subjectLobby
       : originalLobby))(toBeUpdatedLobbies));
 
+const updateOrAppend = R.curry((sourceLobbies, subjectLobby) => {
+  const index = R.findIndex(R.eqProps('id', subjectLobby))(sourceLobbies);
+  return R.equals(index, -1)
+    ? R.append(subjectLobby)(sourceLobbies)
+    : R.update(index, subjectLobby)(sourceLobbies);
+});
+
 module.exports = {
   isUsernameInLobby,
   validate,
   updateLobbies,
+  updateOrAppend,
   lobbyUsersLength,
   LobbyErrors,
 

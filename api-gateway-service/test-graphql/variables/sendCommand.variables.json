@@ -1,6 +1,0 @@
-{
-  "command": {
-    "type": "DO_SOMETHING",
-    "payload": "{\"requiredData\": \"someValidData\",\"password\": \"somePassword\"}"
-  }
-}

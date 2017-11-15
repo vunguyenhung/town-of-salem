@@ -9,6 +9,7 @@ const createLobby = () => ({
   id: uuid(),
   users: [],
   isClosed: false,
+  updatedAt: new Date(),
 });
 
 // addLobby :: Array Lobby -> Array Lobby
@@ -16,8 +17,6 @@ const addLobby = R.append(createLobby());
 
 module.exports = {
   addLobby,
-
-  // exports for testing purpose
   createLobby,
 };
 

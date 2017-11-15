@@ -11,7 +11,7 @@ Project file imports
 const { addUserToLobby, addUser } = require('../add-user');
 const { LobbyErrors } = require('../common');
 
-describe('Lobby Entity: Add User operation', () => {
+xdescribe('Lobby Entity: Add User operation', () => {
   const initialLobby = {
     id: uuid(),
     users: [],

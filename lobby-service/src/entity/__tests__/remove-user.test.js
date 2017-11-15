@@ -11,7 +11,7 @@ Project file imports
 const { removeUser } = require('../remove-user');
 const { LobbyErrors } = require('../common');
 
-describe('Lobby Entity remove user operation', () => {
+xdescribe('Lobby Entity remove user operation', () => {
   const firstLobby = {
     id: uuid(),
     users: [],

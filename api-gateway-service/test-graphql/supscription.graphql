@@ -1,7 +1,12 @@
 # Put named subscription and mutation together causing bug on graphiql.
 # Split them to different tab/window
-subscription stateUpdates {
-    stateUpdates{
-        test
+subscription stateUpdates($token: String!) {
+    stateUpdates(token: $token){
+        lobby {
+            id,
+            users,
+            isClosed,
+            updatedAt
+        }
     }
 }

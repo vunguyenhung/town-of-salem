@@ -6,10 +6,10 @@ const PUBLISH_CHANNELS = {
 };
 
 const pubsub = new PubSub();
+// default implementation, change it when we have problem with pubsub
 
 const publish = curry(pubsub.publish.bind(pubsub));
 
-// publishToStateUpdatesChannel :: {stateUpdates :: {test :: String}} -> Boolean
 const publishToStateUpdatesChannel =
   publish([PUBLISH_CHANNELS.STATE_UPDATES]);
 

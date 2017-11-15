@@ -4,7 +4,7 @@ exports.RootType = `
         type: String!
         payload: String!
     }
-    
+
     input UserInput {
         username: String!
         password: String!
@@ -16,10 +16,12 @@ exports.RootType = `
     }
 
     type Mutation {
-        register(user: UserInput!): String
+        register(user: UserInput!): String,
+        joinLobby(token: String!): String
+        leaveLobby(token: String!): String
     }
 
     type Subscription {
-        stateUpdates: AppState
+        stateUpdates(token: String!): AppState
     }
 `;

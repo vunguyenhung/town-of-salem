@@ -6,6 +6,7 @@ const ActionTypes = {
   REMOVE_USER: '[Lobby] REMOVE_USER',
   REMOVE_USER_FAILED: '[Lobby] REMOVE_USER_FAILED',
   CLOSING_LOBBY: '[Lobby] CLOSING_LOBBY',
+  SEND_KAFKA_EVENT: '[Lobby] SEND_KAFKA_EVENT',
 };
 
 const AddUser = createAction(ActionTypes.ADD_USER);
@@ -16,6 +17,8 @@ const RemoveUserFailed = createAction(ActionTypes.REMOVE_USER_FAILED);
 
 const ClosingLobby = createAction(ActionTypes.CLOSING_LOBBY);
 
+const SendKafkaEvent = createAction(ActionTypes.SEND_KAFKA_EVENT);
+
 module.exports = {
   ActionTypes,
 
@@ -25,4 +28,6 @@ module.exports = {
   RemoveUser,
   RemoveUserFailed,
   ClosingLobby,
+
+  SendKafkaEvent,
 };

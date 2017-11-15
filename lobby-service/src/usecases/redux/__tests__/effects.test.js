@@ -13,8 +13,8 @@ Project file imports
  */
 const { StartUserAdd, StartUserRemove } = require('../effects');
 const { ActionTypes } = require('../actions');
-const { addUser, removeUser } = require('../../../entities/index');
-const { createLobby } = require('../../../entities/add-lobby');
+const { addUser, removeUser } = require('../../../entity/index');
+const { createLobby } = require('../../../entity/add-lobby');
 
 const Utils = require('../utils');
 
@@ -23,7 +23,7 @@ const mockStore = configureMockStore([
   // createLogger(),
 ]);
 
-describe('Lobby effect test', () => {
+xdescribe('Lobby effect test', () => {
   const sendEventStub = sinon.stub(Utils, 'sendEvent');
 
   it('should dispatch ADD_USER Action with new user added to an available lobby ' +
