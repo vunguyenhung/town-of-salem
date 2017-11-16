@@ -3,7 +3,7 @@ exports.LobbyType = `
     type Lobby {
         id: String!,
         users: [String]!,
-        isClosed: Boolean,
+        isClosed: String,
         updatedAt: String!
     }
 `;

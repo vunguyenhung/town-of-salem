@@ -8,14 +8,14 @@ const Result = require('folktale/result');
 Project file imports
  */
 const Common = require('./common');
-const { createLobby } = require('./add-lobby');
+const { createLobby } = require('./lobby-operators');
 
 // closeLobby :: Lobby -> Lobby
-const closeLobby = R.assoc('isClosed', true);
+const closeLobby = R.assoc('isClosed', 1);
 
 // closeLobbyIfFull :: Lobby -> Lobby
 const closeLobbyIfFull = lobby =>
-  (Common.lobbyUsersLength(lobby) >= 15 ? closeLobby(lobby) : lobby);
+  (Common.lobbyUsersLength(lobby) >= 3 ? closeLobby(lobby) : lobby);
 
 // addUserToLobby :: (String, Lobby) -> Lobby
 const addUserToLobby = R.curry((username, lobby) => ({
@@ -32,7 +32,7 @@ const addUserToLobby = R.curry((username, lobby) => ({
 
 // findAvailableLobby :: Array Lobby -> Result (LobbyErrors Array Lobby) Lobby
 const findAvailableLobby = R.curry((username, lobbies) => {
-  const foundLobby = R.find(R.whereEq({ isClosed: false }))(lobbies);
+  const foundLobby = R.find(R.whereEq({ isClosed: 0 }))(lobbies);
   return foundLobby
     ? Result.Ok(foundLobby)
     : Result.Error(Common.LobbyErrors.NoLobbyAvailable(lobbies, username));

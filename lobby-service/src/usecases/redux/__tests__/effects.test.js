@@ -14,7 +14,7 @@ Project file imports
 const { StartUserAdd, StartUserRemove } = require('../effects');
 const { ActionTypes } = require('../actions');
 const { addUser, removeUser } = require('../../../entity/index');
-const { createLobby } = require('../../../entity/add-lobby');
+const { createLobby } = require('../../../entity/lobby-operators');
 
 const Utils = require('../utils');
 

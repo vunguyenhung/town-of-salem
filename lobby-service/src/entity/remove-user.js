@@ -10,7 +10,7 @@ Project file imports
 const Common = require('./common');
 
 // closeLobby :: Lobby -> Lobby
-const openLobby = R.assoc('isClosed', false);
+const openLobby = R.assoc('isClosed', 0);
 
 // openLobbyIfNotFull :: Lobby -> Lobby
 const openLobbyIfNotFull = lobby =>

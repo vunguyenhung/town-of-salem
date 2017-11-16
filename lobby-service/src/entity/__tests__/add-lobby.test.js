@@ -8,7 +8,7 @@ const uuid = require('uuid/v4');
 Project file imports
  */
 const { isValidLobby } = require('../common');
-const { createLobby, addLobby } = require('../add-lobby');
+const { createLobby, addLobby } = require('../lobby-operators');
 
 describe('Lobby Entity add lobby operation', () => {
   it('should return new Lobby with new UUID, empty Users and not Closed when create lobby', () => {

@@ -8,7 +8,7 @@ const R = require('ramda');
 Project file imports
  */
 const Actions = require('./actions');
-const { addUser, removeUser } = require('../../entity/');
+const Entity = require('../../entity/');
 const log = require('debug')('src:reducers');
 
 const initialState = {
@@ -16,30 +16,21 @@ const initialState = {
   lastEvent: null,
 };
 
-// updateOrAppend :: Array Lobby -> Lobby -> Array Lobby
-const updateOrAppend = R.curry((sourceLobbies, subjectLobby) => {
-  const index = R.findIndex(R.eqProps('id', subjectLobby))(sourceLobbies);
-  return R.equals(index, -1)
-    ? R.append(subjectLobby)(sourceLobbies)
-    : R.update(index, subjectLobby)(sourceLobbies);
-});
-
-// State :: { lobbies: [Lobby] }
-// Action :: { type: String, payload :: Any }
-// updateLobbies :: (State, Action) -> State
-const updateLobbies = (state, { payload }) => ({
-  lobbies: updateOrAppend(state.lobbies, payload),
-});
-
+// TODO: refactor this
 const reducer = handleActions({
   [Actions.AddUser]: (state, { payload }) => ({
-    lobbies: addUser(payload, state.lobbies).getOrElse(state.lobbies),
+    lobbies: Entity.addUser(payload, state.lobbies).getOrElse(state.lobbies),
   }),
-  // how about Error case? don't care about it now
   [Actions.RemoveUser]: (state, { payload }) => ({
-    lobbies: removeUser(payload, state.lobbies).getOrElse(state.lobbies),
+    lobbies: Entity.removeUser(payload, state.lobbies).getOrElse(state.lobbies),
   }),
-  [Actions.ClosingLobby]: updateLobbies,
+  [Actions.ClosingLobby]: (state, { payload }) => {
+    log('payload: ', payload);
+    return ({
+      lobbies: Entity.updateLobbyInLobbies(payload.lobby, payload.closedIn, state.lobbies)
+        .getOrElse(state.lobbies),
+    });
+  },
   [Actions.SendKafkaEvent]: (state, { payload }) => ({ ...state, lastEvent: payload }),
 }, initialState);
 
