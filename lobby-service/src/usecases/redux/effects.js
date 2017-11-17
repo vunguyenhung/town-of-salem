@@ -11,9 +11,7 @@ Project file imports
  */
 const Actions = require('./actions');
 const Utils = require('./utils');
-
-// TODO: implement StartClosingLobby effect here
-// this will dispatch closing lobby 10 times ?
+const { findLobbyByID } = require('./reducers');
 
 const StartKafkaEventSend = ({ topic, type, payload }) => dispatch =>
   Utils.sendEvent(topic, type, payload)
@@ -32,25 +30,53 @@ const StartUserAdd = username => (dispatch, getState) => {
   if (lastUpdatedLobby.isClosed) {
     Rx.Observable.interval(1000)
       .timeInterval()
-      .take(10)
-      .do(timeInterval =>
-        dispatch(Actions.ClosingLobby({
+      .takeWhile((timeInterval) => {
+        log('time Interval 0: ', timeInterval);
+        log('lobby found: ', findLobbyByID(lastUpdatedLobby.id)(getState()));
+        return timeInterval.value !== 10
+          && +findLobbyByID(lastUpdatedLobby.id)(getState()).isClosed !== 0;
+      })
+      // .take(10)
+      // .takeWhile(timeInterval =>
+      //   timeInterval.value !== 10
+      //   || R.find(R.eqProps('id', lastUpdatedLobby), getState().lobbies).isClosed === 0)
+      // // timeInterval got cancel if getState().lobbies[id].isClosed == 0
+      // // takeWhile (TimeInterval) =>
+      // //    TimeInterval.value != 10 || getState().lobbies[id].isClosed == 0
+      //
+      // //  these should be in an effect => TODO: implement ClosingLobby effect.
+      .do((timeInterval) => {
+        log('timeInterval 1: ', timeInterval);
+        return dispatch(Actions.ClosingLobby({
           lobby: lastUpdatedLobby,
           closedIn: 10 - timeInterval.value,
-        })))
-      .do(() => dispatch(StartKafkaEventSend({
-        topic: 'tos-state-update-events',
-        type: '[Lobby] LOBBY_UPDATED',
-        payload: R.find(R.eqProps('id', lastUpdatedLobby), getState().lobbies),
-      })))
+        }));
+      })
+      .do((timeInterval) => {
+        log('timeInterval 2: ', timeInterval);
+        return dispatch(StartKafkaEventSend({
+          topic: 'tos-state-update-events',
+          type: '[Lobby] LOBBY_UPDATED',
+          payload: findLobbyByID(lastUpdatedLobby.id)(getState()),
+        }));
+      })
+      // .do(null, null, timeInterval => log('timeInterval 3:', timeInterval))
+      //
       .subscribe(
-        log('After handling Closing Lobby'),
+        value => log('After handling Closing Lobby: ', value),
+        //   TimeInterval { value: i, interval: 1007 }
         null,
-        () => dispatch(StartKafkaEventSend({
-          topic: 'tos-game-events',
-          type: '[Game] START_GAME_CREATE',
-          payload: lastUpdatedLobby.users,
-        })),
+        () => {
+          if (+findLobbyByID(lastUpdatedLobby.id)(getState()).isClosed === 1) {
+            return dispatch(StartKafkaEventSend({
+              topic: 'tos-game-events',
+              type: '[Game] START_GAME_CREATE',
+              payload: lastUpdatedLobby.users,
+            }));
+          }
+          return 0;
+        }
+        ,
       );
   }
   return toBeReturned;

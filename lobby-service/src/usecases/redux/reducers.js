@@ -2,6 +2,7 @@
 3rd Party imports
  */
 const { handleActions } = require('redux-actions');
+const { createSelector } = require('reselect');
 const R = require('ramda');
 
 /*
@@ -19,6 +20,7 @@ const initialState = {
 // TODO: refactor this
 const reducer = handleActions({
   [Actions.AddUser]: (state, { payload }) => ({
+    // convert lobbies :: [Lobby] to lobbies :: {[id :: String] :: Lobby} here
     lobbies: Entity.addUser(payload, state.lobbies).getOrElse(state.lobbies),
   }),
   [Actions.RemoveUser]: (state, { payload }) => ({
@@ -36,7 +38,10 @@ const reducer = handleActions({
 
 const selectLobbies = state => state.lobbies;
 
+const findLobbyByID = id => createSelector(selectLobbies, R.find(R.propEq('id', id)));
+
 module.exports = {
   reducer,
   selectLobbies,
+  findLobbyByID,
 };
