@@ -9,6 +9,7 @@ const compression = require('compression');
 const apolloServerExpress = require('apollo-server-express');
 const { formatError } = require('apollo-errors');
 const config = require('config');
+const cors = require('cors');
 
 /*
 Project file imports
@@ -19,6 +20,7 @@ const createExpressApp = () => {
   const app = express();
 
   app.use(compression());
+  app.use(cors());
   app.use(logger('dev'));
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: true }));

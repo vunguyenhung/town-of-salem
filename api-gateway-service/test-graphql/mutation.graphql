@@ -1,15 +1,11 @@
-mutation sendCommand($command: CommandInput!){
-    sendCommand(command: $command)
-}
-
 mutation register($user: UserInput!){
     register(user: $user)
 }
 
-mutation lobby($token: String!){
+mutation joinLobby($token: String!){
     joinLobby(token: $token)
 }
 
-mutation lobby($token: String!){
+mutation leaveLobby($token: String!){
     leaveLobby(token: $token)
 }

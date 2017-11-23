@@ -1,0 +1,34 @@
+mutation register($user: UserInput!){
+    register(user: $user)
+}
+
+query login($user: UserInput!){
+    login(user: $user)
+}
+
+mutation user1Join($token1: String!){
+    joinLobby(token: $token1)
+}
+
+mutation user2Join($token2: String!){
+    joinLobby(token: $token2)
+}
+
+mutation user3Join($token3: String!){
+    joinLobby(token: $token3)
+}
+
+mutation user1Leave($token1: String!){
+    leaveLobby(token: $token1)
+}
+
+subscription stateUpdates($token: String!) {
+    stateUpdates(token: $token){
+        lobby {
+            id,
+            users,
+            isClosed,
+            updatedAt
+        }
+    }
+}

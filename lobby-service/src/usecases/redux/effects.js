@@ -36,15 +36,6 @@ const StartUserAdd = username => (dispatch, getState) => {
         return timeInterval.value !== 10
           && +findLobbyByID(lastUpdatedLobby.id)(getState()).isClosed !== 0;
       })
-      // .take(10)
-      // .takeWhile(timeInterval =>
-      //   timeInterval.value !== 10
-      //   || R.find(R.eqProps('id', lastUpdatedLobby), getState().lobbies).isClosed === 0)
-      // // timeInterval got cancel if getState().lobbies[id].isClosed == 0
-      // // takeWhile (TimeInterval) =>
-      // //    TimeInterval.value != 10 || getState().lobbies[id].isClosed == 0
-      //
-      // //  these should be in an effect => TODO: implement ClosingLobby effect.
       .do((timeInterval) => {
         log('timeInterval 1: ', timeInterval);
         return dispatch(Actions.ClosingLobby({
@@ -60,8 +51,6 @@ const StartUserAdd = username => (dispatch, getState) => {
           payload: findLobbyByID(lastUpdatedLobby.id)(getState()),
         }));
       })
-      // .do(null, null, timeInterval => log('timeInterval 3:', timeInterval))
-      //
       .subscribe(
         value => log('After handling Closing Lobby: ', value),
         //   TimeInterval { value: i, interval: 1007 }
