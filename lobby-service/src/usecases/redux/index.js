@@ -11,9 +11,9 @@ Project file imports
 const { reducer, getLobbyByUsername } = require('./reducers');
 
 const middlewares = [
-  thunk,
-  createLogger(),
-  // ...more middleware goes here.
+	thunk,
+	createLogger(),
+	// ...more middleware goes here.
 ];
 
 const store = createStore(reducer, applyMiddleware(...middlewares));

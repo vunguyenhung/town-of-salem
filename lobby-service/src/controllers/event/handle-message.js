@@ -13,10 +13,10 @@ const messageToEvent = R.pipe(R.prop(['value']), JSON.parse);
 
 // handleMessage :: String -> Task
 const handleMessage = message =>
-  Task.of(messageToEvent(message))
-    .chain(handleEvent);
+	Task.of(messageToEvent(message))
+		.chain(handleEvent);
 
 module.exports = {
-  messageToEvent,
-  handleMessage,
+	messageToEvent,
+	handleMessage,
 };

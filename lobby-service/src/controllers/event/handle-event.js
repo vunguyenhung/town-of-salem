@@ -12,13 +12,13 @@ const { store } = require('../../usecases/redux');
 const { trace } = require('../../utils');
 
 const KafkaEventTypes = {
-  USER_JOIN: '[Lobby] USER_JOIN',
-  USER_LEAVE: '[Lobby] USER_LEAVE',
+	USER_JOIN: '[Lobby] USER_JOIN',
+	USER_LEAVE: '[Lobby] USER_LEAVE',
 };
 
 const EventToThunkMapperFns = {
-  [KafkaEventTypes.USER_JOIN]: event => Effects.StartUserAdd(event.payload),
-  [KafkaEventTypes.USER_LEAVE]: event => Effects.StartUserRemove(event.payload),
+	[KafkaEventTypes.USER_JOIN]: event => Effects.StartUserAdd(event.payload),
+	[KafkaEventTypes.USER_LEAVE]: event => Effects.StartUserRemove(event.payload),
 };
 
 const _eventToThunk = R.curry((mapperFns, event) => mapperFns[event.type](event));
@@ -27,21 +27,19 @@ const _eventToThunk = R.curry((mapperFns, event) => mapperFns[event.type](event)
 const eventToThunk = _eventToThunk(EventToThunkMapperFns);
 
 const dispatchThunk = thunk => Task.task((r) => {
-  // log('thunk: ', thunk);
-  const actionResult = store.dispatch(thunk);
-  // log('actionResult: ', actionResult);
-  return actionResult.then(r.resolve);
+	const actionResult = store.dispatch(thunk);
+	return actionResult.then(r.resolve);
 });
 
 // handleEvent :: Event -> Task String
 const handleEvent = event =>
-  Task.of(eventToThunk(event))
-    .chain(dispatchThunk)
-    .map(trace('after dispatch thunk: '));
+	Task.of(eventToThunk(event))
+		.chain(dispatchThunk)
+		.map(trace('after dispatch thunk: '));
 
 module.exports = {
-  KafkaEventTypes,
-  eventToThunk,
-  handleEvent,
+	KafkaEventTypes,
+	eventToThunk,
+	handleEvent,
 };
 

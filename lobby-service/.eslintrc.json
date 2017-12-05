@@ -2,7 +2,12 @@
   "extends": "airbnb-base",
   "rules": {
     "no-console": "off",
-    "no-underscore-dangle": "off"
+    "no-underscore-dangle": "off",
+    "no-tabs": "off",
+    "indent": [
+      "error",
+      "tab"
+    ]
   },
   "env": {
     "jest": true

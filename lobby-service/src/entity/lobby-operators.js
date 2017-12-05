@@ -12,10 +12,10 @@ const { updateOrAppend } = require('./common');
 
 // createLobby :: () -> Lobby
 const createLobby = () => ({
-  id: uuid(),
-  users: [],
-  isClosed: 0,
-  updatedAt: new Date(),
+	id: uuid(),
+	users: [],
+	isClosed: 0,
+	updatedAt: new Date(),
 });
 
 // addLobby :: Array Lobby -> Array Lobby
@@ -26,15 +26,15 @@ const closeLobby = R.assoc('isClosed', 1);
 const openLobby = R.assoc('isClosed', 0);
 
 const updateLobbyInLobbies = R.curry((lobby, closedIn, lobbies) =>
-  Result.of(lobby)
-    .map(R.assoc('isClosed', closedIn))
-    .map(R.assoc('updatedAt', new Date()))
-    .map(updateOrAppend(lobbies)));
+	Result.of(lobby)
+		.map(R.assoc('isClosed', closedIn))
+		.map(R.assoc('updatedAt', new Date()))
+		.map(updateOrAppend(lobbies)));
 
 module.exports = {
-  updateLobbyInLobbies,
-  addLobby,
-  closeLobby,
-  openLobby,
-  createLobby,
+	updateLobbyInLobbies,
+	addLobby,
+	closeLobby,
+	openLobby,
+	createLobby,
 };

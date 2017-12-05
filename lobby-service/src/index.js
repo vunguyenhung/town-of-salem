@@ -16,18 +16,18 @@ const { trace } = require('./utils');
 const server = http.createServer(app);
 
 server.listen(config.get('App.port'), () => {
-  log(
-    ('App is running at http://localhost:%d in %s mode'),
-    config.get('App.port'), config.get('NODE_ENV'),
-  );
+	log(
+		('App is running at http://localhost:%d in %s mode'),
+		config.get('App.port'), config.get('NODE_ENV'),
+	);
 });
 
 StartupTasks.start().run().promise()
-  .then((onMessage) => {
-    onMessage
-      .do(trace('Message received: '))
-      .subscribe(msg =>
-        handleMessage(msg).run().promise()
-          .then(trace('After handling message: ')));
-  })
-  .catch(trace);
+	.then((onMessage) => {
+		onMessage
+			.do(trace('Message received: '))
+			.subscribe(msg =>
+				handleMessage(msg).run().promise()
+					.then(trace('After handling message: ')));
+	})
+	.catch(trace);
