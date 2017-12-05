@@ -39,7 +39,7 @@ services:
       - mongodb
       - api-gateway-service
     ports:
-      - "3001:3000"
+      - "3001:3001"
     volumes:
       - ./authentication-service/src:/authentication-service/src
 
@@ -52,7 +52,7 @@ services:
       - mongodb
       - api-gateway-service
     ports:
-      - "3002:3000"
+      - "3002:3002"
     volumes:
       - ./lobby-service/src:/lobby-service/src
 

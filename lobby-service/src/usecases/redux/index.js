@@ -8,7 +8,7 @@ const { applyMiddleware, createStore } = require('redux');
 /*
 Project file imports
  */
-const { reducer } = require('./reducers');
+const { reducer, getLobbyByUsername } = require('./reducers');
 
 const middlewares = [
   thunk,
@@ -18,4 +18,7 @@ const middlewares = [
 
 const store = createStore(reducer, applyMiddleware(...middlewares));
 
-exports.store = store;
+module.exports = {
+	store,
+	getLobbyByUsername,
+};

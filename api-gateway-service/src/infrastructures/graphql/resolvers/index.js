@@ -6,7 +6,7 @@ const { combineResolvers } = require('apollo-resolvers');
 /*
 Project file imports
  */
-const { stateUpdates } = require('./state-updates.resolver');
+const { stateUpdates } = require('./state.resolver');
 const { login } = require('./login.resolver');
 const { register } = require('./register.resolver');
 const { lobby } = require('./lobby.resolver');

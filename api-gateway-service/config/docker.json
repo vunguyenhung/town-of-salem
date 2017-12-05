@@ -5,5 +5,6 @@
     }
   },
   "NODE_ENV": "docker",
-  "AuthenticationServiceEndpoint": "http://authentication-service:3001/auth"
+  "AuthenticationServiceEndpoint": "http://authentication-service:3001/auth",
+  "LobbyServiceEndpoint": "http://lobby-service:3002"
 }

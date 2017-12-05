@@ -11,7 +11,7 @@ exports.RootType = `
     }
 
     type Query {
-        currentState: AppState
+        currentState(token: String!): AppState
         login(user: UserInput!): String!
     }
 

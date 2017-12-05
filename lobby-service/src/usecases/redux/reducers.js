@@ -9,15 +9,15 @@ const R = require('ramda');
 Project file imports
  */
 const Actions = require('./actions');
-const Entity = require('../../entity/');
+const Entity = require('../../entity');
 const log = require('debug')('src:reducers');
+const { findLobbyContainsUser } = require('../../entity/remove-user');
 
 const initialState = {
   lobbies: [],
   lastEvent: null,
 };
 
-// TODO: refactor this
 const reducer = handleActions({
   [Actions.AddUser]: (state, { payload }) => ({
     // convert lobbies :: [Lobby] to lobbies :: {[id :: String] :: Lobby} here
@@ -40,8 +40,12 @@ const selectLobbies = state => state.lobbies;
 
 const findLobbyByID = id => createSelector(selectLobbies, R.find(R.propEq('id', id)));
 
+const getLobbyByUsername = username =>
+	createSelector(selectLobbies, findLobbyContainsUser(username));
+
 module.exports = {
   reducer,
   selectLobbies,
   findLobbyByID,
+	getLobbyByUsername,
 };

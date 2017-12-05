@@ -23,12 +23,12 @@ const removeUserFromLobby = R.curry((username, lobby) => ({
 }));
 
 // findLobbyContainsUser :: (String, Array Lobby) -> Result LobbyErrors Lobby
-const findLobbyContainsUser = (username, lobbies) => {
+const findLobbyContainsUser = R.curry((username, lobbies) => {
   const foundLobby = R.find(Common.isUsernameInLobby(username))(lobbies);
   return foundLobby
     ? Result.Ok(foundLobby)
     : Result.Error(Common.LobbyErrors.LobbiesNotContainUsername(lobbies, username));
-};
+});
 
 // removeUser :: String -> Array Lobby -> Result (LobbyErrors String Array Lobby) Array Lobby
 const removeUser = (username, lobbies) =>
@@ -39,4 +39,5 @@ const removeUser = (username, lobbies) =>
 
 module.exports = {
   removeUser,
+	findLobbyContainsUser,
 };

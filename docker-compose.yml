@@ -37,7 +37,7 @@ services:
       - mongodb
       - api-gateway-service
     ports:
-      - "3001:3000"
+      - "3001:3001"
 
   lobby-service:
     build: ./lobby-service
@@ -48,7 +48,7 @@ services:
       - mongodb
       - api-gateway-service
     ports:
-      - "3002:3000"
+      - "3002:3002"
 
   mongodb:
     image: mongo
