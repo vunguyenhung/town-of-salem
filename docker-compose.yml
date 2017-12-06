@@ -50,6 +50,17 @@ services:
     ports:
       - "3002:3002"
 
+  game-service:
+    build: ./game-service
+    command: npm start
+    depends_on:
+      - zookeeper
+      - kafka
+      - mongodb
+      - api-gateway-service
+    ports:
+      - "3003:3003"
+
   mongodb:
     image: mongo
     expose:
