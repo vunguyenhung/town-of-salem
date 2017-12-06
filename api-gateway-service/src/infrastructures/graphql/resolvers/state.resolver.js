@@ -17,15 +17,10 @@ const stateUpdates = {
 	subscribe: withFilter(
 		() => pubsub.asyncIterator(PUBLISH_CHANNELS.STATE_UPDATES),
 		(payload, variables) => {
-			// log('payload: ', payload);
-			// log('variables: ', variables);
-			// TODO: for LEAVE_LOBBY, forUsers: []
 			const { forUsers } = payload.stateUpdates;
 			const { someField } = payload.stateUpdates;
 			log('someField', someField);
-			// log('users: ', users);
 			const { username } = jwt.decode(variables.token);
-			// log('decoded username: ', username);
 			return R.contains(username, forUsers);
 		},
 	),

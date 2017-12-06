@@ -13,10 +13,6 @@ const { publishToStateUpdatesChannel } = require('../infrastructures/graphql/pub
 const messageToEvent = R.pipe(R.prop(['value']), JSON.parse);
 
 const mapEventToStateUpdates = (event) => {
-	// log('event: ', event);
-	// return ({
-	// 	lobby: event.payload, someField: 'asd',
-	// });
 	switch (event.type) {
 	case '[Lobby] LOBBY_UPDATED':
 		return { lobby: event.payload, forUsers: event.payload.users };
@@ -26,10 +22,6 @@ const mapEventToStateUpdates = (event) => {
 		return event.payload;
 	}
 };
-
-// TODO: implement mapEvent fn when we have more event
-// lobby service will send clear lobby event to api gateway.
-// {type: '[Lobby] LEAVE_LOBBY', payload: 'vunguyenhung'}
 
 // TODO: add forUsers:[] to stateUpdates
 const handleEvent = event =>
