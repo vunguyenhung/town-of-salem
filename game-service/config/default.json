@@ -1,0 +1,11 @@
+{
+  "App": {
+    "port": 3003
+  },
+  "Kafka": {
+    "consumerOptions": {
+      "autoCommitIntervalMs": 1000,
+      "groupId": "game-service"
+    }
+  }
+}
