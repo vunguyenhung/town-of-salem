@@ -56,6 +56,19 @@ services:
     volumes:
       - ./lobby-service/src:/lobby-service/src
 
+  game-service:
+    build: ./game-service
+    command: npm run serve
+    depends_on:
+      - zookeeper
+      - kafka
+      - mongodb
+      - api-gateway-service
+    ports:
+      - "3003:3003"
+    volumes:
+      - ./game-service/src:/game-service/src
+
   mongodb:
     image: mongo
     ports:
