@@ -7,5 +7,6 @@
       "autoCommitIntervalMs": 1000,
       "groupId": "lobby-service"
     }
-  }
+  },
+  "LobbyCapacity": 1
 }

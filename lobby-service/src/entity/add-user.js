@@ -3,6 +3,7 @@
  */
 const R = require('ramda');
 const Result = require('folktale/result');
+const config = require('config');
 
 /*
 Project file imports
@@ -11,11 +12,11 @@ const Common = require('./common');
 const { createLobby } = require('./lobby-operators');
 
 // closeLobby :: Lobby -> Lobby
-const closeLobby = R.assoc('isClosed', 1);
+const closeLobby = R.assoc('isClosed', 10);
 
 // closeLobbyIfFull :: Lobby -> Lobby
 const closeLobbyIfFull = lobby =>
-	(Common.lobbyUsersLength(lobby) >= 10 ? closeLobby(lobby) : lobby);
+	(Common.lobbyUsersLength(lobby) >= config.get('LobbyCapacity') ? closeLobby(lobby) : lobby);
 
 // addUserToLobby :: (String, Lobby) -> Lobby
 const addUserToLobby = R.curry((username, lobby) => ({
