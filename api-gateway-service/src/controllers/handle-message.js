@@ -18,12 +18,13 @@ const mapEventToStateUpdates = (event) => {
 		return { lobby: event.payload, forUsers: event.payload.users };
 	case '[Lobby] LEAVE_LOBBY':
 		return { lobby: null, forUsers: [event.payload] };
+	case '[Game] GAME_CREATED':
+		return { game: event.payload, forUsers: event.payload.users /* TODO: change this later */ };
 	default:
 		return event.payload;
 	}
 };
 
-// TODO: add forUsers:[] to stateUpdates
 const handleEvent = event =>
 	Task.of(publishToStateUpdatesChannel({ stateUpdates: mapEventToStateUpdates(event) }));
 

@@ -12,9 +12,9 @@ const SchemaDef = `
 `;
 
 exports.schema = graphqlTools.makeExecutableSchema({
-  typeDefs: [
-    SchemaDef,
-    ...types,
-  ],
-  resolvers,
+	typeDefs: [
+		SchemaDef,
+		...types,
+	],
+	resolvers,
 });

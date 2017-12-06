@@ -14,7 +14,7 @@ const { sendRegisterRequest } = require('../../../usecases/authentication/regist
 const { sendLoginRequest } = require('../../../usecases/authentication/login');
 
 const InvalidRegisterError = createError('InvalidRegisterError', {
-  message: MESSAGE.DEFAULT_INVALID_REGISTER_ERROR,
+	message: MESSAGE.DEFAULT_INVALID_REGISTER_ERROR,
 });
 
 // extractResponseErrorText :: Error -> String
@@ -23,15 +23,15 @@ const extractResponseErrorText = err => R.path(['response', 'text'])(err);
 const extractResponseErrorJSON = err => R.pipe(extractResponseErrorText, JSON.parse)(err);
 
 const register = baseResolver.createResolver((obj, { user }) =>
-  sendRegisterRequest(user)
-    .orElse(error =>
-      Task.rejected(new InvalidRegisterError({ data: extractResponseErrorJSON(error) })))
-    .chain(() => sendLoginRequest(user))
-    .run()
-    .promise());
+	sendRegisterRequest(user)
+		.orElse(error =>
+			Task.rejected(new InvalidRegisterError({ data: extractResponseErrorJSON(error) })))
+		.chain(() => sendLoginRequest(user))
+		.run()
+		.promise());
 
 exports.register = {
-  Mutation: {
-    register,
-  },
+	Mutation: {
+		register,
+	},
 };

@@ -2,5 +2,6 @@
 exports.AppStateType = `
     type AppState {
         lobby: Lobby
+        game: Game
     }
 `;

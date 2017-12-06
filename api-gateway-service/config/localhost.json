@@ -6,5 +6,6 @@
   },
   "NODE_ENV": "localhost",
   "AuthenticationServiceEndpoint": "http://localhost:3001/auth",
-  "LobbyServiceEndpoint": "http://localhost:3002"
+  "LobbyServiceEndpoint": "http://localhost:3002",
+  "GameServiceEndpoint": "http://localhost:3003"
 }
