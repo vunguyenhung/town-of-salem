@@ -10,8 +10,9 @@ const { create, GameModel } = require('../infrastructures/database');
 const { sendEventToStateUpdateTopic } = require('../utils');
 
 // TODO: add more information into `users` of game
-const createGame = users =>
-	create({ users })
+const createGame = (users) => {
+	const dataToSave = users.map(username => ({ username }));
+	return create({ users: dataToSave })
 	// map ID of game
 		.chain(gameDoc =>
 			sendEventToStateUpdateTopic('[Game] GAME_CREATED', gameDoc.toObject({
@@ -20,6 +21,7 @@ const createGame = users =>
 					return ret;
 				},
 			})));
+};
 // more chain here
 
 const getGameByUsername = username => GameModel.findOne({ users: { username } });

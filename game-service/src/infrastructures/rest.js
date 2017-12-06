@@ -18,6 +18,7 @@ router.get('/', (req, res) => {
 			return res.status(200).json(result.toObject({
 				transform: (doc, ret) => {
 					ret.id = ret._id;
+					// TODO: hide the role here if present
 					return ret;
 				},
 			}));
