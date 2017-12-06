@@ -10,12 +10,7 @@ Project file imports
  */
 
 const GameSchema = new mongoose.Schema({
-	username: {
-		type: String,
-		index: true,
-		unique: true,
-	},
-	password: String,
+	users: [mongoose.Schema.Types.Mixed],
 }, { timestamps: true });
 
 const GameModel = mongoose.model('Game', GameSchema);
@@ -31,7 +26,10 @@ const connect = url =>
 		.map(() => ({ MongoDB: 'Ok' }))
 		.orElse(error => ({ MongoDB: error }));
 
+const create = data => fromPromised(GameModel.create.bind(GameModel))(data);
+
 module.exports = {
 	connect,
 	GameModel,
+	create,
 };
