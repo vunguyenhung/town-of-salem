@@ -4,5 +4,8 @@
       "kafkaHost": "kafka:9092"
     }
   },
+  "MongoDB": {
+    "url": "mongodb://mongodb:27017/tos"
+  },
   "NODE_ENV": "docker"
 }
