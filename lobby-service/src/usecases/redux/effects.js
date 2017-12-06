@@ -30,18 +30,14 @@ const StartUserAdd = username => (dispatch, getState) => {
 		Rx.Observable.interval(1000)
 			.timeInterval()
 			.takeWhile(timeInterval =>
-				// log('time Interval 0: ', timeInterval);
-				// log('lobby found: ', findLobbyByID(lastUpdatedLobby.id)(getState()));
 				timeInterval.value !== 10
 				&& +findLobbyByID(lastUpdatedLobby.id)(getState()).isClosed !== 0)
 			.do(timeInterval =>
-				// log('timeInterval 1: ', timeInterval);
 				dispatch(Actions.ClosingLobby({
 					lobby: lastUpdatedLobby,
 					closedIn: 10 - timeInterval.value,
 				})))
 			.do(() =>
-				// log('timeInterval 2: ', timeInterval);
 				dispatch(StartKafkaEventSend({
 					topic: 'tos-state-update-events',
 					type: '[Lobby] LOBBY_UPDATED',
@@ -52,6 +48,7 @@ const StartUserAdd = username => (dispatch, getState) => {
 				null,
 				() => {
 					if (+findLobbyByID(lastUpdatedLobby.id)(getState()).isClosed === 1) {
+						dispatch(Actions.RemoveLobby(lastUpdatedLobby.id));
 						return dispatch(StartKafkaEventSend({
 							topic: 'tos-game-events',
 							type: '[Game] START_GAME_CREATE',

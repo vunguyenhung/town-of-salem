@@ -26,13 +26,13 @@ const reducer = handleActions({
 	[Actions.RemoveUser]: (state, { payload }) => ({
 		lobbies: Entity.removeUser(payload, state.lobbies).getOrElse(state.lobbies),
 	}),
-	[Actions.ClosingLobby]: (state, { payload }) => {
-		log('payload: ', payload);
-		return ({
-			lobbies: Entity.updateLobbyInLobbies(payload.lobby, payload.closedIn, state.lobbies)
-				.getOrElse(state.lobbies),
-		});
-	},
+	[Actions.RemoveLobby]: (state, { payload }) => ({
+		lobbies: Entity.removeLobby(payload, state.lobbies),
+	}),
+	[Actions.ClosingLobby]: (state, { payload }) => ({
+		lobbies: Entity.updateLobbyInLobbies(payload.lobby, payload.closedIn, state.lobbies)
+			.getOrElse(state.lobbies),
+	}),
 	[Actions.SendKafkaEvent]: (state, { payload }) => ({ ...state, lastEvent: payload }),
 }, initialState);
 

@@ -31,10 +31,14 @@ const updateLobbyInLobbies = R.curry((lobby, closedIn, lobbies) =>
 		.map(R.assoc('updatedAt', new Date()))
 		.map(updateOrAppend(lobbies)));
 
+const removeLobby = (lobbyId, lobbies) =>
+	R.reject(R.propEq('id')(lobbyId))(lobbies);
+
 module.exports = {
 	updateLobbyInLobbies,
 	addLobby,
 	closeLobby,
 	openLobby,
 	createLobby,
+	removeLobby,
 };
