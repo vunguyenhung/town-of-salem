@@ -10,7 +10,7 @@ const compression = require('compression');
 /*
 Project file imports
  */
-// const rest = require('./controllers/REST');
+const rest = require('./infrastructures/rest');
 
 const createExpressApp = () => {
 	const app = express();
@@ -26,7 +26,7 @@ const createExpressApp = () => {
 		res.end('App is running');
 	});
 
-	// app.use('/state', rest);
+	app.use('/state', rest);
 
 	return app;
 };
