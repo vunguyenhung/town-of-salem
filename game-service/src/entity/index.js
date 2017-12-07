@@ -35,7 +35,7 @@ const findGameByPlayerId = playerId => task((resolver) => {
 		.catch(err => resolver.reject(err));
 });
 
-const preprocessUsernames = map(username => ({ username, isPlaying: true }));
+const preprocess = map(username => ({ username, isPlaying: true }));
 
 const updatePlayerGame = (playerDoc, gameId) =>
 	fromPromised(PlayerModel.update.bind(PlayerModel))(
@@ -44,7 +44,7 @@ const updatePlayerGame = (playerDoc, gameId) =>
 	);
 
 const createGame = usernames =>
-	_createPlayers(preprocessUsernames(usernames))
+	_createPlayers(preprocess(usernames))
 		.map(trace('player docs: '))
 		.map(playerDocs => playerDocs.map(prop('_id')))
 		.chain(playerIds => _createGame({ players: playerIds }))
