@@ -1,6 +1,6 @@
 // language=GraphQL
-exports.UserType = `
-    type User {
+exports.PlayerType = `
+    type Player {
         username: String!,
     }
 `;

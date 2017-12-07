@@ -17,6 +17,7 @@ const PlayerSchema = new mongoose.Schema({
 	username: String,
 	diedAt: String,
 	lastWill: String,
+	isPlaying: Boolean,
 	game: { type: mongoose.Schema.Types.ObjectId, ref: 'Game' },
 }, { timestamps: true });
 

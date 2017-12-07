@@ -1,8 +1,8 @@
 // language=GraphQL
 exports.GameType = `
     type Game {
-        id: String!,
-        users: [User]!,
+        _id: String!,
+        players: [Player]!,
         createdAt: String!,
         updatedAt: String!
     }

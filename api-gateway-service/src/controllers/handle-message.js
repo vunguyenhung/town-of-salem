@@ -19,7 +19,8 @@ const mapEventToStateUpdates = (event) => {
 	case '[Lobby] LEAVE_LOBBY':
 		return { lobby: null, forUsers: [event.payload] };
 	case '[Game] GAME_CREATED':
-		return { game: event.payload, forUsers: event.payload.users.map(R.prop('username')) };
+		return { game: event.payload, forUsers: event.payload.players.map(R.prop('username')) };
+		// case '[Game] GAME_UPDATED'
 	default:
 		return event.payload;
 	}

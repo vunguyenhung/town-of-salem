@@ -12,10 +12,10 @@ const { register } = require('./register.resolver');
 const { lobby } = require('./lobby.resolver');
 
 const resolvers = combineResolvers([
-  login,
-  register,
-  lobby,
-  stateUpdates,
+	login,
+	register,
+	lobby,
+	stateUpdates,
 ]);
 
 exports.resolvers = resolvers;

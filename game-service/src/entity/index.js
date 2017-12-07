@@ -35,7 +35,19 @@ const findGameByID = gameId => task((resolver) => {
 		.catch(err => resolver.reject(err));
 });
 
-const preprocessUsernames = map(username => ({ username }));
+const findPlayerByUsername = username => task((resolver) => {
+	PlayerModel.findOne({ username, isPlaying: true })
+		.then(result => (result ? resolver.resolve(result) : resolver.reject()))
+		.catch(err => resolver.reject(err));
+});
+
+const findGameByPlayerId = playerId => task((resolver) => {
+	GameModel.findOne({ players: playerId }).populate('players')
+		.then(result => (result ? resolver.resolve(result) : resolver.reject()))
+		.catch(err => resolver.reject(err));
+});
+
+const preprocessUsernames = map(username => ({ username, isPlaying: true }));
 
 const updatePlayerGame = (playerDoc, gameId) =>
 	fromPromised(PlayerModel.update.bind(PlayerModel))(
@@ -55,7 +67,14 @@ const createGame = usernames =>
 				.map(() => gameDoc))
 		.chain(gameDoc => sendEventToStateUpdateTopic('[Game] GAME_CREATED', gameDoc.toObject()));
 
-const getGameByUsername = username => GameModel.findOne({ users: { username } });
+// TODO: fix this
+// if we do it like this, game current state will always receive value if user has played a game before
+const getGameByUsername = username =>
+	findPlayerByUsername(username)
+		.map(trace('player doc found (by username): '))
+		.map(prop('_id'))
+		.chain(findGameByPlayerId)
+		.map(trace('game doc found (by username): '));
 
 // { __v: 0,
 // updatedAt: 2017-12-06T17:56:55.840Z,
