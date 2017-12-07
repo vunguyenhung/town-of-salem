@@ -16,9 +16,10 @@ exports.RootType = `
     }
 
     type Mutation {
-        register(user: UserInput!): String,
+        register(user: UserInput!): String
         joinLobby(token: String!): String
         leaveLobby(token: String!): String
+        updateLastWill(token: String!, lastWill: String!): String
     }
 
     type Subscription {
