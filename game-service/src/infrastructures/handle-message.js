@@ -14,7 +14,7 @@ const trace = createTrace('src:handle-message');
 
 const KafkaEventTypes = {
 	START_GAME_CREATE: '[Game] START_GAME_CREATE',
-	// create a new game in DB,
+	// createGame a new game in DB,
 	// send Kafka Message to tos-state-update-events
 	//    message:
 	//      type: [Game] GAME_CREATED

@@ -10,10 +10,19 @@ Project file imports
  */
 
 const GameSchema = new mongoose.Schema({
-	users: [mongoose.Schema.Types.Mixed],
+	players: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Player' }],
+}, { timestamps: true });
+
+const PlayerSchema = new mongoose.Schema({
+	username: String,
+	diedAt: String,
+	lastWill: String,
+	game: { type: mongoose.Schema.Types.ObjectId, ref: 'Game' },
 }, { timestamps: true });
 
 const GameModel = mongoose.model('Game', GameSchema);
+
+const PlayerModel = mongoose.model('Player', PlayerSchema);
 
 mongoose.Promise = global.Promise;
 
@@ -26,10 +35,8 @@ const connect = url =>
 		.map(() => ({ MongoDB: 'Ok' }))
 		.orElse(error => ({ MongoDB: error }));
 
-const create = data => fromPromised(GameModel.create.bind(GameModel))(data);
-
 module.exports = {
 	connect,
 	GameModel,
-	create,
+	PlayerModel,
 };

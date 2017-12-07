@@ -2,27 +2,50 @@
 /*
 3rd Party library imports
  */
+const { fromPromised } = require('folktale/concurrency/task');
+const { prop, map } = require('ramda');
+const { task } = require('folktale/concurrency/task');
 
 /*
 Project file imports
  */
-const { create, GameModel } = require('../infrastructures/database');
-const { sendEventToStateUpdateTopic } = require('../utils');
+const { GameModel, PlayerModel } = require('../infrastructures/database');
+const { createTrace, sendEventToStateUpdateTopic } = require('../utils');
 
-// TODO: add more information into `users` of game
-const createGame = (users) => {
-	const dataToSave = users.map(username => ({ username }));
-	return create({ users: dataToSave })
-	// map ID of game
-		.chain(gameDoc =>
-			sendEventToStateUpdateTopic('[Game] GAME_CREATED', gameDoc.toObject({
-				transform: (doc, ret) => {
-					ret.id = ret._id;
-					return ret;
-				},
-			})));
-};
-// more chain here
+const trace = createTrace('src:entity');
+
+// TODO: implement phases ?
+// pros: the hardest part
+//
+// const: the hardest part
+//  hard to test
+
+// TODO: implement game rule ?
+// pros: easier part
+//       easier to show
+//
+// cons:
+
+const _createGame = data => fromPromised(GameModel.create.bind(GameModel))(data);
+const _createPlayers = data => fromPromised(PlayerModel.insertMany.bind(PlayerModel))(data);
+
+const findGameByID = gameId => task((resolver) => {
+	GameModel.findOne({ _id: gameId }).populate('players')
+		.then(result => resolver.resolve(result))
+		.catch(err => resolver.reject(err));
+});
+
+const preprocessUsernames = map(username => ({ username }));
+
+const createGame = usernames =>
+	_createPlayers(preprocessUsernames(usernames))
+		.map(trace('player docs: '))
+		.map(playerDocs => playerDocs.map(prop('_id')))
+		.chain(playerIds => _createGame({ players: playerIds }))
+		.chain(gameDoc => findGameByID(gameDoc._id)) // players: [playerDoc]
+		.map(trace('game doc: '))
+		// TODO: update playerDocs's game to match with gameDoc._id
+		.chain(gameDoc => sendEventToStateUpdateTopic('[Game] GAME_CREATED', gameDoc.toObject()));
 
 const getGameByUsername = username => GameModel.findOne({ users: { username } });
 
