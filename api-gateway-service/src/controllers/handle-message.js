@@ -18,9 +18,14 @@ const mapEventToStateUpdates = (event) => {
 		return { lobby: event.payload, forUsers: event.payload.users };
 	case '[Lobby] LEAVE_LOBBY':
 		return { lobby: null, forUsers: [event.payload] };
+	case '[Game] LAST_WILL_UPDATED':
 	case '[Game] GAME_CREATED':
 		return { game: event.payload, forUsers: event.payload.players.map(R.prop('username')) };
-		// case '[Game] GAME_UPDATED'
+		// case '[Game] LAST_WILL_UPDATED':
+		// 	// INFO: game will be null if we just return player here.
+		// 	// => TODO: combine this with GAME_UPDATED
+		// 	return { game: event.payload, forUsers: event.payload.players.map(R.prop('username')) };
+		// 	{ type: [Game] LAST_WILL_UPDATED, payload: player }
 	default:
 		return event.payload;
 	}

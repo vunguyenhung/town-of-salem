@@ -3,7 +3,9 @@
 3rd Party library imports
  */
 const { fromPromised } = require('folktale/concurrency/task');
-const { prop, map } = require('ramda');
+const {
+	prop, map, curry, __,
+} = require('ramda');
 const { task, waitAll } = require('folktale/concurrency/task');
 
 /*
@@ -16,6 +18,12 @@ const trace = createTrace('src:entity');
 
 const _createGame = data => fromPromised(GameModel.create.bind(GameModel))(data);
 const _createPlayers = data => fromPromised(PlayerModel.insertMany.bind(PlayerModel))(data);
+
+const _updateLastWill = curry((playerDoc, lastWill) =>
+	fromPromised(PlayerModel.update.bind(PlayerModel))(
+		{ _id: playerDoc._id },
+		{ $set: { lastWill } },
+	));
 
 const findGameByID = gameId => task((resolver) => {
 	GameModel.findOne({ _id: gameId }).populate('players')
@@ -35,7 +43,7 @@ const findGameByPlayerId = playerId => task((resolver) => {
 		.catch(err => resolver.reject(err));
 });
 
-const preprocess = map(username => ({ username, isPlaying: true }));
+const preprocess = map(username => ({ username }));
 
 const updatePlayerGame = (playerDoc, gameId) =>
 	fromPromised(PlayerModel.update.bind(PlayerModel))(
@@ -62,7 +70,17 @@ const getGameByUsername = username =>
 		.chain(findGameByPlayerId)
 		.map(trace('game doc found (by username): '));
 
+const updateLastWill = ({ username, lastWill }) =>
+	findPlayerByUsername(username)
+		.chain(_updateLastWill(__, lastWill))
+		.chain(() => getGameByUsername(username))
+		.map(trace('result after updateLastWill of player'))
+		.chain(gameDoc =>
+			sendEventToStateUpdateTopic('[Game] LAST_WILL_UPDATED', gameDoc.toObject()));
+
 module.exports = {
 	createGame,
 	getGameByUsername,
+	updateLastWill,
+	findPlayerByUsername,
 };

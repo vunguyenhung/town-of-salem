@@ -7,28 +7,33 @@ const Task = require('folktale/concurrency/task');
 /*
 Project file imports
  */
-const { createGame } = require('../entity');
+const { createGame, updateLastWill } = require('../entity');
 const { createTrace } = require('../utils');
 
 const trace = createTrace('src:handle-message');
 
 const KafkaEventTypes = {
 	START_GAME_CREATE: '[Game] START_GAME_CREATE',
-	// createGame a new game in DB,
-	// send Kafka Message to tos-state-update-events
-	//    message:
-	//      type: [Game] GAME_CREATED
-	//      payload: { id: ...,  users: [{username: 'something', role: 'SERIAL_KILLER'}] }
-
+	UPDATE_LAST_WILL: '[Game] UPDATE_LAST_WILL',
 };
+// createGame a new game in DB,
+// send Kafka Message to tos-state-update-events
+//    message:
+//      type: [Game] GAME_CREATED
+//      payload: { id: ...,  users: [{username: 'something', role: 'SERIAL_KILLER'}] }
 
 const messageToEvent = R.pipe(R.prop(['value']), JSON.parse);
 
-// switch event.type:
-// case: 'START_GAME_CREATE':
-
-const handleEvent = event =>
-	createGame(event.payload);
+const handleEvent = ({ type, payload }) => {
+	switch (type) {
+	case KafkaEventTypes.START_GAME_CREATE:
+		return createGame(payload);
+	case KafkaEventTypes.UPDATE_LAST_WILL:
+		return updateLastWill(payload);
+	default:
+		return Task.of('Event is not handled!');
+	}
+};
 
 // handleMessage :: String -> Task
 const handleMessage = message =>

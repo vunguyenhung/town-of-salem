@@ -9,3 +9,7 @@ mutation joinLobby($token: String!){
 mutation leaveLobby($token: String!){
     leaveLobby(token: $token)
 }
+
+mutation updateLastWill($token: String!, $lastWill: String!){
+    updateLastWill(token: $token, lastWill: $lastWill)
+}
