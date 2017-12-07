@@ -35,8 +35,6 @@ const currentState = authenticationResolver
 			getCurrentGameState(username).orElse(() => of(null)),
 		]).map(R.zipObj(['lobby', 'game']))
 			.map(trace('currentState Result: '))
-			// {lobby: {...}}
-			// {lobby: {}, game: {}}
 			.run()
 			.promise());
 
