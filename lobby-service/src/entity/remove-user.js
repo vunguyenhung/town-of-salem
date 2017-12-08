@@ -3,6 +3,7 @@
  */
 const R = require('ramda');
 const Result = require('folktale/result');
+const config = require('config');
 
 /*
 Project file imports
@@ -14,7 +15,7 @@ const openLobby = R.assoc('isClosed', 0);
 
 // openLobbyIfNotFull :: Lobby -> Lobby
 const openLobbyIfNotFull = lobby =>
-	(Common.lobbyUsersLength(lobby) < 15 ? openLobby(lobby) : lobby);
+	(Common.lobbyUsersLength(lobby) < config.get('LobbyCapacity') ? openLobby(lobby) : lobby);
 
 // _removeUserFromLobby :: (String, Lobby) -> Lobby
 const removeUserFromLobby = R.curry((username, lobby) => ({

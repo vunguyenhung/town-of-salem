@@ -54,7 +54,7 @@ services:
     ports:
       - "3002:3002"
     volumes:
-      - ./lobby-service/src:/lobby-service/src
+      - ./lobby-service:/lobby-service
 
   game-service:
     build: ./game-service
