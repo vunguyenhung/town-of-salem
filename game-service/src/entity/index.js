@@ -76,7 +76,7 @@ const updateLastWill = ({ username, lastWill }) =>
 		.chain(() => getGameByUsername(username))
 		.map(trace('result after updateLastWill of player'))
 		.chain(gameDoc =>
-			sendEventToStateUpdateTopic('[Game] LAST_WILL_UPDATED', gameDoc.toObject()));
+			sendEventToStateUpdateTopic('[Game] GAME_UPDATED', gameDoc.toObject()));
 
 module.exports = {
 	createGame,
