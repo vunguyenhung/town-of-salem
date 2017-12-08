@@ -16,11 +16,6 @@ const KafkaEventTypes = {
 	START_GAME_CREATE: '[Game] START_GAME_CREATE',
 	UPDATE_LAST_WILL: '[Game] UPDATE_LAST_WILL',
 };
-// createGame a new game in DB,
-// send Kafka Message to tos-state-update-events
-//    message:
-//      type: [Game] GAME_CREATED
-//      payload: { id: ...,  users: [{username: 'something', role: 'SERIAL_KILLER'}] }
 
 const messageToEvent = R.pipe(R.prop(['value']), JSON.parse);
 
