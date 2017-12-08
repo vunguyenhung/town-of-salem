@@ -3,23 +3,39 @@
 3rd Party library imports
  */
 const { fromPromised } = require('folktale/concurrency/task');
-const {
-	prop, map, curry, __,
-} = require('ramda');
+const R = require('ramda');
 const { task, waitAll } = require('folktale/concurrency/task');
 
 /*
 Project file imports
  */
 const { GameModel, PlayerModel } = require('../infrastructures/database');
-const { createTrace, sendEventToStateUpdateTopic } = require('../utils');
+const { createTrace, sendEventToStateUpdateTopic, shuffle } = require('../utils');
 
 const trace = createTrace('src:entity');
+
+const ROLES = [
+	'Sheriff',
+	'Doctor',
+	'Investigator',
+	'Jailor',
+	'Medium',
+	'Godfather',
+	'Framer',
+	'Executioner',
+	'Escort',
+	'Mafioso',
+	'Lookout',
+	'Serial Killer',
+	'Vigilante',
+	'Jester',
+	'Spy',
+];
 
 const _createGame = data => fromPromised(GameModel.create.bind(GameModel))(data);
 const _createPlayers = data => fromPromised(PlayerModel.insertMany.bind(PlayerModel))(data);
 
-const _updateLastWill = curry((playerDoc, lastWill) =>
+const _updateLastWill = R.curry((playerDoc, lastWill) =>
 	fromPromised(PlayerModel.update.bind(PlayerModel))(
 		{ _id: playerDoc._id },
 		{ $set: { lastWill } },
@@ -43,7 +59,19 @@ const findGameByPlayerId = playerId => task((resolver) => {
 		.catch(err => resolver.reject(err));
 });
 
-const preprocess = map(username => ({ username }));
+// assign role to users
+// should have assign role step
+// to assign role
+const toPlayerObject = username => ({ username });
+
+const addRoles =
+	R.curry((players, roles) => players.map((val, index) => ({ ...val, role: roles[index] })));
+
+const preprocess = usernames =>
+	R.pipe(
+		R.map(toPlayerObject),
+		addRoles(R.__, shuffle(R.slice(0, usernames.length)(ROLES))),
+	)(usernames);
 
 const updatePlayerGame = (playerDoc, gameId) =>
 	fromPromised(PlayerModel.update.bind(PlayerModel))(
@@ -54,7 +82,7 @@ const updatePlayerGame = (playerDoc, gameId) =>
 const createGame = usernames =>
 	_createPlayers(preprocess(usernames))
 		.map(trace('player docs: '))
-		.map(playerDocs => playerDocs.map(prop('_id')))
+		.map(playerDocs => playerDocs.map(R.prop('_id')))
 		.chain(playerIds => _createGame({ players: playerIds }))
 		.chain(gameDoc => findGameByID(gameDoc._id)) // players: [playerDoc]
 		.map(trace('game doc: '))
@@ -66,13 +94,13 @@ const createGame = usernames =>
 const getGameByUsername = username =>
 	findPlayerByUsername(username)
 		.map(trace('player doc found (by username): '))
-		.map(prop('_id'))
+		.map(R.prop('_id'))
 		.chain(findGameByPlayerId)
 		.map(trace('game doc found (by username): '));
 
 const updateLastWill = ({ username, lastWill }) =>
 	findPlayerByUsername(username)
-		.chain(_updateLastWill(__, lastWill))
+		.chain(_updateLastWill(R.__, lastWill))
 		.chain(() => getGameByUsername(username))
 		.map(trace('result after updateLastWill of player'))
 		.chain(gameDoc =>

@@ -15,6 +15,7 @@ const GameSchema = new mongoose.Schema({
 
 const PlayerSchema = new mongoose.Schema({
 	username: String,
+	role: String,
 	died: { type: Boolean, default: false },
 	lastWill: String,
 	isPlaying: { type: Boolean, default: true },
