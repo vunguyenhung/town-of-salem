@@ -5,6 +5,7 @@ exports.PlayerType = `
         died: Boolean,
         updatedAt: String,
         createdAt: String,
+        role: String,
         isPlaying: Boolean,
         lastWill: String
     }
