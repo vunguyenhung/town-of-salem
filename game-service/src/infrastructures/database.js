@@ -10,12 +10,16 @@ Project file imports
  */
 
 const GameSchema = new mongoose.Schema({
+	currentPhase: String,
 	players: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Player' }],
 }, { timestamps: true });
 
 const PlayerSchema = new mongoose.Schema({
 	username: String,
 	role: String,
+	status: String,
+	interactionResults: [mongoose.Schema.Types.Mixed],
+	// [{content: 'You have been jailed', phase: 'N1'}]
 	died: { type: Boolean, default: false },
 	lastWill: String,
 	isPlaying: { type: Boolean, default: true },

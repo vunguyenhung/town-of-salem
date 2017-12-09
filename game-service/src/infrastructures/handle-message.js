@@ -25,6 +25,25 @@ const handleEvent = ({ type, payload }) => {
 		return createGame(payload);
 	case KafkaEventTypes.UPDATE_LAST_WILL:
 		return updateLastWill(payload);
+		// case KafkaEventTypes.PHASE_UPDATED:
+		// 	return handlePhaseUpdates(payload);
+		// {
+		// 	type: '[Game] PHASE_UPDATED',
+		// 	payload: {
+		// 	  currentPhase: 'N1',
+		// 		id: 'asdads' // gameID
+		//  },
+		// }
+
+		// case KafkaEventTypes.INTERACT:
+		// 	return handleInteraction(payload);
+		// {
+		// 	type: '[Game] INTERACT',
+		// 	payload: {
+		// 	  source: 'vunguyenhung', // username
+		// 		target: 'vunguyenhung2'
+		//  },
+		// }
 	default:
 		return Task.of('Event is not handled!');
 	}
