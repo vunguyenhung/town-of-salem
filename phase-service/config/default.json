@@ -1,0 +1,11 @@
+{
+  "App": {
+    "port": 3004
+  },
+  "Kafka": {
+    "consumerOptions": {
+      "autoCommitIntervalMs": 1000,
+      "groupId": "phase-service"
+    }
+  }
+}

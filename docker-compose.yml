@@ -61,6 +61,17 @@ services:
     ports:
       - "3003:3003"
 
+  phase-service:
+    build: ./phase-service
+    command: npm start
+    depends_on:
+      - zookeeper
+      - kafka
+      - mongodb
+      - api-gateway-service
+    ports:
+      - "3004:3004"
+
   mongodb:
     image: mongo
     expose:

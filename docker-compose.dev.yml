@@ -69,6 +69,19 @@ services:
     volumes:
       - ./game-service/src:/game-service/src
 
+  phase-service:
+    build: ./phase-service
+    command: npm run serve
+    depends_on:
+      - zookeeper
+      - kafka
+      - mongodb
+      - api-gateway-service
+    ports:
+      - "3004:3004"
+    volumes:
+      - ./phase-service/src:/phase-service/src
+
   mongodb:
     image: mongo
     ports:
