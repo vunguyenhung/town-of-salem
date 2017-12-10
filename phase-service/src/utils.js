@@ -22,7 +22,10 @@ const sendEvent = R.curry((topic, type, payload) =>
 		.map(createKafkaMessage(topic))
 		.chain(Producer.send(0)));
 
+const sendEventToGameTopic = sendEvent('tos-game-events');
+
 module.exports = {
 	createTrace,
 	sendEvent,
+	sendEventToGameTopic,
 };
