@@ -30,6 +30,7 @@ StartupTasks.start().run().promise()
 			.do(trace('Message received: '))
 			.subscribe(msg =>
 				handleMessage(msg).run().promise()
-					.then(trace('After handling message: ')));
+					.then(trace('After handling message: '))
+					.catch(trace('Error while handling message: ')));
 	})
-	.catch(trace);
+	.catch(trace('Error while running startup tasks: '));

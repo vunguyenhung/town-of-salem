@@ -24,6 +24,8 @@ const sendEvent = R.curry((topic, type, payload) =>
 
 const sendEventToStateUpdateTopic = sendEvent('tos-state-update-events');
 
+const sendEventToPhaseTopic = sendEvent('tos-phase-events');
+
 const shuffle = (arr) => {
 	for (let i = arr.length - 1; i > 0; i -= 1) {
 		const j = Math.floor(Math.random() * (i + 1));
@@ -35,5 +37,6 @@ const shuffle = (arr) => {
 module.exports = {
 	createTrace,
 	sendEventToStateUpdateTopic,
+	sendEventToPhaseTopic,
 	shuffle,
 };

@@ -10,7 +10,8 @@ Project file imports
  */
 
 const GameSchema = new mongoose.Schema({
-	currentPhase: String,
+	phase: String,
+	time: Number,
 	players: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Player' }],
 }, { timestamps: true });
 

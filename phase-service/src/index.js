@@ -15,4 +15,4 @@ StartupTasks.start().run().promise()
 				handleMessage(msg).run().promise()
 					.then(trace('After handling message: ')));
 	})
-	.catch(trace);
+	.catch(trace('Error while handling message: '));

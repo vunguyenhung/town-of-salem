@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /*
 3rd Party library imports
  */
@@ -60,17 +61,24 @@ Project file imports
 //  waitAll([findPlayerByUsername(source), findPlayerByUsername(target)])
 //    .chain(([sourceDoc, targetDoc]) => addToInteractions([sourceDoc, targetDoc]))
 
-// const handlePhaseUpdates = ({currentPhase, id}) =>
+// generateNextPhase(currentPhase) -> {phase: 'N1', time: 40}
+
+// const handlePhaseEnded = ({phase, id}) =>
 //  updatePhase(id, currentPhase)
 //    .chain(() => handleInteractions(currentPhase, id))
-//		.chain(() => findGameById(id))
-//    .chain(sendEventToStateUpdateTopic('[Game] GAME_UPDATED', gameDoc.toObject())))
+// 		.chain(() => findGameById(id))
+//    .chain(() =>
+//        sendEventToStateUpdateTopic('[Game] GAME_UPDATED', { ...gameDoc.toObject(), ...generateNextPhase(currentPhase)})))
+//    .chain(() => sendEventToPhaseTopic('[Phase] PHASE_START', {...generateNextPhase(currentPhase), id})
 
 // handleDayInteractions = (currentPhase, id) =>
 //
 //
 //
 //
+
+// TODO: update game State
+// TODO: update player State: { died: true, interactionResults: ['asdasd','asdasd'] }
 
 // D1 -> V1 -> N1 -> D2 -> V2 -> N2
 // day -> vote -> night -> day -> vote -> ...
