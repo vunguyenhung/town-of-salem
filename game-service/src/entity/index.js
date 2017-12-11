@@ -109,8 +109,10 @@ const generateNextPhase = (currentPhase) => {
 	if (currentPhase === 'D1') {
 		return { phase: 'N1', time: 60 };
 	}
-	const num = currentPhase[0] === 'N' ? +currentPhase[1] + 1 : +currentPhase[1];
-	return { phase: `${NEXT_PHASE[currentPhase[0]]}${num}`, time: NEXT_PHASE_TIME[currentPhase[0]] };
+	const [phase, ...numArr] = currentPhase;
+	const preNum = parseInt(numArr.join(''), 10);
+	const num = phase === 'N' ? preNum + 1 : preNum;
+	return { phase: `${NEXT_PHASE[phase]}${num}`, time: NEXT_PHASE_TIME[phase] };
 };
 
 const createGame = usernames =>
