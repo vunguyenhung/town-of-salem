@@ -33,4 +33,4 @@ StartupTasks.start().run().promise()
 					.then(trace('After handling message: '))
 					.catch(trace('Error while handling message: ')));
 	})
-	.catch(trace('Error while running startup tasks: '));
+	.catch(trace('Error while running startup tasks: ')); // there's something fall to catch.

@@ -156,8 +156,9 @@ const updateLastWill = ({ username, lastWill }) =>
 // => Don't need to get data from DB.
 // => Can sort && replace interactions
 
-const handleInteraction = ({ source, target }) =>
-	of({ source, target });
+// each game has its own interactions.
+const handleInteraction = ({ gameId, source, target }) =>
+	of({ gameId, source, target }).map(trace('interaction received: '));
 // handlePhaseEnded
 //  .getInteractions()
 //  .
