@@ -13,3 +13,7 @@ mutation leaveLobby($token: String!){
 mutation updateLastWill($token: String!, $lastWill: String!){
     updateLastWill(token: $token, lastWill: $lastWill)
 }
+
+mutation interact($gameId: String!, $source: Player!, $target: Player!){
+    interact(gameId: $gameId, source: $source, target: $target)
+}

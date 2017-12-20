@@ -10,6 +10,12 @@ exports.RootType = `
         password: String!
     }
 
+    input PlayerInput {
+        username: String!
+        died: Boolean!
+        role: String!
+    }
+
     type Query {
         currentState(token: String!): AppState
         login(user: UserInput!): String!
@@ -20,6 +26,7 @@ exports.RootType = `
         joinLobby(token: String!): String
         leaveLobby(token: String!): String
         updateLastWill(token: String!, lastWill: String!): String
+        interact(gameId: String!, source: PlayerInput!, target: PlayerInput!): String
     }
 
     type Subscription {
