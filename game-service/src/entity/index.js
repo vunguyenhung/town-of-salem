@@ -45,7 +45,7 @@ const _updateLastWill = R.curry((playerDoc, lastWill) =>
 
 const findGameByID = gameId => task((resolver) => {
 	GameModel.findOne({ _id: gameId }).populate('players')
-		.then(result => resolver.resolve(result))
+		.then(result => (result ? resolver.resolve(result) : resolver.reject()))
 		.catch(err => resolver.reject(err));
 });
 
@@ -99,9 +99,6 @@ const NEXT_PHASE_TIME = {
 	N: 40, // if current phase is Night, next phase is Day, and vote is 40s
 };
 
-// V - 15s
-// D - 40s
-// N - 60s
 const generateNextPhase = (currentPhase) => {
 	if (!currentPhase) {
 		return { phase: 'D1', time: 15 };
@@ -120,21 +117,14 @@ const createGame = usernames =>
 		.map(trace('player docs: '))
 		.map(playerDocs => playerDocs.map(R.prop('_id')))
 		.chain(playerIds => _createGame({ players: playerIds, ...generateNextPhase() }))
-		.chain(gameDoc => findGameByID(gameDoc._id)) // players: [playerDoc]
-		.map(trace('game doc: '))
-		.chain(gameDoc =>
-			waitAll(gameDoc.players.map(player => updatePlayerGame(player, gameDoc._id)))
-				.map(() => gameDoc))
-		.chain(gameDoc =>
-			sendEventToStateUpdateTopic(
-				'[Game] GAME_CREATED',
-				gameDoc.toObject(),
-			).map(() => gameDoc))
-		.chain(gameDoc =>
-			sendEventToPhaseTopic('[Phase] START_PHASE', { ...generateNextPhase(), id: gameDoc._id }));
-// D1 is 15s long
-// about the client ?
-// Error: Only pending deferreds can be rejected, this deferred is already rejected.
+		.chain(gameDoc => findGameByID(gameDoc._id)) // get out the players in game
+		.map(trace('game doc with players: '))
+		.map(gameDoc => gameDoc.toObject())
+		.chain(gameDoc => waitAll([
+			waitAll(gameDoc.players.map(player => updatePlayerGame(player, gameDoc._id))),
+			sendEventToStateUpdateTopic('[Game] GAME_CREATED', gameDoc),
+			sendEventToPhaseTopic('[Phase] START_PHASE', { ...generateNextPhase(), id: gameDoc._id }),
+		]));
 
 // how can we get current phase when user get Current Game State ? Save current State in game.
 const getGameByUsername = username =>
@@ -148,9 +138,9 @@ const updateLastWill = ({ username, lastWill }) =>
 	findPlayerByUsername(username)
 		.chain(_updateLastWill(R.__, lastWill))
 		.chain(() => getGameByUsername(username))
+		.map(gameDoc => gameDoc.toObject())
 		.map(trace('result after updateLastWill of player'))
-		.chain(gameDoc =>
-			sendEventToStateUpdateTopic('[Game] GAME_UPDATED', gameDoc.toObject()));
+		.chain(sendEventToStateUpdateTopic('[Game] GAME_UPDATED'));
 
 // -------------------------------- Interactions
 
@@ -161,12 +151,12 @@ const handlePhaseEnded = ({ phase, id }) =>
 				.map(() => nextPhaseAndTime))
 		.chain(updateGamePhaseAndTime(id))
 		.chain(() => findGameByID(id))
-		.chain(gameDoc => sendEventToStateUpdateTopic('[Game] GAME_UPDATED', gameDoc.toObject()));
+		.map(gameDoc => gameDoc.toObject())
+		.chain(sendEventToStateUpdateTopic('[Game] GAME_UPDATED'));
 
 module.exports = {
 	createGame,
 	getGameByUsername,
 	updateLastWill,
-	findPlayerByUsername,
 	handlePhaseEnded,
 };
