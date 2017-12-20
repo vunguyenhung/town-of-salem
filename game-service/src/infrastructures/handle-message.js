@@ -7,7 +7,9 @@ const Task = require('folktale/concurrency/task');
 /*
 Project file imports
  */
-const { createGame, updateLastWill, handlePhaseEnded } = require('../entity');
+const {
+	createGame, updateLastWill, handlePhaseEnded, handleInteraction,
+} = require('../entity');
 const { createTrace } = require('../utils');
 
 const trace = createTrace('src:handle-message');
@@ -28,17 +30,8 @@ const handleEvent = ({ type, payload }) => {
 		return updateLastWill(payload);
 	case KafkaEventTypes.PHASE_ENDED:
 		return handlePhaseEnded(payload);
-		//
-		// {
-		// 	type: '[Game] PHASE_ENDED',
-		// 	payload: {
-		// 	  phase: 'N1',
-		// 		id: 'asdads' // gameID
-		//  },
-		// }
-
-		// case KafkaEventTypes.INTERACT:
-		// 	return handleInteraction(payload);
+	case KafkaEventTypes.INTERACT:
+		return handleInteraction(payload);
 		// {
 		// 	type: '[Game] INTERACT',
 		// 	payload: {

@@ -61,9 +61,6 @@ const findGameByPlayerId = playerId => task((resolver) => {
 		.catch(err => resolver.reject(err));
 });
 
-// assign role to users
-// should have assign role step
-// to assign role
 const toPlayerObject = username => ({ username });
 
 const addRoles =
@@ -143,13 +140,35 @@ const updateLastWill = ({ username, lastWill }) =>
 		.chain(sendEventToStateUpdateTopic('[Game] GAME_UPDATED'));
 
 // -------------------------------- Interactions
+// let interactions = [];
+// interaction format:
+// 		{
+// 			source: {
+// 				username: 'vunguyenhung',
+// 				role: 'Jailor',
+// 			},
+// 			target: {
+// 				username: 'vunguyenhung2',
+// 				role: 'Mafioso',
+// 			},
+// 		},
+
+// => Don't need to get data from DB.
+// => Can sort && replace interactions
+
+const handleInteraction = ({ source, target }) =>
+	of({ source, target });
+// handlePhaseEnded
+//  .getInteractions()
+//  .
+
+// TODO: implement handleInteraction event from api gateway
 
 const handlePhaseEnded = ({ phase, id }) =>
 	of(generateNextPhase(phase))
-		.chain(nextPhaseAndTime =>
-			sendEventToPhaseTopic('[Phase] START_PHASE', { ...nextPhaseAndTime, id })
-				.map(() => nextPhaseAndTime))
-		.chain(updateGamePhaseAndTime(id))
+		.chain(nextPhaseAndTime => waitAll([
+			sendEventToPhaseTopic('[Phase] START_PHASE', { id, ...nextPhaseAndTime }),
+			updateGamePhaseAndTime(id, nextPhaseAndTime)]))
 		.chain(() => findGameByID(id))
 		.map(gameDoc => gameDoc.toObject())
 		.chain(sendEventToStateUpdateTopic('[Game] GAME_UPDATED'));
@@ -159,4 +178,5 @@ module.exports = {
 	getGameByUsername,
 	updateLastWill,
 	handlePhaseEnded,
+	handleInteraction,
 };
