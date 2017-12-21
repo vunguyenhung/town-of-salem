@@ -35,11 +35,9 @@ const handleEvent = ({ type, payload }) => {
 		return handleInteraction(payload);
 		// {
 		// 	type: '[Game] INTERACT',
-		// 	payload: {
-		// 	  source: 'vunguyenhung', // username
-		// 		target: 'vunguyenhung2'
-		//  },
-		// }
+		// 	payload: { gameId: '5a3b752d5b6fee0027a44aaf',
+		//    source: { username: 'vnhung1', died: false, role: 'Sheriff' },
+		//    target: { username: 'vnhung2', died: false, role: 'Doctor' } }
 	default:
 		return Task.of('Event is not handled!');
 	}

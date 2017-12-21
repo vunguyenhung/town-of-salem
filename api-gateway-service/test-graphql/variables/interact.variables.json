@@ -1,0 +1,13 @@
+{
+  "gameId": "5a3b752d5b6fee0027a44aaf",
+  "source": {
+    "username": "vnhung1",
+    "died": false,
+    "role": "Sheriff"
+  },
+  "target": {
+    "username": "vnhung2",
+    "died": false,
+    "role": "Doctor"
+  }
+}
