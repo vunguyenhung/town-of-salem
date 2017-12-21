@@ -159,17 +159,16 @@ class Interactions {
 		// 	payload: { gameId: '5a3b752d5b6fee0027a44aaf',
 		//    source: { username: 'vnhung1', died: false, role: 'Sheriff' },
 		//    target: { username: 'vnhung2', died: false, role: 'Doctor' } }
-
-		// if gameId not exist in key of this.interactions
-		//    add a sub-array with the key is the gameId
-		//    then add an element to that array
-		// else get existing gameInteractions
-		//    then add an element to that.
 		if (gameInteractions) {
 			this.interactions[gameId] = updateOrAppend(gameInteractions, interaction);
 		} else {
 			this.interactions = { ...this.interactions, [gameId]: [interaction] };
 		}
+		return this.interactions;
+	}
+
+	clear() {
+		this.interactions = {};
 		return this.interactions;
 	}
 }

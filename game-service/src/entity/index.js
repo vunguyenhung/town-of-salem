@@ -17,23 +17,23 @@ const Interactions = require('./interactions');
 
 const trace = createTrace('src:entity');
 
-const ROLES = [
-	'Sheriff',
-	'Doctor',
-	'Investigator',
-	'Jailor',
-	'Medium',
-	'Godfather',
-	'Framer',
-	'Executioner',
-	'Escort',
-	'Mafioso',
-	'Lookout',
-	'Serial Killer',
-	'Vigilante',
-	'Jester',
-	'Spy',
-];
+const ROLES = {
+	SHERIFF: 'Sheriff',
+	DOCTOR: 'Doctor',
+	INVESTIGATOR: 'Investigator',
+	JAILOR: 'Jailor',
+	MEDIUM: 'Medium',
+	GODFATHER: 'Godfather',
+	FRAMER: 'Framer',
+	EXECUTIONER: 'Executioner',
+	ESCORT: 'Escort',
+	MAFIOSO: 'Mafioso',
+	LOOKOUT: 'Lookout',
+	SERIAL_KILLER: 'Serial Killer',
+	VIGILANTE: 'Vigilante',
+	JESTER: 'Jester',
+	SPY: 'Spy',
+};
 
 const _createGame = data => fromPromised(GameModel.create.bind(GameModel))(data);
 const _createPlayers = data => fromPromised(PlayerModel.insertMany.bind(PlayerModel))(data);
@@ -70,7 +70,7 @@ const addRoles =
 const preprocess = usernames =>
 	R.pipe(
 		R.map(toPlayerObject),
-		addRoles(R.__, shuffle(R.slice(0, usernames.length)(ROLES))),
+		addRoles(R.__, shuffle(R.slice(0, usernames.length)(R.values(ROLES)))),
 	)(usernames);
 
 const updatePlayerGame = (playerDoc, gameId) =>
@@ -167,6 +167,15 @@ const handleInteraction = interaction =>
 //  .
 
 // TODO: implement handleInteraction event from api gateway
+
+// gameRule will return $set object in update() method of mongoose. Then we'll update in DB.
+
+// const interactionToChanges = ({ source, target }) => {
+// 	switch (source.role) {
+// 	case 'Sheriff':
+//
+// 	}
+// };
 
 const handlePhaseEnded = ({ phase, id }) =>
 	of(generateNextPhase(phase))
