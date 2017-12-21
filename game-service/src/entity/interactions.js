@@ -154,6 +154,10 @@ class Interactions {
 		return this.interactions;
 	}
 
+	get(gameId) {
+		return this.interactions[gameId];
+	}
+
 	append({ gameId, ...interaction }) {
 		const gameInteractions = this.interactions[gameId];
 		// 	payload: { gameId: '5a3b752d5b6fee0027a44aaf',
@@ -169,7 +173,6 @@ class Interactions {
 
 	clear() {
 		this.interactions = {};
-		return this.interactions;
 	}
 }
 

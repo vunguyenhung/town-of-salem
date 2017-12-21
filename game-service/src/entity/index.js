@@ -35,6 +35,38 @@ const ROLES = {
 	SPY: 'Spy',
 };
 
+const sheriffMapper = ({ target }) => {
+	if (target.status === 'jailed') {
+		return { source: { interactionResults: ['Your target was jailed last night!'] } };
+	} else if (target.status === 'framed' || target.role === ROLES.MAFIOSO) {
+		return { source: { interactionResults: ['Your target is a member of the Mafia!'] } };
+	} else if (target.role === ROLES.SERIAL_KILLER) {
+		return { source: { interactionResults: ['Your target is a Serial Killer!'] } };
+	}
+	return { source: { interactionResults: ['Your target is not suspicious'] } };
+};
+
+const defaultMapper = ({ source, target }) => ({});
+
+// params: {source, target}, interactions
+const ROLES_MAPPER = {
+	[ROLES.SHERIFF]: sheriffMapper,
+	[ROLES.DOCTOR]: defaultMapper,
+	[ROLES.INVESTIGATOR]: defaultMapper,
+	JAILOR: 'Jailor',
+	MEDIUM: 'Medium',
+	GODFATHER: 'Godfather',
+	FRAMER: 'Framer',
+	EXECUTIONER: 'Executioner',
+	ESCORT: 'Escort',
+	MAFIOSO: 'Mafioso',
+	LOOKOUT: 'Lookout',
+	SERIAL_KILLER: 'Serial Killer',
+	VIGILANTE: 'Vigilante',
+	JESTER: 'Jester',
+	SPY: 'Spy',
+};
+
 const _createGame = data => fromPromised(GameModel.create.bind(GameModel))(data);
 const _createPlayers = data => fromPromised(PlayerModel.insertMany.bind(PlayerModel))(data);
 
@@ -79,6 +111,7 @@ const updatePlayerGame = (playerDoc, gameId) =>
 		{ $set: { game: gameId } },
 	);
 
+// TODO: refactor this, we just need update() method.
 const updateGamePhaseAndTime = R.curry((gameId, { phase, time }) =>
 	fromPromised(GameModel.update.bind(GameModel))(
 		{ _id: gameId },
@@ -160,6 +193,7 @@ const updateLastWill = ({ username, lastWill }) =>
 // each game has its own interactions.
 const handleInteraction = interaction =>
 	of(Interactions.append(interaction))
+		.map(() => Interactions.get(interaction.gameId))
 		.map(ob => JSON.stringify(ob))
 		.map(trace('interaction received: '));
 // handlePhaseEnded
@@ -170,21 +204,66 @@ const handleInteraction = interaction =>
 
 // gameRule will return $set object in update() method of mongoose. Then we'll update in DB.
 
-// const interactionToChanges = ({ source, target }) => {
-// 	switch (source.role) {
-// 	case 'Sheriff':
-//
-// 	}
-// };
+// interactionToChanges :: { source :: { username, status, died, role }, target :: { username, status, died, role } }
+// -> { source :: { username, status, died, interactionResults }, target: { username, status, died } }
+// update source && target
+const interactionToChanges = ({ source, target }, _, interactions) => {
+	const concatValues = (k, l, r) => (k === 'interactionResults' ? R.concat(l, r) : r);
+	const changes = ROLES_MAPPER[source.role]({ source, target }, interactions); // {source, target}
+	return {
+		source: R.mergeWithKey(concatValues, source, changes.source || {}),
+		target: R.mergeWithKey(concatValues, target, changes.target || {}),
+	};
+};
 
-const handlePhaseEnded = ({ phase, id }) =>
+// QUESTION: how to handle end game ?
+// TODO: Implement a checkGameEnd function, then chain it after handleInteractions
+
+// TODO: fix this: Cannot read property 'map' of undefined when phase ended
+const handleInteractions = interactions => interactions.map(interactionToChanges);
+
+// updatePlayer :: (criteria :: { game :: String, username :: String }, changes :: { username :: String, died :: Boolean, status :: String, interactionResults :: [String]})
+const updatePlayerByUsername = userChanges =>
+	fromPromised(PlayerModel.update.bind(PlayerModel))(
+		{ username: userChanges.username, isPlaying: true },
+		{ $set: userChanges },
+	);
+
+// update both source and target
+// (changes :: [{ source, target }], gameId: String)
+const updatePlayerChanges = interactionsChanges =>
+	waitAll(interactionsChanges.map(({ source, target }) =>
+		waitAll([updatePlayerByUsername(source), updatePlayerByUsername(target)])));
+
+// just update once.
+
+// handlePhaseEnded({ phase, id })
+//  handleInteractions(Interactions.get(id)) // -> [{source, target}]
+//  updatePlayerChanges() // Update Database
+//    handleEndGame() // later
+//  startNextPhase
+
+const startNextPhase = ({ phase, id }) =>
 	of(generateNextPhase(phase))
 		.chain(nextPhaseAndTime => waitAll([
 			sendEventToPhaseTopic('[Phase] START_PHASE', { id, ...nextPhaseAndTime }),
 			updateGamePhaseAndTime(id, nextPhaseAndTime)]))
-		.chain(() => findGameByID(id))
-		.map(gameDoc => gameDoc.toObject())
+		.chain(() => findGameByID(id).map(gameDoc => gameDoc.toObject()))
 		.chain(sendEventToStateUpdateTopic('[Game] GAME_UPDATED'));
+
+// startNextPhase
+//  generateNextPhase
+//  updateGamePhaseAndTime
+//  sendEventToPhaseTopic('[Phase] START_PHASE')
+//  sendEventToStateUpdateTopic('[Phase] GameUpdated')
+
+const handlePhaseEnded = ({ phase, id }) =>
+	of(handleInteractions(Interactions.get(id)))
+		.map(trace('handleInteractions result: '))
+		.chain(updatePlayerChanges)
+		.map(trace('updatePlayerChanges esult: '))
+		.map(() => Interactions.clear())
+		.chain(() => startNextPhase({ phase, id }));
 
 module.exports = {
 	createGame,

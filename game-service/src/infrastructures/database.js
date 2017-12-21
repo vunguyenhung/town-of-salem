@@ -19,8 +19,8 @@ const PlayerSchema = new mongoose.Schema({
 	username: String,
 	role: String,
 	status: String,
-	interactionResults: [mongoose.Schema.Types.Mixed],
-	// [{content: 'You have been jailed', phase: 'N1'}]
+	interactionResults: [String],
+	// ['You have been jailed']
 	died: { type: Boolean, default: false },
 	lastWill: String,
 	isPlaying: { type: Boolean, default: true },
