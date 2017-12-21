@@ -1,4 +1,7 @@
 /* eslint-disable max-len */
+const Task = require('folktale/concurrency/task');
+const R = require('ramda');
+
 /*
 3rd Party library imports
  */
@@ -125,3 +128,50 @@ Project file imports
 //		target.status = 'jailed'
 //  }
 //
+
+const updateOrAppend = R.curry((source, subject) => {
+	const index = R.findIndex(R.eqProps('source', subject))(source);
+	return R.equals(index, -1)
+		? R.append(subject)(source)
+		: R.update(index, subject)(source);
+});
+
+class Interactions {
+	constructor() {
+		this.interactions = {};
+	}
+
+	// const interactions = {
+	// 	'asdasdsad': [
+	// 		{
+	// 			source: {...},
+	// 			target: {...},
+	// 		}
+	// 	]
+	// };
+
+	instance() {
+		return this.interactions;
+	}
+
+	append({ gameId, ...interaction }) {
+		const gameInteractions = this.interactions[gameId];
+		// 	payload: { gameId: '5a3b752d5b6fee0027a44aaf',
+		//    source: { username: 'vnhung1', died: false, role: 'Sheriff' },
+		//    target: { username: 'vnhung2', died: false, role: 'Doctor' } }
+
+		// if gameId not exist in key of this.interactions
+		//    add a sub-array with the key is the gameId
+		//    then add an element to that array
+		// else get existing gameInteractions
+		//    then add an element to that.
+		if (gameInteractions) {
+			this.interactions[gameId] = updateOrAppend(gameInteractions, interaction);
+		} else {
+			this.interactions = { ...this.interactions, [gameId]: [interaction] };
+		}
+		return this.interactions;
+	}
+}
+
+module.exports = new Interactions();

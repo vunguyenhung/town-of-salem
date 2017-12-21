@@ -13,6 +13,7 @@ const { GameModel, PlayerModel } = require('../infrastructures/database');
 const {
 	createTrace, sendEventToStateUpdateTopic, sendEventToPhaseTopic, shuffle,
 } = require('../utils');
+const Interactions = require('./interactions');
 
 const trace = createTrace('src:entity');
 
@@ -157,8 +158,10 @@ const updateLastWill = ({ username, lastWill }) =>
 // => Can sort && replace interactions
 
 // each game has its own interactions.
-const handleInteraction = ({ gameId, source, target }) =>
-	of({ gameId, source, target }).map(trace('interaction received: '));
+const handleInteraction = interaction =>
+	of(Interactions.append(interaction))
+		.map(ob => JSON.stringify(ob))
+		.map(trace('interaction received: '));
 // handlePhaseEnded
 //  .getInteractions()
 //  .
