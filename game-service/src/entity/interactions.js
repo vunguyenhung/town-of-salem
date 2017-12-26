@@ -172,7 +172,7 @@ class Interactions {
 	}
 
 	clear() {
-		this.interactions = {};
+		this.interactions = R.mapObjIndexed(() => [], this.interactions);
 	}
 }
 

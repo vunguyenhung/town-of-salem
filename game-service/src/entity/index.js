@@ -46,12 +46,17 @@ const sheriffMapper = ({ target }) => {
 	return { source: { interactionResults: ['Your target is not suspicious'] } };
 };
 
+const doctorMapper = () => ({
+	source: { interactionResults: ['You healed your target'] },
+	target: { status: 'healed' },
+});
+
 const defaultMapper = ({ source, target }) => ({});
 
 // params: {source, target}, interactions
 const ROLES_MAPPER = {
 	[ROLES.SHERIFF]: sheriffMapper,
-	[ROLES.DOCTOR]: defaultMapper,
+	[ROLES.DOCTOR]: doctorMapper,
 	[ROLES.INVESTIGATOR]: defaultMapper,
 	JAILOR: 'Jailor',
 	MEDIUM: 'Medium',
@@ -94,6 +99,12 @@ const findGameByPlayerId = playerId => task((resolver) => {
 		.catch(err => resolver.reject(err));
 });
 
+const clearInteractionResultsAndStatus = () =>
+	fromPromised(PlayerModel.updateMany.bind(PlayerModel))(
+		{},
+		{ $set: { interactionResults: null, status: null } },
+	);
+
 const toPlayerObject = username => ({ username });
 
 const addRoles =
@@ -126,16 +137,16 @@ const NEXT_PHASE = {
 
 const NEXT_PHASE_TIME = {
 	D: 15, // if current phase is Day, next phase is vote, and vote is 15s
-	V: 60, // if current phase is Vote, next phase is Night, and vote is 60s
+	V: 30, // if current phase is Vote, next phase is Night, and vote is 60s
 	N: 40, // if current phase is Night, next phase is Day, and vote is 40s
 };
 
 const generateNextPhase = (currentPhase) => {
 	if (!currentPhase) {
-		return { phase: 'D1', time: 15 };
+		return { phase: 'D1', time: 15 /* 15 */ };
 	}
 	if (currentPhase === 'D1') {
-		return { phase: 'N1', time: 60 };
+		return { phase: 'N1', time: 30 /* 60 */ };
 	}
 	const [phase, ...numArr] = currentPhase;
 	const preNum = parseInt(numArr.join(''), 10);
@@ -219,7 +230,6 @@ const interactionToChanges = ({ source, target }, _, interactions) => {
 // QUESTION: how to handle end game ?
 // TODO: Implement a checkGameEnd function, then chain it after handleInteractions
 
-// TODO: fix this: Cannot read property 'map' of undefined when phase ended
 const handleInteractions = interactions => interactions.map(interactionToChanges);
 
 // updatePlayer :: (criteria :: { game :: String, username :: String }, changes :: { username :: String, died :: Boolean, status :: String, interactionResults :: [String]})
@@ -257,8 +267,11 @@ const startNextPhase = ({ phase, id }) =>
 //  sendEventToPhaseTopic('[Phase] START_PHASE')
 //  sendEventToStateUpdateTopic('[Phase] GameUpdated')
 
+// const clearStatusAndInteractionResults = () =>
+
 const handlePhaseEnded = ({ phase, id }) =>
-	of(handleInteractions(Interactions.get(id)))
+	clearInteractionResultsAndStatus()
+		.map(() => handleInteractions(Interactions.get(id)))
 		.map(trace('handleInteractions result: '))
 		.chain(updatePlayerChanges)
 		.map(trace('updatePlayerChanges esult: '))

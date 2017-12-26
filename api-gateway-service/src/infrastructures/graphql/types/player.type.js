@@ -7,6 +7,8 @@ exports.PlayerType = `
         createdAt: String,
         role: String,
         isPlaying: Boolean,
-        lastWill: String
+        lastWill: String,
+		    interactionResults: [String],
+		    status: String
     }
 `;
