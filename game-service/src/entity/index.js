@@ -285,7 +285,7 @@ const updateLastWill = ({ username, lastWill }) =>
 // => Don't need to get data from DB.
 // => Can sort && replace interactions
 
-const clearStatusAndInteractionResults = () =>
+const clearStatus = () =>
 	fromPromised(PlayerModel.updateMany.bind(PlayerModel))(
 		{ isPlaying: true },
 		{ $set: { status: null } },
@@ -297,13 +297,11 @@ const handleInteraction = interaction =>
 		.map(ob => JSON.stringify(ob))
 		.map(trace('interaction received: '));
 
-// TODO: write test for this!
 const nightInteractionToChanges = ({ source, target }, _, interactions) => {
 	const concatValues = (k, l, r) => (k === 'interactionResults' ? R.concat(l, r) : r);
 	const changes = ROLES_MAPPER[source.role]({ source, target }, interactions); // => {source, target}
 	return {
 		source: R.mergeWithKey(concatValues, source, changes.source || {}),
-		// bug here. It only source's interactionResults from client with the latest interactionResults that we generated
 		target: R.mergeWithKey(concatValues, target, changes.target || {}),
 	};
 };
@@ -353,8 +351,8 @@ const handleNightEnded = ({ phase, id }) =>
 	of(handleInteractions(Interactions.get(id)))
 		.chain(updatePlayerChanges)
 		.map(() => Interactions.clear())
-		.chain(() => clearStatusAndInteractionResults())
-		.chain(() => startNextPhase({ phase, id })); // INFO: this get data from DB
+		.chain(() => clearStatus())
+		.chain(() => startNextPhase({ phase, id }));
 // do this in front-end too
 
 const handlePhaseEnded = ({ phase, id }) => {

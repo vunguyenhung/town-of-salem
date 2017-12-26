@@ -15,6 +15,7 @@ exports.RootType = `
         died: Boolean!
         role: String!
 		    status: String
+		    interactionResults: [String]
     }
 
     type Query {
