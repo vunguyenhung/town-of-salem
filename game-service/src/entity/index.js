@@ -18,27 +18,30 @@ const Interactions = require('./interactions');
 const trace = createTrace('src:entity');
 
 const ROLES = {
-	SHERIFF: 'Sheriff',
-	DOCTOR: 'Doctor',
-	INVESTIGATOR: 'Investigator',
-	JAILOR: 'Jailor',
-	MEDIUM: 'Medium',
-	GODFATHER: 'Godfather',
-	FRAMER: 'Framer',
-	EXECUTIONER: 'Executioner',
-	ESCORT: 'Escort',
-	MAFIOSO: 'Mafioso',
-	LOOKOUT: 'Lookout',
-	SERIAL_KILLER: 'Serial Killer',
-	VIGILANTE: 'Vigilante',
-	JESTER: 'Jester',
-	SPY: 'Spy',
+	SHERIFF: 'Sheriff', // night
+	DOCTOR: 'Doctor', // night
+	INVESTIGATOR: 'Investigator', // night
+	JAILOR: 'Jailor', // day
+	MEDIUM: 'Medium', // nothing
+	GODFATHER: 'Godfather', // night
+	FRAMER: 'Framer', // day
+	EXECUTIONER: 'Executioner', // nothing
+	ESCORT: 'Escort', // day
+	MAFIOSO: 'Mafioso', // night
+	BLACKMAILER: 'Blackmailer', // night
+	SERIAL_KILLER: 'Serial Killer', // night
+	VIGILANTE: 'Vigilante', // night
+	JESTER: 'Jester', // nothing
+	SPY: 'Spy', // nothing
 };
 
 const sheriffMapper = ({ target }) => {
 	if (target.status === 'jailed') {
 		return { source: { interactionResults: ['Your target was jailed last night!'] } };
-	} else if (target.status === 'framed' || target.role === ROLES.MAFIOSO) {
+	} else if (target.status === 'framed'
+		|| target.role === ROLES.MAFIOSO
+		|| target.role === ROLES.BLACKMAILER
+		|| target.role === ROLES.FRAMER) {
 		return { source: { interactionResults: ['Your target is a member of the Mafia!'] } };
 	} else if (target.role === ROLES.SERIAL_KILLER) {
 		return { source: { interactionResults: ['Your target is a Serial Killer!'] } };
@@ -51,25 +54,112 @@ const doctorMapper = () => ({
 	target: { status: 'healed' },
 });
 
-const defaultMapper = ({ source, target }) => ({});
+const investigatorMapper = ({ target }) => {
+	switch (target.role) {
+	case ROLES.SHERIFF:
+	case ROLES.EXECUTIONER:
+		return { source: { interactionResults: ['Your target could be a Sheriff, or Executioner'] } };
+	case ROLES.DOCTOR:
+	case ROLES.SERIAL_KILLER:
+		return { source: { interactionResults: ['Your target could be a Doctor, or Serial Killer.'] } };
+	case ROLES.JAILOR:
+	case ROLES.SPY:
+	case ROLES.BLACKMAILER:
+		return { source: { interactionResults: ['Your target could be a Jailor, Blackmailer or Spy.'] } };
+	case ROLES.MEDIUM:
+		return { source: { interactionResults: ['Your target could be a Medium, or Janitor'] } };
+	case ROLES.GODFATHER:
+		return { source: { interactionResults: ['Your target could be a Godfather, or Bodyguard'] } };
+	case ROLES.FRAMER:
+	case ROLES.JESTER:
+		return { source: { interactionResults: ['Your target could be a Framer, or Jester'] } };
+	case ROLES.ESCORT:
+		return { source: { interactionResults: ['Your target could be a Escort, Transporter, or Consort.'] } };
+	case ROLES.MAFIOSO:
+	case ROLES.VIGILANTE:
+		return { source: { interactionResults: ['Your target could be a Vigilante or Mafioso'] } };
+	default:
+		return {};
+	}
+};
+
+const jailorMapper = () => ({
+	source: { interactionResults: ['You jailed your target'] },
+	target: { status: 'jailed', interactionResults: ['You were haled off to jail!'] },
+});
+
+const killerMapper = ({ target }) => {
+	if (target.role === ROLES.SERIAL_KILLER
+		|| target.role === ROLES.EXECUTIONER
+		|| target.role === ROLES.GODFATHER) {
+		return { source: { interactionResults: ['Your target\'s defense is too powerful!'] } };
+	} else if (target.status === 'jailed') {
+		return {
+			source: { interactionResults: ['Your target was jailed last night!'] },
+			target: { interactionResults: ['Someone tried to attack you last night, but you were jailed'] },
+		};
+	}
+	return { target: { died: true }, source: { interactionResults: ['You killed your target!'] } };
+};
+
+const framerMapper = () => ({
+	target: { status: 'framed' },
+	source: { interactionResults: ['You framed your target!'] },
+});
+
+const escortMapper = () => ({
+	target: { status: 'blocked' },
+	source: { interactionResults: ['You blocked your target!'] },
+});
+
+const blackmailerMapper = () => ({
+	source: { interactionResults: ['You blackmailed your target!'] },
+	target: { status: 'blackmailed', interactionResults: ['You have been blackmailed!'] },
+});
+
+const vigilanteMapper = ({ target }) => {
+	if (target.status === 'jailed') {
+		return {
+			source: { interactionResults: ['Your target was jailed last night!'] },
+			target: { interactionResults: ['Someone tried to attack you last night, but you were jailed'] },
+		};
+	} else if (target.role === ROLES.GODFATHER
+		|| target.role === ROLES.SERIAL_KILLER
+		|| target.role === ROLES.EXECUTIONER) {
+		return { source: { interactionResults: ['Your target\'s defense is too powerful!'] } };
+	} else if (target.role === ROLES.FRAMER
+		|| target.role === ROLES.MAFIOSO
+		|| target.role === ROLES.JESTER) {
+		return { target: { died: true }, source: { interactionResults: ['You killed your target!'] } };
+	}
+	return {
+		source: {
+			died: true,
+			interactionResults: ['You committed suicide over the guilt of killing a townie!'],
+		},
+		target: { died: true },
+	};
+};
+
+const defaultMapper = () => ({});
 
 // params: {source, target}, interactions
 const ROLES_MAPPER = {
 	[ROLES.SHERIFF]: sheriffMapper,
 	[ROLES.DOCTOR]: doctorMapper,
-	[ROLES.INVESTIGATOR]: defaultMapper,
-	JAILOR: 'Jailor',
-	MEDIUM: 'Medium',
-	GODFATHER: 'Godfather',
-	FRAMER: 'Framer',
-	EXECUTIONER: 'Executioner',
-	ESCORT: 'Escort',
-	MAFIOSO: 'Mafioso',
-	LOOKOUT: 'Lookout',
-	SERIAL_KILLER: 'Serial Killer',
-	VIGILANTE: 'Vigilante',
-	JESTER: 'Jester',
-	SPY: 'Spy',
+	[ROLES.INVESTIGATOR]: investigatorMapper,
+	[ROLES.JAILOR]: jailorMapper, // buff
+	[ROLES.MEDIUM]: defaultMapper, // can't do anything
+	[ROLES.GODFATHER]: killerMapper,
+	[ROLES.FRAMER]: framerMapper,
+	[ROLES.EXECUTIONER]: defaultMapper, // can't do anything
+	[ROLES.ESCORT]: escortMapper,
+	[ROLES.MAFIOSO]: killerMapper,
+	[ROLES.BLACKMAILER]: blackmailerMapper, // can change target's status at daytime
+	[ROLES.SERIAL_KILLER]: killerMapper,
+	[ROLES.VIGILANTE]: vigilanteMapper,
+	[ROLES.JESTER]: defaultMapper,
+	[ROLES.SPY]: defaultMapper,
 };
 
 const _createGame = data => fromPromised(GameModel.create.bind(GameModel))(data);
@@ -122,7 +212,6 @@ const updatePlayerGame = (playerDoc, gameId) =>
 		{ $set: { game: gameId } },
 	);
 
-// TODO: refactor this, we just need update() method.
 const updateGamePhaseAndTime = R.curry((gameId, { phase, time }) =>
 	fromPromised(GameModel.update.bind(GameModel))(
 		{ _id: gameId },
@@ -132,13 +221,13 @@ const updateGamePhaseAndTime = R.curry((gameId, { phase, time }) =>
 const NEXT_PHASE = {
 	D: 'V',
 	V: 'N',
-	N: 'D', // num + 1
+	N: 'D',
 };
 
 const NEXT_PHASE_TIME = {
 	D: 15, // if current phase is Day, next phase is vote, and vote is 15s
-	V: 30, // if current phase is Vote, next phase is Night, and vote is 60s
-	N: 40, // if current phase is Night, next phase is Day, and vote is 40s
+	V: 30, // if current phase is Vote, next phase is Night, and night is 60s
+	N: 20, // if current phase is Night, next phase is Day, and day is 40s
 };
 
 const generateNextPhase = (currentPhase) => {
@@ -220,7 +309,12 @@ const handleInteraction = interaction =>
 // update source && target
 const interactionToChanges = ({ source, target }, _, interactions) => {
 	const concatValues = (k, l, r) => (k === 'interactionResults' ? R.concat(l, r) : r);
-	const changes = ROLES_MAPPER[source.role]({ source, target }, interactions); // {source, target}
+	let changes;
+	if (source.status === 'blocked' || source.status === 'jailed') {
+		changes = { source: { interactionResults: ['You were distracted last night!'] } };
+	} else {
+		changes = ROLES_MAPPER[source.role]({ source, target }, interactions); // {source, target}
+	}
 	return {
 		source: R.mergeWithKey(concatValues, source, changes.source || {}),
 		target: R.mergeWithKey(concatValues, target, changes.target || {}),
@@ -255,6 +349,7 @@ const updatePlayerChanges = interactionsChanges =>
 
 const startNextPhase = ({ phase, id }) =>
 	of(generateNextPhase(phase))
+	// if next phase is Day, delete all status and interactionResults
 		.chain(nextPhaseAndTime => waitAll([
 			sendEventToPhaseTopic('[Phase] START_PHASE', { id, ...nextPhaseAndTime }),
 			updateGamePhaseAndTime(id, nextPhaseAndTime)]))
@@ -270,8 +365,7 @@ const startNextPhase = ({ phase, id }) =>
 // const clearStatusAndInteractionResults = () =>
 
 const handlePhaseEnded = ({ phase, id }) =>
-	clearInteractionResultsAndStatus()
-		.map(() => handleInteractions(Interactions.get(id)))
+	of(handleInteractions(Interactions.get(id)))
 		.map(trace('handleInteractions result: '))
 		.chain(updatePlayerChanges)
 		.map(trace('updatePlayerChanges esult: '))

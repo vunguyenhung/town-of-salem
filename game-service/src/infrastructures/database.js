@@ -20,7 +20,6 @@ const PlayerSchema = new mongoose.Schema({
 	role: String,
 	status: String,
 	interactionResults: [String],
-	// ['You have been jailed']
 	died: { type: Boolean, default: false },
 	lastWill: String,
 	isPlaying: { type: Boolean, default: true },
