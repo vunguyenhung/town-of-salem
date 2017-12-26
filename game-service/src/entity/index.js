@@ -18,21 +18,21 @@ const Interactions = require('./interactions');
 const trace = createTrace('src:entity');
 
 const ROLES = {
-	SHERIFF: 'Sheriff', // night
-	DOCTOR: 'Doctor', // night
-	INVESTIGATOR: 'Investigator', // night
-	JAILOR: 'Jailor', // day
-	MEDIUM: 'Medium', // nothing
-	GODFATHER: 'Godfather', // night
-	FRAMER: 'Framer', // day
-	EXECUTIONER: 'Executioner', // nothing
-	ESCORT: 'Escort', // day
-	MAFIOSO: 'Mafioso', // night
-	BLACKMAILER: 'Blackmailer', // night
-	SERIAL_KILLER: 'Serial Killer', // night
-	VIGILANTE: 'Vigilante', // night
-	JESTER: 'Jester', // nothing
-	SPY: 'Spy', // nothing
+	SHERIFF: 'Sheriff',
+	DOCTOR: 'Doctor',
+	INVESTIGATOR: 'Investigator',
+	JAILOR: 'Jailor',
+	MEDIUM: 'Medium',
+	GODFATHER: 'Godfather',
+	FRAMER: 'Framer',
+	EXECUTIONER: 'Executioner',
+	ESCORT: 'Escort',
+	MAFIOSO: 'Mafioso',
+	BLACKMAILER: 'Blackmailer',
+	SERIAL_KILLER: 'Serial Killer',
+	VIGILANTE: 'Vigilante',
+	JESTER: 'Jester',
+	SPY: 'Spy',
 };
 
 const sheriffMapper = ({ target }) => {
@@ -97,6 +97,10 @@ const killerMapper = ({ target }) => {
 		return {
 			source: { interactionResults: ['Your target was jailed last night!'] },
 			target: { interactionResults: ['Someone tried to attack you last night, but you were jailed'] },
+		};
+	} else if (target.status === 'healed') {
+		return {
+			target: { interactionResults: ['Someone tried to attack you last night, but the doctor saves you!'] },
 		};
 	}
 	return { target: { died: true }, source: { interactionResults: ['You killed your target!'] } };
@@ -189,12 +193,6 @@ const findGameByPlayerId = playerId => task((resolver) => {
 		.catch(err => resolver.reject(err));
 });
 
-const clearInteractionResultsAndStatus = () =>
-	fromPromised(PlayerModel.updateMany.bind(PlayerModel))(
-		{},
-		{ $set: { interactionResults: null, status: null } },
-	);
-
 const toPlayerObject = username => ({ username });
 
 const addRoles =
@@ -219,23 +217,20 @@ const updateGamePhaseAndTime = R.curry((gameId, { phase, time }) =>
 	));
 
 const NEXT_PHASE = {
-	D: 'V',
-	V: 'N',
-	N: 'D',
+	D: 'N',
+	V: 'D',
+	N: 'V',
 };
 
 const NEXT_PHASE_TIME = {
-	D: 15, // if current phase is Day, next phase is vote, and vote is 15s
-	V: 30, // if current phase is Vote, next phase is Night, and night is 60s
-	N: 20, // if current phase is Night, next phase is Day, and day is 40s
+	D: 35, // if current phase is Day, next phase is Night, and night is 65s
+	V: 30, // if current phase is Vote, next phase is Day, and day is 60s
+	N: 20, // if current phase is Night, next phase is Vote, and vote is 40s
 };
 
 const generateNextPhase = (currentPhase) => {
 	if (!currentPhase) {
 		return { phase: 'D1', time: 15 /* 15 */ };
-	}
-	if (currentPhase === 'D1') {
-		return { phase: 'N1', time: 30 /* 60 */ };
 	}
 	const [phase, ...numArr] = currentPhase;
 	const preNum = parseInt(numArr.join(''), 10);
@@ -290,33 +285,25 @@ const updateLastWill = ({ username, lastWill }) =>
 // => Don't need to get data from DB.
 // => Can sort && replace interactions
 
-// each game has its own interactions.
+const clearStatusAndInteractionResults = () =>
+	fromPromised(PlayerModel.updateMany.bind(PlayerModel))(
+		{ isPlaying: true },
+		{ $set: { status: null } },
+	);
+
 const handleInteraction = interaction =>
 	of(Interactions.append(interaction))
 		.map(() => Interactions.get(interaction.gameId))
 		.map(ob => JSON.stringify(ob))
 		.map(trace('interaction received: '));
-// handlePhaseEnded
-//  .getInteractions()
-//  .
 
-// TODO: implement handleInteraction event from api gateway
-
-// gameRule will return $set object in update() method of mongoose. Then we'll update in DB.
-
-// interactionToChanges :: { source :: { username, status, died, role }, target :: { username, status, died, role } }
-// -> { source :: { username, status, died, interactionResults }, target: { username, status, died } }
-// update source && target
-const interactionToChanges = ({ source, target }, _, interactions) => {
+// TODO: write test for this!
+const nightInteractionToChanges = ({ source, target }, _, interactions) => {
 	const concatValues = (k, l, r) => (k === 'interactionResults' ? R.concat(l, r) : r);
-	let changes;
-	if (source.status === 'blocked' || source.status === 'jailed') {
-		changes = { source: { interactionResults: ['You were distracted last night!'] } };
-	} else {
-		changes = ROLES_MAPPER[source.role]({ source, target }, interactions); // {source, target}
-	}
+	const changes = ROLES_MAPPER[source.role]({ source, target }, interactions); // => {source, target}
 	return {
 		source: R.mergeWithKey(concatValues, source, changes.source || {}),
+		// bug here. It only source's interactionResults from client with the latest interactionResults that we generated
 		target: R.mergeWithKey(concatValues, target, changes.target || {}),
 	};
 };
@@ -324,53 +311,60 @@ const interactionToChanges = ({ source, target }, _, interactions) => {
 // QUESTION: how to handle end game ?
 // TODO: Implement a checkGameEnd function, then chain it after handleInteractions
 
-const handleInteractions = interactions => interactions.map(interactionToChanges);
+const handleInteractions = interactions => interactions.map(nightInteractionToChanges);
 
-// updatePlayer :: (criteria :: { game :: String, username :: String }, changes :: { username :: String, died :: Boolean, status :: String, interactionResults :: [String]})
 const updatePlayerByUsername = userChanges =>
 	fromPromised(PlayerModel.update.bind(PlayerModel))(
 		{ username: userChanges.username, isPlaying: true },
 		{ $set: userChanges },
 	);
 
-// update both source and target
-// (changes :: [{ source, target }], gameId: String)
 const updatePlayerChanges = interactionsChanges =>
 	waitAll(interactionsChanges.map(({ source, target }) =>
 		waitAll([updatePlayerByUsername(source), updatePlayerByUsername(target)])));
 
-// just update once.
-
-// handlePhaseEnded({ phase, id })
-//  handleInteractions(Interactions.get(id)) // -> [{source, target}]
-//  updatePlayerChanges() // Update Database
-//    handleEndGame() // later
-//  startNextPhase
-
 const startNextPhase = ({ phase, id }) =>
 	of(generateNextPhase(phase))
-	// if next phase is Day, delete all status and interactionResults
 		.chain(nextPhaseAndTime => waitAll([
 			sendEventToPhaseTopic('[Phase] START_PHASE', { id, ...nextPhaseAndTime }),
 			updateGamePhaseAndTime(id, nextPhaseAndTime)]))
 		.chain(() => findGameByID(id).map(gameDoc => gameDoc.toObject()))
 		.chain(sendEventToStateUpdateTopic('[Game] GAME_UPDATED'));
 
-// startNextPhase
-//  generateNextPhase
-//  updateGamePhaseAndTime
-//  sendEventToPhaseTopic('[Phase] START_PHASE')
-//  sendEventToStateUpdateTopic('[Phase] GameUpdated')
+// split it into
+//  handleDayPhaseEnded - handleDayInteractions
+//  handleVotePhaseEnded - handleVoteInteractions
+//  handleNightPhaseEnded - handleInteractions
 
-// const clearStatusAndInteractionResults = () =>
-
-const handlePhaseEnded = ({ phase, id }) =>
+const handleDayEnded = ({ phase, id }) =>
 	of(handleInteractions(Interactions.get(id)))
-		.map(trace('handleInteractions result: '))
 		.chain(updatePlayerChanges)
-		.map(trace('updatePlayerChanges esult: '))
 		.map(() => Interactions.clear())
 		.chain(() => startNextPhase({ phase, id }));
+
+const handleVoteEnded = ({ phase, id }) =>
+	of(handleInteractions(Interactions.get(id)))
+		.chain(updatePlayerChanges)
+		.map(() => Interactions.clear())
+		.chain(() => startNextPhase({ phase, id }));
+
+// INFO: front-end save status for us.
+const handleNightEnded = ({ phase, id }) =>
+	of(handleInteractions(Interactions.get(id)))
+		.chain(updatePlayerChanges)
+		.map(() => Interactions.clear())
+		.chain(() => clearStatusAndInteractionResults())
+		.chain(() => startNextPhase({ phase, id })); // INFO: this get data from DB
+// do this in front-end too
+
+const handlePhaseEnded = ({ phase, id }) => {
+	if (phase[0] === 'D') {
+		return handleDayEnded({ phase, id });
+	} else if (phase[0] === 'V') {
+		return handleVoteEnded({ phase, id });
+	}
+	return handleNightEnded({ phase, id });
+};
 
 module.exports = {
 	createGame,

@@ -14,6 +14,7 @@ exports.RootType = `
         username: String!
         died: Boolean!
         role: String!
+		    status: String
     }
 
     type Query {
