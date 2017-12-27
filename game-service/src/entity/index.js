@@ -4,7 +4,9 @@
  */
 const { fromPromised } = require('folktale/concurrency/task');
 const R = require('ramda');
-const { task, waitAll, of } = require('folktale/concurrency/task');
+const {
+	task, waitAll, of, rejected,
+} = require('folktale/concurrency/task');
 
 /*
 Project file imports
@@ -152,14 +154,14 @@ const ROLES_MAPPER = {
 	[ROLES.SHERIFF]: sheriffMapper,
 	[ROLES.DOCTOR]: doctorMapper,
 	[ROLES.INVESTIGATOR]: investigatorMapper,
-	[ROLES.JAILOR]: jailorMapper, // buff
-	[ROLES.MEDIUM]: defaultMapper, // can't do anything
+	[ROLES.JAILOR]: jailorMapper,
+	[ROLES.MEDIUM]: defaultMapper,
 	[ROLES.GODFATHER]: killerMapper,
 	[ROLES.FRAMER]: framerMapper,
-	[ROLES.EXECUTIONER]: defaultMapper, // can't do anything
+	[ROLES.EXECUTIONER]: defaultMapper,
 	[ROLES.ESCORT]: escortMapper,
 	[ROLES.MAFIOSO]: killerMapper,
-	[ROLES.BLACKMAILER]: blackmailerMapper, // can change target's status at daytime
+	[ROLES.BLACKMAILER]: blackmailerMapper,
 	[ROLES.SERIAL_KILLER]: killerMapper,
 	[ROLES.VIGILANTE]: vigilanteMapper,
 	[ROLES.JESTER]: defaultMapper,
@@ -189,6 +191,13 @@ const findPlayerByUsername = username => task((resolver) => {
 
 const findGameByPlayerId = playerId => task((resolver) => {
 	GameModel.findOne({ players: playerId }).populate('players')
+		.then(result => (result ? resolver.resolve(result) : resolver.reject()))
+		.catch(err => resolver.reject(err));
+});
+
+// => number
+const countPlayerAliveInGame = gameId => task((resolver) => {
+	PlayerModel.find({ game: gameId, isPlaying: true, died: false }).count()
 		.then(result => (result ? resolver.resolve(result) : resolver.reject()))
 		.catch(err => resolver.reject(err));
 });
@@ -309,6 +318,53 @@ const nightInteractionToChanges = ({ source, target }, _, interactions) => {
 // QUESTION: how to handle end game ?
 // TODO: Implement a checkGameEnd function, then chain it after handleInteractions
 
+// {source, target} -> {source, target}
+const handleVoteInteractions = (interactions, playerAlive) => {
+	return [];
+	// if (interactions.length === 0) {
+	// 	return [];
+	// }
+	// const targetVoteCount = R.countBy(R.path(['target', 'username']))(interactions); // { 'vnhung1': 5, 'vnhung': 3 } || {}
+	// const [username, count] = R.toPairs(targetVoteCount)[0];
+	// if (count >= playerAlive / 2) {
+	//
+	// }
+	// return countPlayerAliveInGame(gameId)
+	// 	.chain(userAlive =>
+	// 		(count >= userAlive / 2 ? of([{ target: { username, died: true } }])
+	// 			: rejected([]))); // => username | []
+	// mark target.died = true
+
+	// const targetVoteCount = R.countBy(R.path(['target', 'username']))(interactions); // { 'vnhung1': 5, 'vnhung': 3 } || {}
+	// trace('target vote count: ', targetVoteCount);
+	// const [username, count] = R.toPairs(targetVoteCount)[0];
+	// trace('Most Frequent username, count: ', { username, count });
+	// return [];
+
+	// get the most frequent username
+	// if the count > 50% amount of people alive,
+	//  update target's died = true in DB
+	// If target.role === ROLES.JESTER
+	//  Mark target as winner
+	//  find a random interactions source,
+	//    mark it as died,
+	//    add its interactionResults = ['You were killed by the Jester']
+
+	// update lynched target
+	// if target.role === ROLES.JESTER
+	//  target.won = true;
+	//  luckySource = sources[random(0, sources.length)];
+	//  luckySource.died = true;
+
+	//  luckySource.interactionsResults = ['You were killed by the Jester']
+	// db.students.update(
+	// 	{ _id: 1 },
+	// 	{ $push: { scores: 89 } }
+	// )
+
+	// update all player's interaction Results
+};
+
 const handleInteractions = interactions => interactions.map(nightInteractionToChanges);
 
 const updatePlayerByUsername = userChanges =>
@@ -341,12 +397,12 @@ const handleDayEnded = ({ phase, id }) =>
 		.chain(() => startNextPhase({ phase, id }));
 
 const handleVoteEnded = ({ phase, id }) =>
-	of(handleInteractions(Interactions.get(id)))
+	countPlayerAliveInGame(id)
+		.map(playerAlive => handleVoteInteractions(Interactions.get(id), playerAlive))
 		.chain(updatePlayerChanges)
 		.map(() => Interactions.clear())
 		.chain(() => startNextPhase({ phase, id }));
 
-// INFO: front-end save status for us.
 const handleNightEnded = ({ phase, id }) =>
 	of(handleInteractions(Interactions.get(id)))
 		.chain(updatePlayerChanges)
