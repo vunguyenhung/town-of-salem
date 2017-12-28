@@ -1,11 +1,11 @@
-/* eslint-disable no-param-reassign,max-len */
+/* eslint-disable no-param-reassign,max-len,no-mixed-operators,no-shadow */
 /*
 3rd Party library imports
  */
 const { fromPromised } = require('folktale/concurrency/task');
 const R = require('ramda');
 const {
-	task, waitAll, of, rejected,
+	task, waitAll, of,
 } = require('folktale/concurrency/task');
 
 /*
@@ -232,9 +232,9 @@ const NEXT_PHASE = {
 };
 
 const NEXT_PHASE_TIME = {
-	D: 35, // if current phase is Day, next phase is Night, and night is 65s
-	V: 30, // if current phase is Vote, next phase is Day, and day is 60s
-	N: 20, // if current phase is Night, next phase is Vote, and vote is 40s
+	D: 10, // if current phase is Day, next phase is Night, and night is 65s
+	V: 10, // if current phase is Vote, next phase is Day, and day is 60s
+	N: 30, // if current phase is Night, next phase is Vote, and vote is 40s
 };
 
 const generateNextPhase = (currentPhase) => {
@@ -291,9 +291,6 @@ const updateLastWill = ({ username, lastWill }) =>
 // 			},
 // 		},
 
-// => Don't need to get data from DB.
-// => Can sort && replace interactions
-
 const clearStatus = () =>
 	fromPromised(PlayerModel.updateMany.bind(PlayerModel))(
 		{ isPlaying: true },
@@ -318,52 +315,50 @@ const nightInteractionToChanges = ({ source, target }, _, interactions) => {
 // QUESTION: how to handle end game ?
 // TODO: Implement a checkGameEnd function, then chain it after handleInteractions
 
-// {source, target} -> {source, target}
-const handleVoteInteractions = (interactions, playerAlive) => {
-	return [];
-	// if (interactions.length === 0) {
-	// 	return [];
-	// }
-	// const targetVoteCount = R.countBy(R.path(['target', 'username']))(interactions); // { 'vnhung1': 5, 'vnhung': 3 } || {}
-	// const [username, count] = R.toPairs(targetVoteCount)[0];
-	// if (count >= playerAlive / 2) {
-	//
-	// }
-	// return countPlayerAliveInGame(gameId)
-	// 	.chain(userAlive =>
-	// 		(count >= userAlive / 2 ? of([{ target: { username, died: true } }])
-	// 			: rejected([]))); // => username | []
-	// mark target.died = true
-
-	// const targetVoteCount = R.countBy(R.path(['target', 'username']))(interactions); // { 'vnhung1': 5, 'vnhung': 3 } || {}
-	// trace('target vote count: ', targetVoteCount);
-	// const [username, count] = R.toPairs(targetVoteCount)[0];
-	// trace('Most Frequent username, count: ', { username, count });
-	// return [];
-
-	// get the most frequent username
-	// if the count > 50% amount of people alive,
-	//  update target's died = true in DB
-	// If target.role === ROLES.JESTER
-	//  Mark target as winner
-	//  find a random interactions source,
-	//    mark it as died,
-	//    add its interactionResults = ['You were killed by the Jester']
-
-	// update lynched target
-	// if target.role === ROLES.JESTER
-	//  target.won = true;
-	//  luckySource = sources[random(0, sources.length)];
-	//  luckySource.died = true;
-
-	//  luckySource.interactionsResults = ['You were killed by the Jester']
-	// db.students.update(
-	// 	{ _id: 1 },
-	// 	{ $push: { scores: 89 } }
-	// )
-
-	// update all player's interaction Results
+const findTheMostFrequentTarget = (interactions) => {
+	// source is unique
+	const targets = R.map(R.prop('target'))(interactions);
+	const targetVoteCount = R.countBy(R.prop('username'))(targets); // { 'vnhung1': 5, 'vnhung': 3 } || {}
+	const [username, count] = R.toPairs(targetVoteCount)[0];
+	const target = R.find(R.propEq('username', username))(targets);
+	return { target, count };
 };
+
+const randomIntFromInterval = (min, max) => Math.floor(Math.random() * (max - min + 1) + min);
+
+const findRandomSourceByTargetUsername = (interactions, targetUsername) => {
+	const sources = R.pipe(
+		R.filter(R.pathEq(['target', 'username'], targetUsername)),
+		R.map(R.prop('source')),
+	)(interactions);
+	return R.nth(randomIntFromInterval(0, sources.length))(sources);
+};
+
+const handleVoteInteractions = R.curry((interactions, playerAlive) => {
+	if (interactions.length === 0) {
+		return [];
+	}
+	const { target, count } = findTheMostFrequentTarget(interactions); // => {username :: String, count :: Number}
+	if (count >= playerAlive / 2) {
+		target.died = true;
+		let source = {};
+		if (target.role === ROLES.JESTER) {
+			source = findRandomSourceByTargetUsername(interactions, target.username);
+			source.died = true;
+			source.interactionResults =
+				R.append('You were killed by the hanged Jester!')(source.interactionResults);
+		}
+		return [{ target, source }];
+	}
+	return interactions.map(({ source, target }) => ({
+		source: {
+			...source,
+			interactionResults:
+				R.append('Not enough vote to lynch you target!')(source.interactionResults),
+		},
+		target,
+	}));
+});
 
 const handleInteractions = interactions => interactions.map(nightInteractionToChanges);
 
@@ -385,11 +380,6 @@ const startNextPhase = ({ phase, id }) =>
 		.chain(() => findGameByID(id).map(gameDoc => gameDoc.toObject()))
 		.chain(sendEventToStateUpdateTopic('[Game] GAME_UPDATED'));
 
-// split it into
-//  handleDayPhaseEnded - handleDayInteractions
-//  handleVotePhaseEnded - handleVoteInteractions
-//  handleNightPhaseEnded - handleInteractions
-
 const handleDayEnded = ({ phase, id }) =>
 	of(handleInteractions(Interactions.get(id)))
 		.chain(updatePlayerChanges)
@@ -398,8 +388,11 @@ const handleDayEnded = ({ phase, id }) =>
 
 const handleVoteEnded = ({ phase, id }) =>
 	countPlayerAliveInGame(id)
-		.map(playerAlive => handleVoteInteractions(Interactions.get(id), playerAlive))
+		.map(trace('current player alive'))
+		.map(handleVoteInteractions(Interactions.get(id)))
+		.map(trace('handle Vote Interaction result: '))
 		.chain(updatePlayerChanges)
+		.map(trace('update player Changes Result: '))
 		.map(() => Interactions.clear())
 		.chain(() => startNextPhase({ phase, id }));
 
