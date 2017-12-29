@@ -85,6 +85,19 @@ const investigatorMapper = ({ target }) => {
 	}
 };
 
+const MAFIA = [ROLES.GODFATHER, ROLES.FRAMER, ROLES.MAFIOSO, ROLES.BLACKMAILER];
+
+const TOWN = [
+	ROLES.SHERIFF,
+	ROLES.DOCTOR,
+	ROLES.INVESTIGATOR,
+	ROLES.JAILOR,
+	ROLES.MEDIUM,
+	ROLES.ESCORT,
+	ROLES.VIGILANTE,
+	ROLES.SPY,
+];
+
 const jailorMapper = () => ({
 	source: { interactionResults: ['You jailed your target'] },
 	target: { status: 'jailed', interactionResults: ['You were haled off to jail!'] },
@@ -232,9 +245,9 @@ const NEXT_PHASE = {
 };
 
 const NEXT_PHASE_TIME = {
-	D: 10, // if current phase is Day, next phase is Night, and night is 65s
-	V: 10, // if current phase is Vote, next phase is Day, and day is 60s
-	N: 30, // if current phase is Night, next phase is Vote, and vote is 40s
+	D: 35, // if current phase is Day, next phase is Night, and night is 65s
+	V: 30, // if current phase is Vote, next phase is Day, and day is 60s
+	N: 20, // if current phase is Night, next phase is Vote, and vote is 40s
 };
 
 const generateNextPhase = (currentPhase) => {
@@ -386,22 +399,108 @@ const handleDayEnded = ({ phase, id }) =>
 		.map(() => Interactions.clear())
 		.chain(() => startNextPhase({ phase, id }));
 
-const handleVoteEnded = ({ phase, id }) =>
-	countPlayerAliveInGame(id)
-		.map(trace('current player alive'))
-		.map(handleVoteInteractions(Interactions.get(id)))
-		.map(trace('handle Vote Interaction result: '))
-		.chain(updatePlayerChanges)
-		.map(trace('update player Changes Result: '))
-		.map(() => Interactions.clear())
-		.chain(() => startNextPhase({ phase, id }));
+// only SK left
+// only mafia left
+// only town left
 
+// _checkWinningCondition :: players :: [{ role :: String }] -> Boolean
+const _checkWinningCondition = (playersAlive) => {
+	const playerRoles = R.map(R.prop('role'))(playersAlive);
+	const noMafiaLeft = R.none(R.contains(R.__, MAFIA));
+	const noTownLeft = R.none(R.contains(R.__, TOWN));
+	if (playerRoles.length === 1
+		&& R.head(playerRoles) === ROLES.SERIAL_KILLER) {
+		return ROLES.SERIAL_KILLER;
+	} else if (noTownLeft(playerRoles)) {
+		return 'Mafia';
+	} else if (noMafiaLeft(playerRoles)) {
+		return 'Town';
+	}
+	return 'None';
+};
+
+const findPlayerAliveByGameID = gameId =>
+	task((resolver) => {
+		PlayerModel.find({ game: gameId, isPlaying: true, died: false })
+			.then(result => (result ? resolver.resolve(result) : resolver.reject()))
+			.catch(err => resolver.reject(err));
+	});
+
+// checkWinningCondition :: (gameId) -> Boolean
+const checkWinningCondition = gameId =>
+	findPlayerAliveByGameID(gameId)
+		.map(_checkWinningCondition);
+
+// delete all players
+// delete all game
+
+const updateMafiaWon = gameId =>
+	fromPromised(PlayerModel.updateMany.bind(PlayerModel))(
+		{ game: gameId, isPlaying: true, role: MAFIA },
+		{ $set: { won: true } },
+	);
+
+const updateTownWon = gameId =>
+	fromPromised(PlayerModel.updateMany.bind(PlayerModel))(
+		{ game: gameId, isPlaying: true, role: TOWN },
+		{ $set: { won: true } },
+	);
+
+const updateSKWon = gameId =>
+	fromPromised(PlayerModel.update.bind(PlayerModel))(
+		{ game: gameId, isPlaying: true, role: ROLES.SERIAL_KILLER },
+		{ $set: { won: true } },
+	);
+
+const updateWinner = (checkResult, gameId) => {
+	if (checkResult === ROLES.SERIAL_KILLER) {
+		return updateSKWon(gameId);
+	} else if (checkResult === 'Mafia') {
+		return updateMafiaWon(gameId);
+	}
+	return updateTownWon(gameId);
+};
+
+const removeAllPlayerOfAGame = gameId =>
+	fromPromised(PlayerModel.remove.bind(PlayerModel))({ game: gameId });
+
+const removeGame = gameId =>
+	fromPromised(GameModel.remove.bind(GameModel))({ _id: gameId });
+
+// TODO: test this!
+const startGameEnd = (checkResult, gameId) =>
+	updateWinner(checkResult, gameId)
+		.chain(() => findGameByID(gameId).map(gameDoc => gameDoc.toObject()))
+		.chain(sendEventToStateUpdateTopic('[Game] GAME_ENDED'))
+		.chain(() => removeAllPlayerOfAGame(gameId))
+		.chain(() => removeGame(gameId));
+
+// TODO: check win condition
+const handleVoteEnded = ({ phase, id }) => countPlayerAliveInGame(id)
+	.map(trace('current player alive'))
+	.map(handleVoteInteractions(Interactions.get(id)))
+	.map(trace('handle Vote Interaction result: '))
+	.chain(updatePlayerChanges)
+	.map(trace('update player Changes Result: '))
+	.map(() => Interactions.clear())
+	.chain(() => checkWinningCondition(id))
+	.chain(checkResult =>
+		(checkResult === 'None'
+			? startNextPhase({ phase, id })
+			: startGameEnd(checkResult, id)));
+
+// TODO: check win condition
 const handleNightEnded = ({ phase, id }) =>
 	of(handleInteractions(Interactions.get(id)))
 		.chain(updatePlayerChanges)
 		.map(() => Interactions.clear())
 		.chain(() => clearStatus())
-		.chain(() => startNextPhase({ phase, id }));
+		.chain(() => checkWinningCondition(id))
+		.map(trace('After check winning condition'))
+		.chain(checkResult =>
+			(checkResult === 'None'
+				? startNextPhase({ phase, id })
+				: startGameEnd(checkResult, id)));
 // do this in front-end too
 
 const handlePhaseEnded = ({ phase, id }) => {

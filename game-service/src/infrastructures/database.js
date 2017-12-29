@@ -23,6 +23,7 @@ const PlayerSchema = new mongoose.Schema({
 	died: { type: Boolean, default: false },
 	lastWill: String,
 	isPlaying: { type: Boolean, default: true },
+	won: { type: Boolean, default: false },
 	game: { type: mongoose.Schema.Types.ObjectId, ref: 'Game' },
 }, { timestamps: true });
 
