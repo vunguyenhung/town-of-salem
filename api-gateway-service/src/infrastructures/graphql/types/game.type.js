@@ -7,5 +7,6 @@ exports.GameType = `
         players: [Player]!
         createdAt: String!
         updatedAt: String!
+        ended: Boolean
     }
 `;

@@ -21,6 +21,11 @@ const mapEventToStateUpdates = (event) => {
 	case '[Game] GAME_UPDATED':
 	case '[Game] GAME_CREATED':
 		return { game: event.payload, forUsers: event.payload.players.map(R.prop('username')) };
+	case '[Game] GAME_ENDED':
+		return {
+			game: { ...event.payload, ended: true },
+			forUsers: event.payload.players.map(R.prop('username')),
+		};
 	default:
 		return event.payload;
 	}
