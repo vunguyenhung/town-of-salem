@@ -5,8 +5,6 @@ const http = require('http');
 const log = require('debug')('src:index');
 const config = require('config');
 
-const server = http.createServer(app);
-
 /*
 Project file imports
  */
@@ -14,7 +12,11 @@ const StartupTasks = require('./startup-tasks');
 const { handleMessage } = require('./handle-message');
 const { createTrace } = require('./utils');
 
+const app = require('./app');
+
 const trace = createTrace('src:index');
+
+const server = http.createServer(app);
 
 server.listen(config.get('App.port'), () => {
 	log(
