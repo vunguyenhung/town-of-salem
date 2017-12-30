@@ -1,0 +1,11 @@
+{
+  "App": {
+    "port": 3005
+  },
+  "Kafka": {
+    "consumerOptions": {
+      "autoCommitIntervalMs": 1000,
+      "groupId": "message-service"
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "name": "message-service",
+  "version": "0.0.0",
+  "description": "message service for town of salem mini",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node ./src/index.js",
+    "start:local": "NODE_ENV=localhost node ./src/index.js",
+    "start:docker": "NODE_ENV=docker node ./src/index.js",
+    "serve": "DEBUG=src:*,kafka-node:* DEBUG_COLORS=true nodemon ./src/index.js",
+    "serve:local": "NODE_ENV=localhost DEBUG=src:*,kafka-node:* DEBUG_COLORS=true nodemon ./src/index.js",
+    "serve:docker": "NODE_ENV=docker DEBUG=src:*,kafka-node:* DEBUG_COLORS=true nodemon ./src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "body-parser": "^1.17.1",
+    "compression": "^1.7.0",
+    "config": "^1.27.0",
+    "debug": "^3.1.0",
+    "errorhandler": "^1.5.0",
+    "express": "^4.15.2",
+    "folktale": "^2.0.1",
+    "kafka-node-driver": "^0.1.0",
+    "mongoose": "^4.13.6",
+    "morgan": "^1.8.1",
+    "ramda": "^0.24.1",
+    "rxjs": "^5.5.0"
+  },
+  "devDependencies": {
+    "eslint": "^4.7.1",
+    "eslint-config-airbnb-base": "^12.0.0",
+    "eslint-plugin-import": "^2.7.0",
+    "nodemon": "^1.12.1"
+  },
+  "author": "vunguyenhung",
+  "license": "MIT"
+}

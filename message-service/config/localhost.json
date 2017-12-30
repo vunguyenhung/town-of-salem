@@ -1,0 +1,11 @@
+{
+  "Kafka": {
+    "clientOptions": {
+      "kafkaHost": "localhost:9092"
+    }
+  },
+  "MongoDB": {
+    "url": "mongodb://localhost:27017/tos"
+  },
+  "NODE_ENV": "localhost"
+}
