@@ -1,14 +1,15 @@
 // language=GraphQL
 exports.PlayerType = `
     type Player {
-        username: String!,
-        died: Boolean,
-        updatedAt: String,
-        createdAt: String,
-        role: String,
-        isPlaying: Boolean,
-        lastWill: String,
-		    interactionResults: [String],
+        username: String!
+        died: Boolean
+        updatedAt: String
+        createdAt: String
+        role: String
+        isPlaying: Boolean
+        lastWill: String
+		    interactionResults: [String]
 		    status: String
+		    won: Boolean
     }
 `;
