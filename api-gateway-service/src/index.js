@@ -22,25 +22,24 @@ const { handleMessage } = require('./controllers/handle-message');
 const server = http.createServer(app);
 
 server.listen(config.get('App.port'), () => {
-  SubscriptionServer.create(
-    { execute, subscribe, schema },
-    { server, path: '/graphql' },
-  );
-  log(
-    ('App is running at http://localhost:%d in %s mode'),
-    config.get('App.port'), config.get('NODE_ENV'),
-  );
+	SubscriptionServer.create(
+		{ execute, subscribe, schema },
+		{ server, path: '/graphql' },
+	);
+	log(
+		('App is running at http://localhost:%d in %s mode'),
+		config.get('App.port'), config.get('NODE_ENV'),
+	);
 });
 
 StartupTasks.start()
-  .run().promise()
-  .then((onMessage) => {
-    onMessage
-      .subscribe((messageReceived) => {
-        log('Message Received', messageReceived);
-        handleMessage(messageReceived).run().promise()
-          .then(result => log('publish result:', result));
-      });
-    // TODO: process message and send back via pubsub here
-  })
-  .catch(log);
+	.run().promise()
+	.then((onMessage) => {
+		onMessage
+			.subscribe((messageReceived) => {
+				log('Message Received', messageReceived);
+				handleMessage(messageReceived).run().promise()
+					.then(result => log('publish result:', result));
+			});
+	})
+	.catch(log);

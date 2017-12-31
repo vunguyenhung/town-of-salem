@@ -72,6 +72,17 @@ services:
     ports:
       - "3004:3004"
 
+  message-service:
+    build: ./message-service
+    command: npm start
+    depends_on:
+      - zookeeper
+      - kafka
+      - mongodb
+      - api-gateway-service
+    ports:
+      - "3005:3005"
+
   mongodb:
     image: mongo
     expose:

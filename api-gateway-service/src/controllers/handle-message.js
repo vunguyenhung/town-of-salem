@@ -1,3 +1,4 @@
+/* eslint-disable function-paren-newline */
 /*
 3rd Party library imports
  */
@@ -8,31 +9,49 @@ const log = require('debug')('src:handle-message');
 /*
 Project file imports
  */
-const { publishToStateUpdatesChannel } = require('../infrastructures/graphql/pubsub');
+const { publishToStateUpdatesChannel, publishToMessageChannel } = require(
+	'../infrastructures/graphql/pubsub');
 
 const messageToEvent = R.pipe(R.prop(['value']), JSON.parse);
 
-const mapEventToStateUpdates = (event) => {
+const handleEvent = (event) => {
 	switch (event.type) {
 	case '[Lobby] LOBBY_UPDATED':
-		return { lobby: event.payload, forUsers: event.payload.users };
+		return Task.of(publishToStateUpdatesChannel(
+			{ stateUpdates: { lobby: event.payload, forUsers: event.payload.users } }));
 	case '[Lobby] LEAVE_LOBBY':
-		return { lobby: null, forUsers: [event.payload] };
+		return Task.of(publishToStateUpdatesChannel(
+			{ stateUpdates: { lobby: null, forUsers: [event.payload] } }));
 	case '[Game] GAME_UPDATED':
 	case '[Game] GAME_CREATED':
-		return { game: event.payload, forUsers: event.payload.players.map(R.prop('username')) };
+		return Task.of(publishToStateUpdatesChannel(
+			{
+				stateUpdates: {
+					game: event.payload,
+					forUsers: event.payload.players.map(R.prop('username')),
+				},
+			}));
 	case '[Game] GAME_ENDED':
-		return {
-			game: { ...event.payload, ended: true },
-			forUsers: event.payload.players.map(R.prop('username')),
-		};
+		return Task.of(publishToStateUpdatesChannel({
+			stateUpdates: {
+				game: { ...event.payload, ended: true },
+				forUsers: event.payload.players.map(R.prop('username')),
+			},
+		}));
+	case '[Message] PUBLIC_MESSAGE_ADDED':
+		// event.payload = { game, source, message, forUsers: ['username1', 'username2'] }
+		return Task.of(publishToMessageChannel({
+			message: event.payload,
+		}));
+	case '[Message] PRIVATE_MESSAGE_ADDED':
+		// event.payload = { message: { game, source, target, message }, forUsers: [source, target] }
+		return Task.of(publishToMessageChannel({
+			message: event.payload,
+		}));
 	default:
-		return event.payload;
+		return Task.of('Event not handled!');
 	}
 };
-
-const handleEvent = event =>
-	Task.of(publishToStateUpdatesChannel({ stateUpdates: mapEventToStateUpdates(event) }));
 
 const handleMessage = message =>
 	Task.of(messageToEvent(message))

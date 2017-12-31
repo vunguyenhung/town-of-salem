@@ -7,5 +7,6 @@
   "MongoDB": {
     "url": "mongodb://mongodb:27017/tos"
   },
-  "NODE_ENV": "docker"
+  "NODE_ENV": "docker",
+  "GameServiceEndpoint": "http://game-service:3003"
 }

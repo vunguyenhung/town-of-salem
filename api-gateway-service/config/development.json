@@ -7,5 +7,6 @@
   "NODE_ENV": "docker",
   "AuthenticationServiceEndpoint": "http://authentication-service:3001/auth",
   "LobbyServiceEndpoint": "http://lobby-service:3002",
-  "GameServiceEndpoint": "http://game-service:3003"
+  "GameServiceEndpoint": "http://game-service:3003",
+  "MessageServiceEndpoint": "http://message-service:3005"
 }

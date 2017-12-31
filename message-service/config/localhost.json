@@ -7,5 +7,6 @@
   "MongoDB": {
     "url": "mongodb://localhost:27017/tos"
   },
-  "NODE_ENV": "localhost"
+  "NODE_ENV": "localhost",
+  "GameServiceEndpoint": "http://localhost:3003"
 }

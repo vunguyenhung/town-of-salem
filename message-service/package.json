@@ -24,7 +24,8 @@
     "mongoose": "^4.13.6",
     "morgan": "^1.8.1",
     "ramda": "^0.24.1",
-    "rxjs": "^5.5.0"
+    "rxjs": "^5.5.0",
+    "superagent": "^3.8.2"
   },
   "devDependencies": {
     "eslint": "^4.7.1",

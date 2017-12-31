@@ -426,6 +426,13 @@ const findPlayerAliveByGameID = gameId =>
 			.catch(err => resolver.reject(err));
 	});
 
+const getPlayersByGameId = gameId =>
+	task((resolver) => {
+		PlayerModel.find({ game: gameId })
+			.then(result => (result.length > 0 ? resolver.resolve(result) : resolver.reject()))
+			.catch(err => resolver.reject(err));
+	});
+
 // checkWinningCondition :: (gameId) -> Boolean
 const checkWinningCondition = gameId =>
 	findPlayerAliveByGameID(gameId)
@@ -467,7 +474,6 @@ const removeAllPlayerOfAGame = gameId =>
 const removeGame = gameId =>
 	fromPromised(GameModel.remove.bind(GameModel))({ _id: gameId });
 
-// TODO: test this!
 const startGameEnd = (checkResult, gameId) =>
 	updateWinner(checkResult, gameId)
 		.chain(() => findGameByID(gameId).map(gameDoc => gameDoc.toObject()))
@@ -475,7 +481,6 @@ const startGameEnd = (checkResult, gameId) =>
 		.chain(() => removeAllPlayerOfAGame(gameId))
 		.chain(() => removeGame(gameId));
 
-// TODO: check win condition
 const handleVoteEnded = ({ phase, id }) => countPlayerAliveInGame(id)
 	.map(trace('current player alive'))
 	.map(handleVoteInteractions(Interactions.get(id)))
@@ -489,7 +494,6 @@ const handleVoteEnded = ({ phase, id }) => countPlayerAliveInGame(id)
 			? startNextPhase({ phase, id })
 			: startGameEnd(checkResult, id)));
 
-// TODO: check win condition
 const handleNightEnded = ({ phase, id }) =>
 	of(handleInteractions(Interactions.get(id)))
 		.chain(updatePlayerChanges)
@@ -518,4 +522,5 @@ module.exports = {
 	updateLastWill,
 	handlePhaseEnded,
 	handleInteraction,
+	getPlayersByGameId,
 };

@@ -10,13 +10,18 @@ const router = express.Router();
 Project file imports
  */
 const { getMessagesByGameId } = require('./entity');
+const { createTrace } = require('./utils');
 
-router.get('/', (req, res) => {
-	const gameId = req.get('gameId');
+const trace = createTrace('src:rest');
+
+router.get('/messages/:gameId', (req, res) => {
+	const { gameId } = req.params;
+	trace('gameId when receiving request:', `${gameId}, type: ${typeof gameId}`);
 	getMessagesByGameId(gameId)
+		.map(trace('after get messages by GameID: '))
 		.run()
 		.promise()
-		.then(result => res.status(200).json(result.toObject()))
+		.then(result => res.status(200).json(result))
 		.catch(err => res.status(404).end(err));
 });
 

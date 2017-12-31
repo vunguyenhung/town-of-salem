@@ -8,5 +8,5 @@
       "groupId": "lobby-service"
     }
   },
-  "LobbyCapacity": 15
+  "LobbyCapacity": 1
 }

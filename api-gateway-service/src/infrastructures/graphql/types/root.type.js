@@ -14,11 +14,19 @@ exports.RootType = `
         username: String!
         died: Boolean!
         role: String!
-		    status: String
-		    interactionResults: [String]
+        status: String
+        interactionResults: [String]
+    }
+
+    input MessageInput {
+        source: String!
+        target: String
+        message: String!
+        gameId: String!
     }
 
     type Query {
+        currentMessages(gameId: String!): [Message]
         currentState(token: String!): AppState
         login(user: UserInput!): String!
     }
@@ -29,9 +37,12 @@ exports.RootType = `
         leaveLobby(token: String!): String
         updateLastWill(token: String!, lastWill: String!): String
         interact(gameId: String!, source: PlayerInput!, target: PlayerInput!): String
+        addPublicMessage(message: MessageInput!): String
+        addPrivateMessage(message: MessageInput!): String
     }
 
     type Subscription {
         stateUpdates(token: String!): AppState
+        message(token: String!): Message
     }
 `;

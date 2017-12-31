@@ -1,3 +1,7 @@
 query login($user: UserInput!){
     login(user: $user)
 }
+
+query currentMessages($gameId: String!){
+    currentMessages(gameId: $gameId)
+}

@@ -22,11 +22,7 @@ const createExpressApp = () => {
 
 	app.use(errorHandler());
 
-	app.get('/', (req, res) => {
-		res.end('App is running');
-	});
-
-	app.use('/state', rest);
+	app.use('/', rest);
 
 	return app;
 };

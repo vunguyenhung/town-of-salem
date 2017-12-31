@@ -17,3 +17,11 @@ mutation updateLastWill($token: String!, $lastWill: String!){
 mutation interact($gameId: String!, $source: PlayerInput!, $target: PlayerInput!){
     interact(gameId: $gameId, source: $source, target: $target)
 }
+
+mutation addPublicMessage($message: MessageInput!){
+    addPublicMessage(message: $message)
+}
+
+mutation addPrivateMessage($message: MessageInput!){
+    addPrivateMessage(message: $message)
+}

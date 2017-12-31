@@ -82,6 +82,19 @@ services:
     volumes:
       - ./phase-service/src:/phase-service/src
 
+  message-service:
+    build: ./message-service
+    command: npm run serve
+    depends_on:
+      - zookeeper
+      - kafka
+      - mongodb
+      - api-gateway-service
+    ports:
+      - "3005:3005"
+    volumes:
+      - ./message-service/src:/message-service/src
+
   mongodb:
     image: mongo
     ports:

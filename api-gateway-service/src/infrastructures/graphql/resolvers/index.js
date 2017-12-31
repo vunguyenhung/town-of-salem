@@ -7,6 +7,7 @@ const { combineResolvers } = require('apollo-resolvers');
 Project file imports
  */
 const { stateUpdates } = require('./state.resolver');
+const { message } = require('./message.resolver');
 const { login } = require('./login.resolver');
 const { register } = require('./register.resolver');
 const { lobby } = require('./lobby.resolver');
@@ -18,6 +19,7 @@ const resolvers = combineResolvers([
 	lobby,
 	stateUpdates,
 	game,
+	message,
 ]);
 
 exports.resolvers = resolvers;
